@@ -75,3 +75,60 @@ Después se republica `artefacto.html` con la carpeta `data/`. Detalle en `READM
 ## Capturas
 
 En la carpeta `capturas/`: tier list, héroes, ficha de Abrams, build recomendada, orden de habilidades, creador de builds, objetos, composiciones, guía de itemización, móvil y tema claro.
+
+---
+
+# Segunda entrega (23-10-2026): build por fases, cuándo comprar y plan de mapa
+
+**Estado:** terminado en local (`index.html`, `node scripts/servir.js` o doble clic). **No está publicado**: ni en GitHub Pages ni en el Artifact, hasta que des el visto bueno.
+
+## Qué pediste y qué hay
+
+| Pedido | Dónde está |
+|---|---|
+| Build como en el editor del juego: por fases, núcleo a la izquierda y situacionales «Opcional» a la derecha, con su explicación | Ficha de cada héroe › **Build recomendada** (44 héroes, 3 fases: 0-10, 10-22 y 22+). En el móvil los situacionales van debajo, plegados. |
+| Cuándo comprar cada objeto, con cuántas almas o en qué situación | En cada tarjeta: minuto, almas y % de compra **reales** de ese héroe (14 días), «Cuándo» o «Cómpralo si», qué sustituye y por qué. En la ficha de cada uno de los 173 objetos: cuándo comprarlo, señales, cuándo no, cuándo venderlo, quién lo compra y qué builds del Taller lo recomiendan. |
+| Copiar para hacerlo en el juego | Botones «Copiar» para el nombre y la descripción de la build y de cada categoría, «Copiar nota» por objeto y «Copiar build completa». La pestaña «Cómo pasar esta build al juego» explica los pasos. «Abrir en el creador» la deja editable con las categorías opcionales a la derecha. |
+| Mejoras de los puentes: cuáles coger con cada héroe | Ficha › **Plan de mapa**: los 4 tipos (Arma, Supervivencia, Lanzamiento, Movimiento) ordenados por prioridad para ese héroe, con «siempre», «si estás cerca» o «no merece la pena». |
+| Cuándo rotar a la jungla y en qué minutos; cuándo hacer las cajas | Plan de mapa › **Minuto a minuto** (de 0:00 a 30:00+), **Jungla: cuándo y por dónde** y **Cajas**. |
+| Rutas eficientes para cada héroe | Plan de mapa › rutas dibujadas sobre el minimapa, eligiendo tu base (Abajo = Hidden King, Arriba = Archmother), tu carril y la etapa (temprana, media, Walker…). 211 rutas asignadas a los 44 héroes. |
+| (Extra) Guía del mapa | Guía › **Mapa y jungla**: mejoras de puente y permanentes, mapa con capas (campamentos, puentes, urna, grieta, zonas de cajas, contenedores, cajas duras, tiendas), cronología, oleadas, rutas por carril y los 51 campamentos. |
+
+## Una corrección importante
+
+**Las mejoras de los puentes no son permanentes.** Salen a las 5:00 (no a las 10:00) y luego cada 5 minutos, una en cada puente; duran 160 s, se pierden al morir y se cogen con un golpe pesado. Lo que pasa a las 10:00 y confunde: la segunda tanda de los puentes, la Urna de almas (4 mejoras permanentes a quien la entrega), las mejoras permanentes suben a nivel 2 y, entre las 10:00 y las 12:00, la Grieta. Las permanentes salen de contenedores dorados (50 %), Sinner's Sacrifice (desde las 8:00), la Urna, el jefe central y Golden Goose Egg. La web lo explica en la ficha y en la guía.
+
+## Cómo se hizo
+
+1. **Investigación (21 agentes):** mecánicas del mapa con la API y la wiki, el cuándo de los 173 objetos y la build por fases y plan de mapa de los 44 héroes (8 lotes, cada uno revisado por un verificador que contrastó cada cifra con los datos reales), más un revisor crítico final.
+2. **Datos reales nuevos:** `scripts/compras.js` saca de la API, para cada héroe y objeto, el minuto medio de compra y las almas que se llevan en ese momento (14 días).
+3. **Construcción a una sola mano** de las vistas (`src/fases.js`).
+4. **Revisión repartida en tres rondas** (PC, móvil, velocidad, textos y datos; 12 agentes en total). En la última no quedó ningún fallo grave visual y se corrigió lo que encontró.
+
+## Cambios que tomé sin preguntarte
+
+- Las cifras de cada tarjeta salen de los datos del día; los textos ya no las repiten, así no se desfasan con cada actualización.
+- Seis objetos situacionales pasaron de la fase inicial a la media porque, en partidas reales, se compran después del minuto 15.
+- El Golden Goose Egg de Seven y Sinclair decía «rómpelo en el min 10-16»; lo cambié a 20-24, que es lo que hacen sus jugadores.
+- Con la base arriba, cuando un campamento no tiene un equivalente exacto (el mapa es casi simétrico, no del todo), el paso se marca «equivalente aproximado».
+- Más rápida: cada sección solo descarga lo que usa, las imágenes pesan bastante menos (iconos de 6,9 a 3,2 MB; cartas de héroe de 2,3 a 0,5 MB) y los datos quedan en la caché del navegador hasta que cambian. La portada descarga un 65 % menos y la ficha en el móvil abre en la mitad de tiempo.
+
+## Lo que falta
+
+- **Publicar.** Hace falta tu visto bueno: subir a GitHub (la tarea diaria lo publica en GitHub Pages) y volver a publicar el Artifact.
+- **Ficha en frío:** la primera vez que se abre un héroe directamente, descarga 1,3 MB de datos de todos los héroes. Partirlos por héroe la haría bastante más rápida.
+- **Doble clic:** `data/datos.js` pesa 6,4 MB y se carga entero.
+- **Rutas «arriba» escritas a mano:** con la base arriba, las rutas son las de abajo giradas; los consejos escritos de cada héroe siguen redactados para la base de abajo (la web lo avisa).
+- **Algunas cifras vienen de otras fuentes** (rango Phantom o superior, guías de la comunidad) y se indica así; los minutos recomendados para los T4 de 6 héroes van 2-7 min por detrás de la media real.
+- **Las rutas son propuestas razonadas** a partir del mapa y los tiempos de los campamentos, no rutas publicadas por jugadores profesionales.
+
+## Fuentes de esta entrega
+
+- api.deadlock-api.com: mapa (`/v1/assets/map`), entidades (`misc-entities`), datos generales, PNJ en español, estadísticas de compra por héroe y objeto, curva de almas por minuto.
+- deadlock.wiki: páginas del mapa, mejoras de puente, Urna, Grieta, Sinner's Sacrifice, cajas y campamentos.
+- Guías por héroe de tracklock.gg, deadlocktracker.gg, mobalytics, statlocker, Steam, Reddit y YouTube (citadas en cada ficha).
+- Las fuentes del mapa están en Guía › Mapa y jungla › Fuentes.
+
+## Capturas de esta entrega
+
+`capturas/12-build-por-fases-pc.png`, `13-build-por-fases-movil.png`, `14-plan-de-mapa-puentes.png`, `15-ruta-jungla-base-arriba.png`, `16-guia-mapa-zonas-de-cajas.png`, `17-panel-huevo-de-oro.png`, `18-creador-dos-columnas.png`, `19-movil-ruta-jungla.png`.

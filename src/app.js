@@ -3,7 +3,7 @@
    Taller de Deadlock — núcleo: datos, utilidades, router, almacén
    ============================================================ */
 
-const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null };
+const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null, compras: null, fases: {}, mapa: null };
 const IDX = { heroPorId: {}, heroPorClase: {}, heroPorNombre: {}, objPorClase: {}, objPorId: {}, objPorNombre: {} };
 const PREF = (() => {
   let p = { nombres: 'en', ventana: '7d', bracket: 'todos', fuenteTier: 'datos' };
@@ -18,6 +18,12 @@ const TIPOS_HEROE = { marksman: 'Tirador', mystic: 'Místico', brawler: 'Luchado
 const TIERS = ['S', 'A', 'B', 'C', 'D'];
 
 /* ---------- Utilidades DOM y formato ---------- */
+// Red de seguridad: el append() nativo escribe como texto los arrays ("url1,url2") y los null ("null").
+// Aquí se aplanan y se descartan, igual que hace el().
+(() => {
+  const nativo = Element.prototype.append;
+  Element.prototype.append = function (...hijos) { return nativo.apply(this, hijos.flat(Infinity).filter((x) => x != null && x !== false)); };
+})();
 const $ = (sel, raiz = document) => raiz.querySelector(sel);
 const $$ = (sel, raiz = document) => Array.from(raiz.querySelectorAll(sel));
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -30,15 +36,24 @@ function el(tag, attrs, ...hijos) {
     else if (k === 'text') e.textContent = v;
     else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
     else if (k === 'dataset') Object.assign(e.dataset, v);
-    else if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else if (k === 'style' && typeof v === 'object') { for (const [p, val] of Object.entries(v)) { if (val == null) continue; if (p.startsWith('--')) e.style.setProperty(p, val); else e.style[p] = val; } }
     else e.setAttribute(k, v === true ? '' : v);
   }
   for (const h of hijos.flat(Infinity)) { if (h == null || h === false) continue; e.append(h instanceof Node ? h : document.createTextNode(String(h))); }
   return e;
 }
 const fmtNum = new Intl.NumberFormat('es-ES');
-function fmt(n, dec = 0) { if (n == null || Number.isNaN(n)) return '—'; return new Intl.NumberFormat('es-ES', { maximumFractionDigits: dec, minimumFractionDigits: 0 }).format(n); }
-function fmtPct(n, dec = 1) { if (n == null) return '—'; return fmt(n, dec) + ' %'; }
+// El formato es-ES no agrupa los números de 4 cifras (2300); aquí se fuerza el punto (2.300).
+// Un formateador por nº de decimales: crearlo en cada llamada era lo más caro al pintar.
+const FORMATEADORES = new Map();
+function fmt(n, dec = 0) {
+  if (n == null || Number.isNaN(n)) return '—';
+  let f = FORMATEADORES.get(dec);
+  if (!f) FORMATEADORES.set(dec, (f = new Intl.NumberFormat('es-ES', { maximumFractionDigits: dec, minimumFractionDigits: 0 })));
+  return f.format(n).replace(/^(-?\d)(\d{3})(?=,|$)/, '$1.$2');
+}
+// Espacio duro antes de «%» para que no se separe del número al partir la línea
+function fmtPct(n, dec = 1) { if (n == null) return '—'; return fmt(n, dec) + ' %'; }
 function fmtSouls(n) { if (n == null) return '—'; return fmt(n) + ' almas'; }
 function fmtFecha(ts) {
   if (!ts) return '—';
@@ -58,10 +73,12 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 /** Texto de la API con marcas {{Clase|texto}} y **negrita** → HTML seguro */
 function rico(texto) {
   if (!texto) return '';
-  let s = esc(texto);
+  // Caracteres invisibles de unión y la terminación de género «vivo/a» de los textos del juego
+  let s = esc(String(texto).replace(/[⁠​]/g, '').replace(/([a-záéíóúñ])\/a\b/g, '$1'));
   s = s.replace(/\{\{([A-Za-z_]+)\|([^}]*)\}\}/g, (m, c, t) => `<span class="atr atr-${esc(c)}">${t}</span>`);
   s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
-  s = s.replace(/\n/g, '<br>');
+  // Los textos del juego traen saltos de línea a mitad de frase: si sigue minúscula, es la misma frase
+  s = s.replace(/\n(?=[a-záéíóúñ])/g, ' ').replace(/\n/g, '<br>');
   return s;
 }
 
@@ -72,8 +89,8 @@ function nombreO(o) { if (!o) return '—'; return PREF.nombres === 'es' ? o.nom
 function nombreOAlt(o) { if (!o || o.nombre === o.nombre_es) return ''; return PREF.nombres === 'es' ? o.nombre : o.nombre_es; }
 function heroe(idOClase) { return IDX.heroPorId[idOClase] || IDX.heroPorClase[idOClase] || IDX.heroPorNombre[sinAcentos(idOClase)] || null; }
 function objeto(x) { if (!x) return null; return IDX.objPorClase[x] || IDX.objPorId[x] || IDX.objPorNombre[sinAcentos(x)] || null; }
-function imgH(h, clase = 'icono-heroe') { return el('img', { src: h.imagen.icono, alt: nombreH(h), class: clase, loading: 'lazy', width: 36, height: 36 }); }
-function imgO(o, attrs = {}) { return el('img', Object.assign({ src: o.imagen, alt: nombreO(o), loading: 'lazy', class: RANURAS[o.ranura] ? RANURAS[o.ranura].clase : '', title: nombreO(o) + ' · ' + fmtSouls(o.coste) }, attrs)); }
+function imgH(h, clase = 'icono-heroe') { return el('img', { loading: 'lazy', src: h.imagen.icono, alt: nombreH(h), class: clase, width: 36, height: 36 }); }
+function imgO(o, attrs = {}) { return el('img', Object.assign({ loading: 'lazy', src: o.imagen, alt: nombreO(o), class: RANURAS[o.ranura] ? RANURAS[o.ranura].clase : '', title: nombreO(o) + ' · ' + fmtSouls(o.coste) }, attrs)); }
 function chipH(h, extra, mini) {
   const a = el('a', { class: 'heroe-chip' + (mini ? ' mini' : ''), href: '#heroe-' + h.clase }, imgH(h, ''), el('span', null, nombreH(h)));
   if (extra != null) a.append(el('span', { class: 'num' }, extra));
@@ -119,6 +136,12 @@ function toast(msg, ms = 2600) {
   const t = el('div', { class: 'toast' }, msg); $('#toasts').append(t);
   setTimeout(() => t.remove(), ms);
 }
+/** Aviso con botón «Deshacer» (para acciones que borran algo sin confirmar) */
+function toastDeshacer(msg, deshacer, ms = 6000) {
+  const t = el('div', { class: 'toast con-accion' }, el('span', null, msg), el('button', { type: 'button', class: 'boton mini', onclick: () => { t.remove(); deshacer(); } }, 'Deshacer'));
+  $('#toasts').append(t);
+  setTimeout(() => t.remove(), ms);
+}
 let modalActual = null;
 function abrirModal(titulo, contenido, opciones = {}) {
   cerrarModal();
@@ -148,6 +171,14 @@ function abrirPanel(contenido, titulo) {
 function abrirObjeto(o) {
   if (typeof o === 'string') o = objeto(o);
   if (!o) return;
+  // El panel usa la guía de objetos y los datos de compra: si aún no han llegado, se abre al llegar
+  const necesita = ['objGuia', 'compras', 'fases'];
+  if (!hayDatos(necesita)) {
+    toast('Cargando la ficha de ' + nombreO(o) + '…', 1800);
+    const ruta = rutaActual;
+    asegurarDatos(necesita).then(() => { if (rutaActual === ruta) abrirObjeto(o); });
+    return;
+  }
   const r = RANURAS[o.ranura] || {};
   const g = guiaObjeto(o);
   const st = D.objStats && D.objStats.objetos[o.id];
@@ -157,23 +188,61 @@ function abrirObjeto(o) {
     el('div', { class: 'fila', style: { marginTop: '6px' } }, el('span', { class: 'chip ' + r.clase }, r.nombre || o.ranura), el('span', { class: 'chip' }, o.tier >= 5 ? 'Solo Street Brawl' : 'Tier ' + o.tier), el('span', { class: 'chip num' }, o.tier >= 5 ? 'no está en partida normal' : fmtSouls(o.coste)), o.activo ? el('span', { class: 'chip laton' }, 'Activo' + (o.enfriamiento ? ' · ' + o.enfriamiento + ' s' : '')) : null, o.imbuir ? el('span', { class: 'chip laton' }, 'Imbuir') : null))));
   if (g && g.resumen) cont.append(el('p', { class: 'sec', style: { fontSize: '1.02rem' } }, g.resumen));
   const stats = o.stats.filter((s) => s.etiqueta !== s.clave);
-  if (stats.length) cont.append(el('div', { class: 'stats-lista' }, stats.map((s) => el('div', { class: 'stat' }, el('span', null, s.etiqueta), el('b', null, (s.valor > 0 && !/Penal|Reducci|Penalty/.test(s.etiqueta) ? '+' : '') + fmt(s.valor, 2) + s.sufijo)))));
+  if (stats.length) cont.append(el('div', { class: 'stats-lista' }, stats.map((s) => el('div', { class: 'stat' }, el('span', null, s.etiqueta), el('b', null, (s.valor > 0 && !/Penal|Reducci|Penalty|Tiempo|Acumulaci|Frecuencia|Duraci|Enfriamiento/.test(s.etiqueta) ? '+' : '') + fmt(s.valor, 2) + (s.sufijo === 'm' && /esprint|velocidad/i.test(s.etiqueta) ? ' m/s' : s.sufijo))))));
   const bloques = [['Pasiva', o.pasiva || o.descripcion], ['Activa', o.activa]].filter((b) => b[1]);
-  for (const [t, txt] of bloques) cont.append(el('h4', null, t), el('div', { class: 'desc', html: rico(txt) }));
+  for (const [t, txt] of bloques) cont.append(el('h3', { class: 'sub' }, t), el('div', { class: 'desc', html: rico(txt) }));
+  // Cuándo comprarlo: dato real (minuto y almas medias) + guía concreta
+  const cg = compraGlobal(o.clase);
+  if (o.tier < 5 && (cg || (g && g.cuando))) {
+    const caja = el('section', { class: 'cuando-caja' }, el('h3', { class: 'sub' }, 'Cuándo comprarlo'));
+    if (cg) caja.append(el('p', { class: 'pequeno' }, 'En partidas reales se compra de media hacia el ', el('b', { class: 'num' }, 'min ' + fmt(cg.min, 1)), ', cuando se llevan unas ', el('b', { class: 'num' }, fmt(cg.almas) + ' almas'), ' acumuladas (14 días, todos los héroes).'));
+    // La primera frase de la guía («Media global min X con…») repite el párrafo de datos de arriba
+    let cuandoG = g && g.cuando ? String(g.cuando) : '';
+    if (cg && cuandoG) cuandoG = cuandoG.replace(/^Media global:?\s*(?:min(?:uto)?\s*)?[\d,]+ con ~?[\d.]+ almas(?:\s*\([^)]*\))?[;.,]\s*/, '').replace(/^([a-záéíóúñ])/, (m) => m.toUpperCase());
+    if (cuandoG) caja.append(el('p', { class: 'sec' }, cuandoG));
+    if (g && (g.senales || []).length) caja.append(el('div', { class: 'etiqueta' }, 'Señales para comprarlo'), el('ul', { class: 'sec pequeno' }, g.senales.map((s) => el('li', null, s))));
+    if (g && g.no_comprar_si) caja.append(el('p', { class: 'sec pequeno' }, el('b', null, 'No lo compres si: '), g.no_comprar_si));
+    if (g && g.vender) caja.append(el('p', { class: 'sec pequeno' }, el('b', null, 'Vender o mejorar: '), g.vender));
+    if (g && g.nota_juego) caja.append(lineaJuego('Nota para el juego', g.nota_juego));
+    cont.append(caja);
+  }
   if (g) {
-    if (g.para_que) cont.append(el('h4', null, '¿Cuándo comprarlo?'), el('p', { class: 'sec' }, g.para_que));
-    if (g.contra) cont.append(el('h4', null, 'Especialmente bueno contra'), el('p', { class: 'sec' }, g.contra));
+    if (g.para_que) cont.append(el('h3', { class: 'sub' }, 'Para qué sirve'), el('p', { class: 'sec' }, g.para_que));
+    if (g.contra) cont.append(el('h3', { class: 'sub' }, 'Especialmente bueno contra'), el('p', { class: 'sec' }, g.contra));
     if (g.etiquetas && g.etiquetas.length) cont.append(el('div', { class: 'etiquetas-obj', style: { marginTop: '8px' } }, g.etiquetas.map((t) => el('span', { class: 'chip' }, etiquetaObj(t)))));
   }
-  if (o.componente) { const c = objeto(o.componente); if (c) cont.append(el('h4', null, 'Se mejora desde'), el('div', null, chipO(c))); }
+  if (o.componente) { const c = objeto(o.componente); if (c) cont.append(el('h3', { class: 'sub' }, 'Se mejora desde'), el('div', null, chipO(c))); }
   const mejoras = D.objetos.filter((x) => x.componente === o.clase);
-  if (mejoras.length) cont.append(el('h4', null, 'Se puede mejorar a'), el('div', { class: 'fila' }, mejoras.map((m) => chipO(m))));
-  if (st) cont.append(el('h4', null, 'Uso en los últimos 14 días'), el('div', { class: 'fila', style: { gap: '14px' } }, el('span', null, 'Winrate ', el('b', { class: 'num' }, fmtPct(st.wr))), el('span', null, 'Compra media al min ', el('b', { class: 'num' }, st.compra_min || '—')), el('span', null, 'Partidas ', el('b', { class: 'num' }, fmt(st.partidas)))));
-  // Héroes que más lo compran (según objetos populares por fase)
-  const compradores = [];
-  for (const h of D.heroes) { if (!h.populares) continue; let mejor = 0, fase = ''; for (const f of ['inicio', 'medio', 'final']) for (const p of h.populares[f]) if (p.clase === o.clase && p.pick > mejor) { mejor = p.pick; fase = f; } if (mejor >= 15) compradores.push({ h, pick: mejor, fase }); }
-  compradores.sort((a, b) => b.pick - a.pick);
-  if (compradores.length) cont.append(el('h4', null, 'Quién lo compra más'), el('div', { class: 'fila' }, compradores.slice(0, 10).map((c) => chipH(c.h, fmtPct(c.pick, 0), true))));
+  if (mejoras.length) cont.append(el('h3', { class: 'sub' }, 'Se puede mejorar a'), el('div', { class: 'fila' }, mejoras.map((m) => chipO(m))));
+  if (st) cont.append(el('h3', { class: 'sub' }, 'Uso en los últimos 14 días'), el('div', { class: 'fila', style: { gap: '14px' } }, el('span', null, 'Gana el ', el('b', { class: 'num' }, fmtPct(st.wr)), ' de las partidas en que se compra'), el('span', null, 'Partidas ', el('b', { class: 'num' }, fmt(st.partidas)))));
+  // Quién lo compra y cuándo (datos reales por héroe); si no hay, los objetos populares por fase
+  const porHeroe = [];
+  for (const h of D.heroes) { const x = compraDe(h, o.clase); if (x && x.pick >= 3) porHeroe.push({ h, ...x }); }
+  porHeroe.sort((a, b) => b.pick - a.pick);
+  if (porHeroe.length) {
+    cont.append(el('h3', { class: 'sub' }, 'Quién lo compra y cuándo'), el('div', { class: 'lista-compradores' }, porHeroe.slice(0, 10).map((c) => el('div', { class: 'comprador' }, chipH(c.h, fmtPct(c.pick, 0), true),
+      el('span', { class: 'num pequeno sec' }, 'min ' + c.min.toFixed(1).replace('.', ',') + ' · ~' + fmt(c.almas) + ' almas' + (c.vendido >= 50 && c.venta_min ? ' · se vende hacia el min ' + fmt(c.venta_min, 0) : ''))))));
+  } else {
+    const compradores = [];
+    for (const h of D.heroes) { if (!h.populares) continue; let mejor = 0; for (const f of ['inicio', 'medio', 'final']) for (const p of h.populares[f]) if (p.clase === o.clase && p.pick > mejor) mejor = p.pick; if (mejor >= 15) compradores.push({ h, pick: mejor }); }
+    compradores.sort((a, b) => b.pick - a.pick);
+    if (compradores.length) cont.append(el('h3', { class: 'sub' }, 'Quién lo compra más'), el('div', { class: 'fila' }, compradores.slice(0, 10).map((c) => chipH(c.h, fmtPct(c.pick, 0), true))));
+  }
+  // Builds del Taller que lo recomiendan (por fase), con enlace a la ficha del héroe
+  const enTaller = [];
+  for (const h of D.heroes) {
+    const f = typeof fasesDe === 'function' ? fasesDe(h) : null; if (!f) continue;
+    for (const fa of f.fases || []) {
+      const nombreFase = ({ inicial: 'inicial', media: 'media', avanzada: 'avanzada' })[fa.fase] || fa.fase;
+      if ((fa.nucleo || []).some((e) => e.clase === o.clase)) enTaller.push({ h, txt: 'núcleo, fase ' + nombreFase });
+      else if ((fa.situacionales || []).some((e) => e.clase === o.clase)) enTaller.push({ h, txt: 'situacional, fase ' + nombreFase });
+    }
+  }
+  if (enTaller.length) {
+    const vistos = new Set(); const unicos = enTaller.filter((x) => (vistos.has(x.h.id) ? false : vistos.add(x.h.id)));
+    cont.append(el('h3', { class: 'sub' }, 'Lo recomiendan las builds del Taller'), el('div', { class: 'lista-compradores' }, unicos.slice(0, 14).map((x) => el('div', { class: 'comprador' }, chipH(x.h, null, true), el('span', { class: 'pequeno sec' }, x.txt)))),
+      unicos.length > 14 ? el('p', { class: 'muted pequeno' }, 'Y ' + (unicos.length - 14) + ' héroes más.') : '');
+  }
   cont.append(el('div', { style: { marginTop: '16px' } }, el('a', { class: 'boton mini', href: '#objetos', onclick: cerrarPanel }, 'Ver todos los objetos')));
   abrirPanel(cont, nombreO(o));
 }
@@ -220,7 +289,7 @@ function decodificarBuild(c) {
   try {
     const b = JSON.parse(decodeURIComponent(escape(atob(c.trim()))));
     if (!b || !b.heroe || !Array.isArray(b.categorias)) return null;
-    b.categorias = b.categorias.map((cat) => ({ nombre: String((cat && cat.nombre) || 'Objetos'), objetos: Array.isArray(cat && cat.objetos) ? cat.objetos.filter((x) => x && objeto(x.clase)).map((x) => ({ clase: x.clase, nota: String(x.nota || '') })) : [] }));
+    b.categorias = b.categorias.map((cat) => ({ nombre: String((cat && cat.nombre) || 'Objetos'), descripcion: String((cat && cat.descripcion) || ''), opcional: cat && cat.opcional != null ? !!cat.opcional : undefined, objetos: Array.isArray(cat && cat.objetos) ? cat.objetos.filter((x) => x && objeto(x.clase)).map((x) => ({ clase: x.clase, nota: String(x.nota || '') })) : [] }));
     b.desbloqueo = Array.isArray(b.desbloqueo) ? b.desbloqueo.filter((x) => [1, 2, 3, 4].includes(x)) : [];
     b.orden = Array.isArray(b.orden) ? b.orden.filter((x) => x && [1, 2, 3, 4].includes(x.h)).map((x) => ({ h: x.h, pa: [1, 2, 5].includes(x.pa) ? x.pa : 1 })) : [];
     b.nombre = String(b.nombre || 'Build importada'); b.notas = String(b.notas || '');
@@ -230,6 +299,13 @@ function decodificarBuild(c) {
 }
 async function copiar(texto) {
   try { await navigator.clipboard.writeText(texto); toast('Copiado al portapapeles'); return true; } catch (e) {
+    // Segundo intento: método clásico (funciona donde la API moderna está bloqueada)
+    try {
+      const oculto = el('textarea', { style: { position: 'fixed', top: '-1000px', opacity: '0' } }, texto);
+      document.body.append(oculto); oculto.select();
+      const ok = document.execCommand('copy'); oculto.remove();
+      if (ok) { toast('Copiado al portapapeles'); return true; }
+    } catch (e2) { /* sigue al cuadro manual */ }
     const ta = el('textarea', { class: 'entrada', style: { width: '100%', height: '120px' } }, texto);
     abrirModal('Copia el texto', el('div', null, el('p', { class: 'sec' }, 'Tu navegador no permite copiar automáticamente. Selecciónalo y cópialo:'), ta)); ta.select(); return false;
   }
@@ -263,6 +339,7 @@ const RUTAS = {};
 let rutaActual = '';
 function tokenRuta() { const h = (location.hash || '#tier').slice(1); try { return decodeURIComponent(h) || 'tier'; } catch (e) { return 'tier'; } }
 function ir(token) { if (location.hash !== '#' + token) location.hash = token; else render(); }
+let rutaPintada = '';
 function render() {
   const token = tokenRuta();
   const [base, ...resto] = token.split('-');
@@ -270,7 +347,18 @@ function render() {
   const vista = RUTAS[base] || RUTAS.tier;
   rutaActual = token;
   const raiz = $('#vista'); raiz.innerHTML = '';
-  cerrarPanel(); cerrarModal();
+  // Solo al cambiar de sección: un repintado de la misma (al llegar datos) no cierra lo que el lector abrió
+  if (token !== rutaPintada) { cerrarPanel(); cerrarModal(); }
+  rutaPintada = token;
+  // Si la sección necesita datos que aún no han llegado, se espera a ellos (solo a esos) y se vuelve a pintar
+  const necesita = datosDeRuta(token);
+  if (!hayDatos(necesita)) {
+    const activaN = { heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base;
+    $$('#nav a').forEach((a) => a.classList.toggle('activo', a.dataset.ruta === activaN));
+    raiz.append(el('div', { class: 'vacio cargando' }, 'Cargando…'));
+    asegurarDatos(necesita).then(() => { if (rutaActual === token) render(); });
+    return;
+  }
   try { const out = vista(param, token); if (out) raiz.append(out); } catch (e) { console.error(e); raiz.append(el('div', { class: 'vacio' }, 'No se pudo mostrar esta sección. ', el('a', { href: '#tier' }, 'Volver al inicio'))); }
   const activa = { heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base;
   $$('#nav a').forEach((a) => a.classList.toggle('activo', a.dataset.ruta === activa));
@@ -305,6 +393,8 @@ function montarBusqueda() {
     e.preventDefault(); items.forEach((a, i) => a.classList.toggle('sel', i === sel));
   });
   document.addEventListener('click', (e) => { if (!e.target.closest('.cabecera-acciones')) cerrar(); });
+  // Si el lector ya escribió mientras cargaban los datos, se busca al montar
+  if (document.activeElement === input && input.value.trim().length >= 2) buscar();
 }
 
 /* ---------- Carga de datos ---------- */
@@ -313,6 +403,8 @@ function montarBusqueda() {
 let promesaDatosLocales = null;
 // construir.js sustituye __GENERADO__ por la fecha de los datos con los que se generó esta página.
 const GENERADO_PAGINA = '__GENERADO__';
+// construir.js sustituye __HUELLA_DATOS__ por una huella de data/*.json (ver cargarJSON)
+const HUELLA_DATOS = '__HUELLA_DATOS__';
 /** Con doble clic: avisa si data/datos.js es más viejo que la página (p. ej. tras un git pull sin regenerar) */
 function avisarDatosLocalesViejos() {
   if (location.protocol !== 'file:' || !window.__DATOS__ || !/^\d{4}-\d{2}-\d{2}$/.test(GENERADO_PAGINA)) return;
@@ -337,21 +429,51 @@ async function cargarJSON(ruta, opcional) {
     if (opcional) return null;
     throw new Error(ruta + ': no está en data/datos.js. Abre la web con «Abrir Taller de Deadlock.bat» o ejecuta «node scripts/construir.js» en la carpeta del proyecto.');
   }
-  try { const r = await fetch(ruta, { cache: 'no-cache' }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } catch (e) { if (opcional) return null; throw new Error(ruta + ': ' + e.message); }
+  // Con la huella de los datos en la URL, el navegador puede usar su caché sin riesgo: al cambiar los datos cambia la URL
+  // (en claude.ai los archivos los sirve la plataforma: se piden como siempre, sin parámetro)
+  const version = !window.claude && /^[0-9a-f]{10}$/.test(HUELLA_DATOS) ? HUELLA_DATOS : '';
+  try { const r = await fetch(ruta + (version ? '?v=' + encodeURIComponent(version) : ''), { cache: version ? 'default' : 'no-cache' }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } catch (e) { if (opcional) return null; throw new Error(ruta + ': ' + e.message); }
+}
+/* Datos que se cargan bajo demanda: cada sección espera solo a lo que usa y el resto llega en segundo plano.
+   (Antes se descargaban los 21 archivos antes de pintar nada; builds, fases y compras pesan ~0,9 MB comprimidos.) */
+const GRUPOS_DATOS = {
+  guias: ['data/guias.json', (j) => { D.guias = (j && j.heroes) || {}; }],
+  builds: ['data/builds.json', (j) => { D.builds = j; }],
+  comps: ['data/comps.json', (j) => { D.comps = j; }],
+  objGuia: ['data/objetos_guia.json', (j) => { D.objGuia = (j && j.objetos) || {}; }],
+  sistemas: ['data/sistemas.json', (j) => { D.sistemas = j; }],
+  itemizacion: ['data/itemizacion.json', (j) => { D.itemizacion = j; }],
+  compras: ['data/compras.json', (j) => { D.compras = j; }],
+  fases: ['data/fases.json', (j) => { D.fases = (j && j.heroes) || {}; }],
+  mapa: ['data/mapa.json', (j) => { D.mapa = j; }],
+};
+const DATOS_POR_RUTA = {
+  tier: ['guias'], heroes: ['guias'], heroe: ['guias', 'fases', 'compras', 'builds', 'mapa', 'objGuia'],
+  objetos: ['objGuia'], objeto: ['objGuia', 'compras', 'fases'],
+  builds: [], build: ['guias', 'fases', 'compras', 'builds', 'objGuia'],
+  equipos: ['guias', 'comps'], guia: ['sistemas'], 'guia-objetos': ['itemizacion'], 'guia-mapa': ['mapa'], novedades: ['guias', 'objGuia'],
+};
+/** Datos que necesita una ruta (#guia-mapa tiene los suyos; si no, los de su sección) */
+function datosDeRuta(token) { const base = token.split('-')[0]; return DATOS_POR_RUTA[token] || DATOS_POR_RUTA[RUTAS[base] ? base : 'tier'] || DATOS_POR_RUTA.tier; }
+const datosCargados = new Set(); const promesasDatos = {};
+function hayDatos(claves) { return (claves || []).every((k) => datosCargados.has(k)); }
+function asegurarDatos(claves) {
+  return Promise.all((claves || []).map((k) => promesasDatos[k] || (promesasDatos[k] = cargarJSON(GRUPOS_DATOS[k][0], true)
+    .then((j) => { GRUPOS_DATOS[k][1](j); }).catch(() => { /* opcional: la sección lo indica */ }).then(() => { datosCargados.add(k); }))));
 }
 async function cargarDatos() {
-  const [heroes, habilidades, objetos, stats, sinergias, builds, objStats, rangos, version, guias, meta, comps, objGuia, parche, sistemas, itemizacion, habStats] = await Promise.all([
+  const [heroes, habilidades, objetos, stats, sinergias, objStats, rangos, version, meta, parche, habStats] = await Promise.all([
     cargarJSON('data/heroes.json'), cargarJSON('data/habilidades.json'), cargarJSON('data/objetos.json'), cargarJSON('data/stats.json'),
-    cargarJSON('data/sinergias.json', true), cargarJSON('data/builds.json', true), cargarJSON('data/objetos_stats.json', true), cargarJSON('data/rangos.json', true), cargarJSON('data/version.json', true),
-    cargarJSON('data/guias.json', true), cargarJSON('data/meta.json', true), cargarJSON('data/comps.json', true), cargarJSON('data/objetos_guia.json', true), cargarJSON('data/parche.json', true), cargarJSON('data/sistemas.json', true),
-    cargarJSON('data/itemizacion.json', true), cargarJSON('data/habilidades_stats.json', true), cargarJSON('data/habilidades_extra.json', true),
-  ]).then((r) => { const extra = r.pop(); if (extra && extra.habilidades) for (const lista of Object.values(r[1] || {})) for (const a of lista) { const e = extra.habilidades[a.clase]; if (!e) continue; if (!a.descripcion) a.descripcion = e.descripcion || ''; if (!a.resumen) a.resumen = e.resumen || ''; } return r; });
-  Object.assign(D, { heroes, habilidades, objetos, stats, sinergias, builds, objStats, rangos: rangos || [], version, meta, comps, parche, sistemas, itemizacion, habStats });
+    cargarJSON('data/sinergias.json', true), cargarJSON('data/objetos_stats.json', true), cargarJSON('data/rangos.json', true), cargarJSON('data/version.json', true),
+    cargarJSON('data/meta.json', true), cargarJSON('data/parche.json', true), cargarJSON('data/habilidades_stats.json', true),
+    cargarJSON('data/habilidades_extra.json', true),
+    // La sección de entrada suele ser la tier list, que usa las guías (arquetipo, dificultad): se piden ya, en paralelo
+    asegurarDatos(datosDeRuta(tokenRuta())),
+  ]).then((r) => { r.pop(); const extra = r.pop(); if (extra && extra.habilidades) for (const lista of Object.values(r[1] || {})) for (const a of lista) { const e = extra.habilidades[a.clase]; if (!e) continue; if (!a.descripcion) a.descripcion = e.descripcion || ''; if (!a.resumen) a.resumen = e.resumen || ''; } return r; });
+  Object.assign(D, { heroes, habilidades, objetos, stats, sinergias, objStats, rangos: rangos || [], version, meta, parche, habStats });
   // Preferencias guardadas con claves que ya no existen (p. ej. un rango renombrado)
   if (!stats.datos[PREF.ventana]) PREF.ventana = '7d';
   if (!stats.datos[PREF.ventana][PREF.bracket]) PREF.bracket = 'todos';
-  D.guias = (guias && guias.heroes) || {};
-  D.objGuia = (objGuia && objGuia.objetos) || {};
   for (const h of heroes) { IDX.heroPorId[h.id] = h; IDX.heroPorClase[h.clase] = h; IDX.heroPorNombre[sinAcentos(h.nombre)] = h; IDX.heroPorNombre[sinAcentos(h.nombre_en)] = h; }
   for (const o of objetos) { IDX.objPorClase[o.clase] = o; IDX.objPorId[o.id] = o; IDX.objPorNombre[sinAcentos(o.nombre)] = o; IDX.objPorNombre[sinAcentos(o.nombre_es)] = o; }
   const fecha = version && version.generado ? fmtFecha(version.generado) : '';
@@ -407,20 +529,21 @@ async function refrescarEnVivo() {
   } catch (e) { /* sin caché */ }
   const ahora = Math.floor(Date.now() / 1000);
   const nuevos = {}; let ok = 0;
-  for (const v of D.stats.ventanas) {
-    nuevos[v.clave] = {};
-    for (const b of D.stats.brackets) {
-      const q = new URLSearchParams({ min_unix_timestamp: String(ahora - v.dias * 86400) });
-      if (b.min) q.set('min_average_badge', String(b.min));
-      const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 15000);
-      try {
-        const r = await fetch('https://api.deadlock-api.com/v1/analytics/hero-stats?' + q, { signal: ctrl.signal });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const filas = await r.json();
-        if (Array.isArray(filas) && filas.length) { nuevos[v.clave][b.clave] = calcularBracket(filas); ok++; }
-      } catch (e) { /* esta combinación se queda con los datos del archivo */ } finally { clearTimeout(t); }
-    }
-  }
+  // Las peticiones (periodos × rangos) van en paralelo, de 4 en 4 para no cargar la API
+  const tareas = [];
+  for (const v of D.stats.ventanas) { nuevos[v.clave] = {}; for (const b of D.stats.brackets) tareas.push([v, b]); }
+  const pedir = async ([v, b]) => {
+    const q = new URLSearchParams({ min_unix_timestamp: String(ahora - v.dias * 86400) });
+    if (b.min) q.set('min_average_badge', String(b.min));
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 15000);
+    try {
+      const r = await fetch('https://api.deadlock-api.com/v1/analytics/hero-stats?' + q, { signal: ctrl.signal });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const filas = await r.json();
+      if (Array.isArray(filas) && filas.length) { nuevos[v.clave][b.clave] = calcularBracket(filas); ok++; }
+    } catch (e) { /* esta combinación se queda con los datos del archivo */ } finally { clearTimeout(t); }
+  };
+  for (let i = 0; i < tareas.length; i += 4) await Promise.all(tareas.slice(i, i + 4).map(pedir));
   if (!ok) return false;
   for (const [v, porB] of Object.entries(nuevos)) Object.assign(D.stats.datos[v] = D.stats.datos[v] || {}, porB);
   VIVO.estado = 'vivo'; VIVO.hora = Date.now();
@@ -440,11 +563,17 @@ async function iniciar() {
   render();
   avisarDatosLocalesViejos();
   ALMACEN.conectar();
+  // El resto de datos, en segundo plano cuando el navegador esté libre (así las demás secciones abren al instante)
+  // (no se precarga con el ahorro de datos activado o en redes muy lentas)
+  const conexion = navigator.connection || {};
+  const precargar = () => { if (!conexion.saveData && !/2g/.test(conexion.effectiveType || '')) asegurarDatos(Object.keys(GRUPOS_DATOS)); };
+  // La precarga empieza cuando la sección de entrada ya tiene sus datos (no compite con ella)
+  asegurarDatos(datosDeRuta(tokenRuta())).then(() => { if ('requestIdleCallback' in window) requestIdleCallback(precargar, { timeout: 4000 }); else setTimeout(precargar, 1500); });
   // Estadísticas en vivo: al llegar, se repinta solo si el lector está en una vista de listas y no tiene nada abierto
   refrescarEnVivo().then((cambio) => {
     if (!cambio) return;
     const base = tokenRuta().split('-')[0];
-    if (['tier', 'heroes'].includes(base) && !panelActual && !modalActual && window.scrollY < 120) render();
+    if (base === 'tier' && !panelActual && !modalActual && window.scrollY < 120) render();
   }).catch(() => { /* seguimos con los datos del archivo */ });
   if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === 'function') {
     try { window.claude.hot.snapshot(() => ({ hash: location.hash })); } catch (e) { /* sin hot */ }

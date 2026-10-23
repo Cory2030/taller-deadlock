@@ -14,16 +14,26 @@ const leer = (n) => fs.readFileSync(path.join(SRC, n), 'utf8');
 
 const plantilla = leer('plantilla.html');
 const css = leer('estilos.css');
-const js = [leer('app.js'), leer('vistas.js'), leer('builder.js')].join('\n\n');
+const js = [leer('app.js'), leer('vistas.js'), leer('fases.js'), leer('builder.js')].join('\n\n');
 if (/<\/script>/i.test(js)) throw new Error('El JS contiene "</script>": rómpelo con "<\\/script>"');
 
 let version = {};
 try { version = JSON.parse(fs.readFileSync(path.join(RAIZ, 'data', 'version.json'), 'utf8')); } catch (e) { /* sin datos aún */ }
 
+// Huella de los datos: cambia con cualquier cambio en data/*.json. La web la añade a la URL de cada JSON,
+// así el navegador puede guardarlos en caché sin servir nunca datos viejos.
+let huella = '';
+try {
+  const h = require('crypto').createHash('sha1');
+  for (const f of fs.readdirSync(path.join(RAIZ, 'data')).filter((n) => n.endsWith('.json')).sort()) h.update(f).update(fs.readFileSync(path.join(RAIZ, 'data', f)));
+  huella = h.digest('hex').slice(0, 10);
+} catch (e) { /* sin datos aún */ }
+
 const salida = plantilla
   .replace('/*__CSS__*/', () => css)
   .replace('/*__JS__*/', () => js)
-  .replace(/__GENERADO__/g, () => (version.generado || '').slice(0, 10));
+  .replace(/__GENERADO__/g, () => (version.generado || '').slice(0, 10))
+  .replace(/__HUELLA_DATOS__/g, () => huella);
 
 // artefacto.html: fragmento para publicar como Artifact (la plataforma añade doctype, head y body)
 fs.writeFileSync(path.join(RAIZ, 'artefacto.html'), salida);
@@ -48,7 +58,8 @@ if (fs.existsSync(DATA)) {
   for (const f of fs.readdirSync(DATA).filter((n) => n.endsWith('.json')).sort()) {
     try { datos['data/' + f] = JSON.parse(fs.readFileSync(path.join(DATA, f), 'utf8')); } catch (e) { console.warn('  JSON inválido, no se incluye:', f, e.message); }
   }
-  const js = '/* Generado por scripts/construir.js. No editar: se regenera con cada build. */\nwindow.__DATOS__ = ' + JSON.stringify(datos) + ';\n';
+  // JSON.parse de una cadena se evalúa ~30 % más rápido que un literal de objeto gigante
+  const js = '/* Generado por scripts/construir.js. No editar: se regenera con cada build. */\nwindow.__DATOS__ = JSON.parse(' + JSON.stringify(JSON.stringify(datos)) + ');\n';
   fs.writeFileSync(path.join(DATA, 'datos.js'), js);
   console.log(`data/datos.js (${Object.keys(datos).length} archivos, ${Math.round(js.length / 1024)} KB) generado para abrir la web con doble clic`);
 }

@@ -56,6 +56,21 @@ async function getJSON(url, intentos = 4) {
   }
 }
 
+/** Iconos que la web muestra pequeños: se guardan reducidos si hay ffmpeg (objetos a 128 px, iconos de héroe a 80 px) */
+function reducirIcono(destino) {
+  const lado = /[\\/]items[\\/]/.test(destino) ? 128 : /_sm\.webp$/.test(destino) ? 80 : 0;
+  const carta = /_card\.webp$/.test(destino); // cartas de héroe: mismo tamaño, más comprimidas
+  if (!lado && !carta) return;
+  try {
+    const { spawnSync } = require('child_process');
+    const tmp = destino + '.tmp.webp';
+    const escala = lado ? ['-vf', `scale=${lado}:${lado}:flags=lanczos`] : [];
+    const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', destino, ...escala, '-c:v', 'libwebp', '-pix_fmt', 'yuva420p', '-quality', carta ? '72' : '85', '-compression_level', '6', tmp], { stdio: 'ignore' });
+    if (r.status === 0 && fs.existsSync(tmp) && fs.statSync(tmp).size > 0) fs.renameSync(tmp, destino);
+    else if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
+  } catch (e) { /* sin ffmpeg: se queda la imagen original */ }
+}
+
 async function descargar(url, destino) {
   if (SIN_IMAGENES || !url) return null;
   if (fs.existsSync(destino) && fs.statSync(destino).size > 0) return destino;
@@ -65,6 +80,7 @@ async function descargar(url, destino) {
     const buf = Buffer.from(await r.arrayBuffer());
     fs.mkdirSync(path.dirname(destino), { recursive: true });
     fs.writeFileSync(destino, buf);
+    reducirIcono(destino);
     return destino;
   } catch (e) {
     log('  imagen fallida', url, e.message);
@@ -414,7 +430,7 @@ async function main() {
       for (const b of Object.values(porId)) {
         const hb = b.hero_build; const det = hb.details || {};
         const categorias = (det.mod_categories || []).map((c) => ({
-          nombre: c.name || '', descripcion: c.description || '',
+          nombre: c.name || '', descripcion: c.description || '', opcional: !!c.optional,
           objetos: (c.mods || []).map((m) => { const o = idObjeto[m.ability_id]; return o ? { clase: o.clase, nota: m.annotation || '' } : null; }).filter(Boolean),
         }));
         // Orden de habilidades: currency_type 2 = desbloqueo, 1 = punto de habilidad
@@ -449,6 +465,8 @@ async function main() {
   guardar('sinergias.json', sinergias);
   guardar('objetos_stats.json', objetos_stats);
   guardar('habilidades_stats.json', habStats);
+  // Cuándo se compra cada objeto con cada héroe (minuto medio y almas acumuladas en ese minuto)
+  try { await require('./compras.js').descargarCompras(); } catch (e) { log('  compras fallidas:', e.message); }
   if (!RAPIDO) guardar('builds.json', builds);
   version.heroes = heroes.length; version.objetos = objetos.length;
   guardar('version.json', version);

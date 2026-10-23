@@ -3,10 +3,10 @@
    Vistas: tier list, héroes, ficha de héroe, objetos, equipos, guía, novedades
    ============================================================ */
 
-function segmento(opciones, valor, onCambio, clasePorValor) {
-  const s = el('div', { class: 'segmento', role: 'group' });
+function segmento(opciones, valor, onCambio, clasePorValor, etiqueta) {
+  const s = el('div', { class: 'segmento', role: 'group', 'aria-label': etiqueta || null });
   for (const [v, texto] of opciones) {
-    const b = el('button', { type: 'button', class: (v === valor ? 'activo ' : '') + (clasePorValor ? clasePorValor(v) : ''), onclick: () => { $$('button', s).forEach((x) => x.classList.remove('activo')); b.classList.add('activo'); onCambio(v); } }, texto);
+    const b = el('button', { type: 'button', 'aria-pressed': v === valor ? 'true' : 'false', class: (v === valor ? 'activo ' : '') + (clasePorValor ? clasePorValor(v) : ''), onclick: () => { $$('button', s).forEach((x) => { x.classList.remove('activo'); x.setAttribute('aria-pressed', 'false'); }); b.classList.add('activo'); b.setAttribute('aria-pressed', 'true'); onCambio(v); } }, texto);
     s.append(b);
   }
   return s;
@@ -270,8 +270,41 @@ RUTAS.heroe = function (clase) {
   cab.append(info); raiz.append(cab);
 
   // Subnavegación
-  const secciones = [['jugar', 'Cómo jugarlo'], ['habilidades', 'Habilidades'], ['orden', 'Orden de habilidades'], ['build', 'Build'], ['datos', 'Objetos por datos'], ['comunidad', 'Builds de la comunidad'], ['vs', 'Counters y sinergias'], ['stats', 'Estadísticas'], ['fuentes', 'Fuentes']];
-  raiz.append(el('nav', { class: 'subnav', 'aria-label': 'Secciones de la ficha' }, secciones.map(([id, t]) => el('a', { href: '#' + rutaActual, onclick: (e) => { e.preventDefault(); const dest = document.getElementById('b-' + id); if (dest) dest.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, t))));
+  const secciones = [['jugar', 'Cómo jugarlo'], ['habilidades', 'Habilidades'], ['orden', 'Orden de habilidades'], ['build', 'Build'], ...(fasesDe(h) && fasesDe(h).plan_mapa ? [['mapa', 'Plan de mapa']] : []), ['datos', 'Objetos por datos'], ['comunidad', 'Builds de la comunidad'], ['vs', 'Counters y sinergias'], ['stats', 'Estadísticas'], ['fuentes', 'Fuentes']];
+  // Los bloques usan content-visibility (no se maquetan hasta acercarse): para saltar con precisión se
+  // desactiva un momento, se salta y se vuelve a saltar cuando ya tienen su altura real
+  // Solo hace falta maquetar los bloques anteriores al destino (son los que deciden dónde cae). Se quedan
+  // maquetados: si volvieran a su altura provisional, la página se movería después del salto.
+  const saltarA = (dest) => {
+    for (let b = dest.previousElementSibling; b; b = b.previousElementSibling) if (b.classList && b.classList.contains('bloque')) b.style.contentVisibility = 'visible';
+    dest.style.contentVisibility = 'visible';
+    dest.scrollIntoView({ block: 'start' });
+    requestAnimationFrame(() => dest.scrollIntoView({ block: 'start' }));
+  };
+  const subnav = el('nav', { class: 'subnav', 'aria-label': 'Secciones de la ficha' }, secciones.map(([id, t]) => el('a', { href: '#' + rutaActual, 'data-bloque': 'b-' + id, onclick: (e) => { e.preventDefault(); const dest = document.getElementById('b-' + id); if (dest) saltarA(dest); } }, t)));
+  raiz.append(subnav);
+  // Marca en el índice la sección que se está leyendo: la última cuyo principio ya pasó bajo las barras fijas
+  // (tras un salto, la pulsada, aunque asome el final de la anterior)
+  const marcar = (id) => {
+    $$('a', subnav).forEach((a) => a.classList.toggle('activo', a.dataset.bloque === id));
+    // En móvil el índice se desplaza de lado: que el enlace marcado quede a la vista (sin mover la página)
+    const a = subnav.querySelector('a.activo');
+    if (a && subnav.scrollWidth > subnav.clientWidth) subnav.scrollTo({ left: a.offsetLeft - (subnav.clientWidth - a.offsetWidth) / 2, behavior: 'smooth' });
+  };
+  let fijadoHasta = 0;
+  subnav.addEventListener('click', (e) => { const a = e.target.closest('a[data-bloque]'); if (a) { marcar(a.dataset.bloque); fijadoHasta = Date.now() + 900; } });
+  if ('IntersectionObserver' in window) setTimeout(() => {
+    const bloques = secciones.map(([id]) => document.getElementById('b-' + id)).filter(Boolean);
+    const io = new IntersectionObserver(() => {
+      if (Date.now() < fijadoHasta) return;
+      const umbral = (window.innerWidth <= 900 ? 176 : 130) + 12;
+      let actual = bloques[0];
+      for (const b of bloques) if (b.getBoundingClientRect().top <= umbral) actual = b;
+      if (actual) marcar(actual.id);
+    }, { rootMargin: '-100px 0px -40% 0px', threshold: [0, 0.01] });
+    bloques.forEach((b) => io.observe(b));
+    window.addEventListener('hashchange', () => io.disconnect(), { once: true });
+  }, 0);
 
   // Cómo jugarlo
   const panel = el('div', { class: 'arquetipo-panel' });
@@ -335,9 +368,11 @@ RUTAS.heroe = function (clase) {
   if (!ordenCont.children.length) ordenCont.append(el('div', { class: 'muted' }, 'Sin datos de orden de habilidades todavía.'));
   raiz.append(bloque('orden', 'Orden de habilidades', '', ordenCont));
 
-  // Build recomendada
+  // Build recomendada: por fases (núcleo + situacionales, con cuándo comprar) si existe; si no, la guía clásica
   const buildCont = el('div');
-  if (g && g.build) {
+  const porFases = bloqueBuildFases(h);
+  if (porFases) buildCont.append(porFases);
+  else if (g && g.build) {
     buildCont.append(el('div', { class: 'build-fases' },
       el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Inicio de línea'), el('span', { class: 'num pequeno muted' }, fmtSouls((g.build.inicio || []).reduce((s2, e) => s2 + ((objeto(e.clase || e.objeto) || {}).coste || 0), 0)))), listaItemsBuild(g.build.inicio, 'por_que')),
       el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Medio de partida'), el('span', { class: 'num pequeno muted' }, fmtSouls((g.build.medio || []).reduce((s2, e) => s2 + ((objeto(e.clase || e.objeto) || {}).coste || 0), 0)))), listaItemsBuild(g.build.medio, 'por_que')),
@@ -345,7 +380,9 @@ RUTAS.heroe = function (clase) {
       el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Situacionales'), el('span', { class: 'pequeno muted' }, 'según el rival')), listaItemsBuild(g.build.situacionales, 'cuando'))));
     buildCont.append(el('div', { class: 'fila', style: { marginTop: '12px' } }, el('a', { class: 'boton primario', href: '#build-nueva-' + h.clase }, 'Abrir esta build en el creador y personalizarla')));
   } else buildCont.append(el('div', { class: 'muted' }, 'La build explicada de este héroe llegará en la próxima actualización. Mientras tanto, abajo tienes los objetos con mejores resultados y las builds de la comunidad.'));
-  raiz.append(bloque('build', 'Build recomendada', 'por fases, con el porqué de cada objeto', buildCont));
+  raiz.append(bloque('build', 'Build recomendada', porFases ? 'por fases, con cuándo comprar cada objeto y sus situacionales (a la derecha en pantalla ancha)' : 'por fases, con el porqué de cada objeto', buildCont));
+  const planMapa = bloquePlanMapa(h);
+  if (planMapa) raiz.append(bloque('mapa', 'Plan de mapa', 'mejoras de puente, jungla, cajas y rutas', planMapa));
 
   // Objetos por datos
   const datosCont = el('div', { class: 'build-fases' });
@@ -367,7 +404,7 @@ RUTAS.heroe = function (clase) {
     const caja = el('div', { class: 'build-com' });
     const antigua = (b.actualizado || 0) < limiteFecha;
     caja.append(el('div', { class: 'cab' }, el('div', null, el('b', null, b.nombre || 'Build sin nombre'), el('span', { class: 'muted pequeno' }, b.actualizado ? ' · actualizada el ' + fmtFecha(b.actualizado) : ''), antigua ? el('span', { class: 'chip aviso', style: { marginLeft: '6px' } }, 'anterior al parche actual') : null), el('div', { class: 'fila' }, b.stats ? el('span', { class: 'chip ' + (b.stats.wr >= 50 ? 'ok' : 'mal') }, fmtPct(b.stats.wr) + ' en ' + fmt(b.stats.partidas) + ' partidas') : null, b.favoritos ? el('span', { class: 'chip' }, fmt(b.favoritos) + ' favoritos') : null, el('a', { class: 'boton mini', href: `#build-com-${h.id}-${b.id}` }, 'Abrir en el creador'))));
-    for (const c of b.categorias.slice(0, 8)) { if (!c.objetos.length) continue; caja.append(el('div', { class: 'cat' }, el('div', { class: 'etiqueta' }, nombreCategoria(c.nombre)), el('div', { class: 'objs' }, c.objetos.slice(0, 14).map((x) => { const o = objeto(x.clase); return o ? imgO(o, { class: (RANURAS[o.ranura] || {}).clase || '', title: nombreO(o) + (x.nota ? ' — ' + x.nota : ''), onclick: () => abrirObjeto(o) }) : null; })))); }
+    for (const c of b.categorias.slice(0, 8)) { if (!c.objetos.length) continue; caja.append(el('div', { class: 'cat' + (c.opcional ? ' opcional' : '') }, el('div', { class: 'etiqueta' }, nombreCategoria(c.nombre), c.opcional ? el('span', { class: 'chip opcional-chip', style: { marginLeft: '6px' } }, 'Opcional') : null), el('div', { class: 'objs' }, c.objetos.slice(0, 14).map((x) => { const o = objeto(x.clase); return o ? imgO(o, { class: (RANURAS[o.ranura] || {}).clase || '', title: nombreO(o) + (x.nota ? ' — ' + x.nota : ''), onclick: () => abrirObjeto(o) }) : null; })))); }
     if (b.orden && b.orden.length) { const sec = secuenciaDesdeBuild(b); caja.append(el('div', { class: 'cat' }, el('div', { class: 'etiqueta' }, 'Orden de habilidades'), vistaSecuencia(h, sec.slice(0, 10)))); }
     comCont.append(caja);
   }
@@ -416,7 +453,7 @@ RUTAS.objetos = function (param) {
   const estado = { q: '', ranura: RANURAS[param] ? param : '', tier: '', activo: '', etiqueta: '', orden: 'tier' };
   raiz.append(cabecera(D.objetos.length + ' objetos del parche actual', 'Objetos', 'Pulsa un objeto para ver sus estadísticas, para qué sirve, cuándo comprarlo y quién lo compra más.'));
   const etiquetas = new Set(); for (const g of Object.values(D.objGuia || {})) for (const t of g.etiquetas || []) etiquetas.add(t);
-  const q = el('input', { class: 'entrada', type: 'search', placeholder: 'Nombre en español o inglés', oninput: (e) => { estado.q = e.target.value; pintar(); }, 'aria-label': 'Filtrar objetos' });
+  const q = el('input', { class: 'entrada', type: 'search', placeholder: 'Nombre (ES o EN)', oninput: (e) => { estado.q = e.target.value; pintar(); }, 'aria-label': 'Filtrar objetos' });
   const ctrl = el('div', { class: 'controles' },
     el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Buscar'), q),
     el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Categoría'), segmento([['', 'Todas'], ['weapon', 'Arma'], ['vitality', 'Vitalidad'], ['spirit', 'Espíritu']], estado.ranura, (v) => { estado.ranura = v; pintar(); }, (v) => RANURAS[v] ? RANURAS[v].clase : '')),
@@ -591,9 +628,11 @@ RUTAS.equipos = function () {
 /* ============================================================ GUÍA */
 RUTAS.guia = function (param) {
   const raiz = el('div');
-  const pestana = param === 'objetos' ? 'objetos' : 'sistemas';
-  raiz.append(cabecera('Cómo funciona el juego', 'Guía', 'Lo que necesitas entender para decidir una build: cómo funcionan las almas, los niveles, las categorías de objetos y el escalado; y, en la segunda pestaña, qué objetos comprar según tu arquetipo y contra qué.'));
-  raiz.append(el('div', { class: 'tabs' }, el('button', { type: 'button', class: pestana === 'sistemas' ? 'activo' : '', onclick: () => ir('guia') }, 'Sistemas del juego'), el('button', { type: 'button', class: pestana === 'objetos' ? 'activo' : '', onclick: () => ir('guia-objetos') }, 'Itemización: qué comprar y por qué')));
+  const pestana = param === 'objetos' ? 'objetos' : param === 'mapa' ? 'mapa' : 'sistemas';
+  raiz.append(cabecera('Cómo funciona el juego', 'Guía', 'Tres pestañas: cómo funcionan las almas, los niveles, las categorías de objetos y el escalado; qué objetos comprar según tu arquetipo y contra qué; y el mapa: mejoras de puente, jungla, cajas y rutas.'));
+  const pest = (id, ruta, texto) => el('button', { type: 'button', class: pestana === id ? 'activo' : '', 'aria-current': pestana === id ? 'page' : null, onclick: () => ir(ruta) }, texto);
+  raiz.append(el('div', { class: 'tabs', role: 'navigation', 'aria-label': 'Pestañas de la guía' }, pest('sistemas', 'guia', 'Sistemas del juego'), pest('objetos', 'guia-objetos', 'Itemización: qué comprar y por qué'), pest('mapa', 'guia-mapa', 'Mapa y jungla')));
+  if (pestana === 'mapa') { raiz.append(vistaGuiaMapa()); return raiz; }
   const fuente = pestana === 'objetos' ? D.itemizacion : D.sistemas;
   if (!fuente || !fuente.secciones) { raiz.append(el('div', { class: 'vacio' }, 'Esta guía se cargará en la próxima actualización.')); return raiz; }
   const cont = el('div', { class: 'guia' });

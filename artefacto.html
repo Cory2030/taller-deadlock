@@ -3,7 +3,9 @@
 <meta name="description" content="Tier list, builds, composiciones de equipo y guías de héroes de Deadlock en español, con datos del parche actual.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!-- Fuentes sin bloquear el pintado: se aplican al llegar (con display=swap) -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
 <style>
 /* ============================================================
    Taller de Deadlock — estilos
@@ -44,6 +46,8 @@
   --mal: #d1604e;
   --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
   --icono-bg: #1b221e;
+  --movil: #6f9cf2;
+  --movil-bg: rgba(111, 156, 242, 0.16);
   --radio: 10px;
   --radio-s: 6px;
   --f-display: 'Big Shoulders Display', 'Oswald', 'Arial Narrow', Impact, sans-serif;
@@ -64,6 +68,7 @@
     --arma-bg: rgba(184, 90, 10, 0.12); --vit-bg: rgba(10, 138, 92, 0.12); --esp-bg: rgba(106, 63, 196, 0.12);
     --tier-s: #c99a1f; --tier-a: #a87b12; --tier-b: #866010; --tier-c: #64470f; --tier-d: #43300b;
     --tier-fg-claro: #1a1409; --tier-fg-oscuro: #fbf3dc;
+    --movil: #2d5fc4; --movil-bg: rgba(45, 95, 196, 0.12);
     --ok: #2f8a4f; --aviso: #a8741a; --mal: #b7432f;
     --sombra: 0 10px 30px rgba(60, 40, 10, 0.12);
   }
@@ -79,6 +84,7 @@
   --arma-bg: rgba(184, 90, 10, 0.12); --vit-bg: rgba(10, 138, 92, 0.12); --esp-bg: rgba(106, 63, 196, 0.12);
   --tier-s: #c99a1f; --tier-a: #a87b12; --tier-b: #866010; --tier-c: #64470f; --tier-d: #43300b;
   --tier-fg-claro: #1a1409; --tier-fg-oscuro: #fbf3dc;
+  --movil: #2d5fc4; --movil-bg: rgba(45, 95, 196, 0.12);
   --ok: #2f8a4f; --aviso: #a8741a; --mal: #b7432f;
   --sombra: 0 10px 30px rgba(60, 40, 10, 0.12);
 }
@@ -89,7 +95,8 @@ body {
   margin: 0; min-height: 100%;
   background: var(--bg); color: var(--fg);
   font-family: var(--f-body); font-size: 15px; line-height: 1.5;
-  overflow-x: hidden;
+  /* clip (no hidden): hidden convierte el body en contenedor de scroll y anula la cabecera fija (sticky) */
+  overflow-x: clip;
 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 50; background: var(--bg-2); }
 h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.01em; line-height: 1.05; margin: 0; text-wrap: balance; }
@@ -152,11 +159,6 @@ button { cursor: pointer; }
 @media (max-width: 520px) {
   .buscador input { width: 84px; }
   .marca-nombre { font-size: 1.1rem; }
-}
-@media (pointer: coarse) {
-  .boton.mini { padding: 6px 10px; min-height: 32px; }
-  .slot button.quitar { width: 26px; height: 26px; font-size: 0.8rem; }
-  .cat-item .acciones button { width: 32px; height: 30px; }
 }
 
 /* ---------- Estructura ---------- */
@@ -411,7 +413,7 @@ details.plegable > .contenido { padding: 0 14px 14px; }
 .obj-detalle h2 { font-size: 1.8rem; }
 .obj-detalle .stats-lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 6px; margin: 10px 0; }
 .obj-detalle .desc { white-space: pre-line; color: var(--fg-2); font-size: 0.92rem; }
-.obj-detalle h4 { margin: 14px 0 6px; color: var(--laton); }
+.obj-detalle h4, .obj-detalle h3.sub { margin: 14px 0 6px; color: var(--laton); font-size: 1.05rem; font-family: var(--f-body); font-weight: 600; }
 .etiquetas-obj { display: flex; flex-wrap: wrap; gap: 4px; }
 .etiquetas-obj .chip { font-size: 0.72rem; }
 
@@ -423,8 +425,8 @@ details.plegable > .contenido { padding: 0 14px 14px; }
 .build-tarjeta .info { min-width: 0; flex: 1; }
 .build-tarjeta .info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .build-tarjeta .info small { color: var(--fg-3); }
-.builder { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; }
-@media (max-width: 960px) { .builder { grid-template-columns: minmax(0, 1fr); } }
+.builder { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.builder .pa-tablero { max-width: 900px; }
 .builder-cab { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; margin-bottom: 16px; }
 .builder-cab img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
 .builder-cab input.titulo { font-family: var(--f-display); font-size: 1.6rem; font-weight: 700; width: 100%; background: transparent; border: 0; border-bottom: 1px dashed var(--linea-2); padding: 2px 0; }
@@ -469,6 +471,7 @@ details.plegable > .contenido { padding: 0 14px 14px; }
 .modal .caja > .contenido { padding: 14px 16px; overflow: auto; min-height: 0; }
 .toasts { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 90; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
 .toast { background: var(--bg-3); border: 1px solid var(--laton); color: var(--fg); padding: 8px 14px; border-radius: 999px; font-size: 0.88rem; box-shadow: var(--sombra); }
+.toast.con-accion { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 14px; }
 .codigo { font-family: var(--f-mono); font-size: 0.78rem; background: var(--bg); border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 10px; word-break: break-all; max-height: 160px; overflow: auto; }
 
 /* ---------- Equipos ---------- */
@@ -512,6 +515,238 @@ details.plegable > .contenido { padding: 0 14px 14px; }
 .parche { border-left: 3px solid var(--laton); padding: 8px 14px; margin-bottom: 12px; background: var(--bg-2); border-radius: 0 var(--radio-s) var(--radio-s) 0; }
 .parche .fecha { font-family: var(--f-mono); font-size: 0.78rem; color: var(--laton); }
 .parche ul { margin: 6px 0 0; padding-left: 1.2em; color: var(--fg-2); font-size: 0.9rem; }
+
+/* ---------- Build por fases (como en el juego: núcleo a la izquierda, situacionales a la derecha) ---------- */
+.build-por-fases { display: flex; flex-direction: column; gap: 12px; }
+.acciones-build { gap: 8px; }
+.linea-juego { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; padding: 6px 10px; background: var(--bg); border: 1px dashed var(--linea-2); border-radius: var(--radio-s); }
+.linea-juego .etiqueta { margin: 0; grid-column: 1 / -1; }
+.linea-juego .texto { font-size: 0.82rem; color: var(--fg); overflow-wrap: anywhere; }
+.lineas-categoria { display: grid; gap: 6px; }
+.ayuda-juego ol { margin: 0; padding-left: 1.2em; }
+.ayuda-juego li { margin-bottom: 4px; }
+.fase-fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.fase-fila.sin-opcional { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 960px) { .fase-fila { grid-template-columns: minmax(0, 1fr); } }
+.panel-fase { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.panel-fase-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin: 0 -12px; padding: 10px 12px; background: var(--bg-3); border-bottom: 2px solid var(--laton); border-radius: var(--radio) var(--radio) 0 0; }
+.panel-fase-cab h3 { margin: 0; }
+.panel-fase-cab p { margin: 4px 0 0; }
+.panel-fase.opcional { border-style: dashed; }
+.panel-fase.opcional .panel-fase-cab { border-bottom-color: var(--fg-3); }
+.opcional-chip { font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--laton); background: var(--laton-bg); border-color: transparent; vertical-align: middle; }
+.compras { display: flex; flex-direction: column; gap: 8px; }
+.compra { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; padding: 8px; background: var(--bg); border: 1px solid var(--linea); border-left: 3px solid var(--c, var(--linea-2)); border-radius: var(--radio-s); }
+.compra.situacional { background: transparent; }
+.tile-obj { position: relative; width: 56px; height: 56px; padding: 0; border: 2px solid var(--c, var(--linea-2)); border-radius: 8px; background: var(--c-bg, var(--bg-4)); overflow: hidden; }
+.tile-obj img { width: 100%; height: 100%; object-fit: cover; }
+.tile-obj .tier { position: absolute; top: 0; right: 0; min-width: 18px; padding: 1px 4px; font-family: var(--f-display); font-weight: 800; font-size: 0.72rem; line-height: 1.2; color: #fff; background: var(--c, var(--fg-3)); border-bottom-left-radius: 6px; }
+.tile-obj:hover { border-color: var(--laton); }
+.compra-cuerpo { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.compra-cab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.compra-nombre { border: 0; background: none; padding: 0; color: var(--fg); font-weight: 700; font-size: 0.95rem; text-align: left; }
+.compra-nombre:hover { color: var(--laton-2); text-decoration: underline; }
+.compra-chip { font-size: 0.72rem; color: var(--laton); background: var(--laton-bg); border-color: transparent; white-space: normal; max-width: 100%; }
+.compra p { margin: 0; font-size: 0.86rem; color: var(--fg-2); }
+.compra p b { color: var(--fg); font-weight: 600; }
+.compra-cuando { color: var(--fg) !important; }
+.compra-nota { display: flex; align-items: center; gap: 8px; margin-top: 2px; padding: 4px 6px; border-radius: var(--radio-s); background: var(--bg-2); }
+.compra-nota .mono { flex: 1; min-width: 0; font-size: 0.76rem; color: var(--fg-3); overflow-wrap: anywhere; }
+.vender .col { gap: 6px; }
+.vender-fila { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; }
+@media (max-width: 520px) { .vender-fila { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Plan de mapa ---------- */
+.puentes { display: flex; flex-direction: column; gap: 8px; }
+.puente { padding: 8px 10px; border-radius: var(--radio-s); background: var(--bg); border: 1px solid var(--linea); border-left: 4px solid var(--c); }
+.puente-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.puente-prio { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c); color: #fff; font-weight: 700; font-size: 0.8rem; }
+.puente p { margin: 4px 0 0; }
+.cronologia { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.cronologia li { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 10px; padding: 7px 0; border-top: 1px solid var(--linea); font-size: 0.9rem; color: var(--fg-2); }
+.cronologia li:first-child { border-top: 0; }
+.cron-min { font-weight: 600; color: var(--laton); }
+.ruta-grid { display: grid; grid-template-columns: minmax(0, 520px) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 800px) { .ruta-grid { grid-template-columns: minmax(0, 1fr); } }
+.pasos-ruta { margin: 6px 0 10px; padding-left: 1.3em; }
+.pasos-ruta li { margin-bottom: 6px; }
+.minimapa { margin: 0; max-width: 520px; width: 100%; position: relative; }
+.minimapa svg { display: block; width: 100%; height: auto; aspect-ratio: 1; background: #1f2421; border-radius: var(--radio); border: 1px solid var(--linea-2); }
+.boton-mapa { position: absolute; top: 8px; right: 8px; font: inherit; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--linea-2); background: rgba(13,17,16,.82); color: #f3eee2; cursor: pointer; }
+.boton-mapa:hover, .boton-mapa:focus-visible { border-color: var(--laton); }
+.mapa-grande .minimapa { max-width: 760px; }
+.leyenda-mapa { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 0.76rem; color: var(--fg-3); }
+.leyenda-mapa span { display: inline-flex; align-items: center; gap: 5px; }
+.leyenda-mapa i { display: inline-block; width: 11px; height: 11px; box-sizing: border-box; }
+
+/* ---------- Objetos: cuándo comprar y quién lo compra ---------- */
+.cuando-caja { margin-top: 12px; padding: 10px 12px; border-radius: var(--radio-s); background: var(--bg-3); border-left: 3px solid var(--laton); }
+.cuando-caja h4, .cuando-caja h3.sub { margin-top: 0 !important; }
+.cuando-caja ul { margin: 4px 0 8px; padding-left: 1.2em; }
+.lista-compradores { display: flex; flex-direction: column; gap: 4px; }
+.comprador { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr); gap: 8px; align-items: center; }
+
+/* ---------- Creador: categorías opcionales ---------- */
+.categoria.opcional { border-style: dashed; }
+/* Como en el editor del juego: núcleo a la izquierda y su categoría opcional a la derecha */
+@media (min-width: 961px) {
+  .categorias { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .categoria { grid-column: 1; }
+  .categoria.opcional { grid-column: 2; }
+}
+@media (max-width: 960px) { .categoria.opcional { margin-left: 14px; } }
+.cat-desc { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: start; margin: 0 0 8px; }
+.cat-desc textarea { min-height: 2.6em; font-size: 0.84rem; }
+.cat-opciones { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin: -2px 0 8px; }
+.cat-opciones label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: var(--fg-2); }
+.cat-compra { font-size: 0.72rem; color: var(--laton); margin: 2px 0; }
+.ficha-dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 0 0 12px; max-width: 80ch; }
+.ficha-dl dt { font-weight: 600; color: var(--fg); }
+.ficha-dl dd { margin: 0; color: var(--fg-2); }
+@media (max-width: 640px) { .ficha-dl { grid-template-columns: minmax(0, 1fr); } .ficha-dl dd { margin-bottom: 6px; } }
+
+.lista-aclaracion { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.panel-fase-cab > .num { white-space: nowrap; }
+
+/* ---------- Build por fases: compacto y fácil de calcar ---------- */
+.saltos-fase { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.saltos-fase .etiqueta { margin: 0 4px 0 0; }
+.saltos-fase a { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--linea-2); color: var(--fg-2); font-size: 0.86rem; }
+.saltos-fase a:hover { color: var(--fg); border-color: var(--laton); text-decoration: none; }
+.panel-fase, .vender { scroll-margin-top: 130px; }
+.orden-compra { display: flex; flex-wrap: wrap; gap: 6px; }
+.orden-compra .tile-obj { width: 38px; height: 38px; }
+.orden-compra .tile-obj .tier { display: none; }
+.panel-fase-cab .muted { color: var(--fg-2); }
+.compra-mas summary { cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--fg-2); list-style: none; display: inline-flex; align-items: center; gap: 4px; }
+.compra-mas summary::-webkit-details-marker { display: none; }
+.compra-mas summary::before { content: "▸"; font-size: 0.7rem; transition: transform .15s; }
+.compra-mas[open] summary::before { transform: rotate(90deg); }
+.compra-mas[open] summary { margin-bottom: 2px; }
+.opcional-plegable > summary { list-style: none; cursor: pointer; }
+.opcional-plegable > summary::-webkit-details-marker { display: none; }
+.opcional-plegable > summary h3::after { content: " ▾"; font-size: 0.8rem; color: var(--fg-3); }
+.opcional-plegable:not([open]) > summary h3::after { content: " ▸"; }
+.opcional-plegable > summary { margin-bottom: 10px; }
+.opcional-plegable:not([open]) > summary { margin-bottom: -12px; border-radius: var(--radio); }
+.opcional-plegable > .lineas-categoria, .opcional-plegable > .compras { margin-bottom: 10px; }
+.plan-mapa .grid-2 { align-items: start; }
+.chip.mal { color: color-mix(in srgb, var(--mal) 78%, var(--fg)); }
+.tile-obj .tier { color: #1a1409; }
+@media (max-width: 520px) {
+  .compra-nota { flex-wrap: wrap; }
+  .compra-nota .mono { flex: 1 1 100%; }
+  .categoria .cab { flex-wrap: wrap; }
+  .categoria .cab input { flex: 1 1 100%; width: auto; font-size: 1rem; }
+  .vender-fila { gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--linea); }
+}
+
+/* ---------- Pantallas táctiles (al final para que no lo pisen las reglas base) ---------- */
+@media (pointer: coarse) {
+  .boton, .boton.mini, .segmento button, .boton-mapa, .chip.boton-chip, .subnav a, .saltos-fase a { min-height: 40px; }
+  .boton.mini { padding: 8px 12px; }
+  .segmento button { padding: 8px 14px; }
+  .slot button.quitar { width: 32px; height: 32px; font-size: 0.85rem; }
+  .cat-item .acciones { gap: 6px; }
+  .cat-item .acciones button { width: 38px; height: 36px; }
+  .cat-opciones input[type=checkbox] { width: 20px; height: 20px; }
+  .cat-opciones label { padding: 6px 0; display: inline-flex; align-items: center; gap: 6px; }
+  .compra-mas summary { padding: 6px 0; }
+}
+.ruta-titulo { font-size: 1.05rem; margin: 0 0 4px; }
+.info-mapa { margin: 6px 0 0; min-height: 1.4em; }
+
+/* ---------- Guía del mapa ---------- */
+.indice-mapa { margin-bottom: 18px; }
+.guia-mapa .seccion { scroll-margin-top: 130px; }
+.ficha-dl.compacta { grid-template-columns: 96px minmax(0, 1fr); gap: 4px 10px; }
+.lista-ventanas { margin: 6px 0 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.tabla td.nowrap { white-space: nowrap; }
+.tabla-campamentos td { vertical-align: top; }
+.tabla .col-ancha { min-width: 240px; }
+/* En móvil, las tablas anchas se leen como tarjetas: cada celda con su etiqueta delante */
+@media (max-width: 640px) {
+  .tabla-tarjetas, .tabla-tarjetas tbody, .tabla-tarjetas tr, .tabla-tarjetas td { display: block; width: 100%; }
+  .tabla-tarjetas thead { display: none; }
+  .tabla-tarjetas tr { border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 8px 10px; margin-bottom: 8px; background: var(--bg-2); }
+  .tabla-tarjetas td { border: 0; padding: 3px 0; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 8px; text-align: left !important; white-space: normal !important; }
+  .tabla-tarjetas td::before { content: attr(data-label); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fg-3); font-weight: 600; padding-top: 2px; }
+  .tabla-tarjetas td:first-child { grid-template-columns: minmax(0, 1fr); }
+  .tabla-tarjetas td:first-child::before { display: none; }
+  .tabla-tarjetas tr:hover td { background: transparent; }
+  .tabla .col-ancha { min-width: 0; }
+}
+
+/* ---------- Velocidad: los bloques de la ficha no se maquetan hasta que se acercan a la pantalla ---------- */
+.vista .bloque { content-visibility: auto; contain-intrinsic-size: auto 1500px; }
+#vista.sin-cv .bloque { content-visibility: visible; }
+@media print { .vista .bloque { content-visibility: visible; } }
+.subnav a.activo { background: var(--bg-3); color: var(--fg); }
+.vacio.cargando { padding: 40px 0; text-align: center; color: var(--fg-3); }
+/* Pantallas muy anchas: más sitio para las dos columnas de cada fase */
+@media (min-width: 1600px) { :root { --ancho: 1440px; } }
+
+/* ---------- Ajustes de la 2.ª revisión ---------- */
+/* Saltos: dejar el título por debajo de las barras fijas (en móvil, cabecera de 2 filas + índice) */
+@media (max-width: 900px) {
+  .bloque, .panel-fase, .vender { scroll-margin-top: 176px; }
+  .prosa h2, .guia-mapa .seccion { scroll-margin-top: 124px; }
+}
+/* Escritorio: la tira «Ir a» de la build se queda fija bajo el índice de la ficha */
+@media (min-width: 901px) {
+  .build-por-fases .saltos-fase { position: sticky; top: calc(var(--barra-alto) + 46px + env(safe-area-inset-top, 0px)); z-index: 29; background: var(--bg); padding: 6px 0; }
+  .panel-fase, .vender { scroll-margin-top: 176px; }
+}
+/* Selectores: en pantallas estrechas las opciones bajan de fila en lugar de esconderse */
+@media (max-width: 640px) {
+  .segmento { flex-wrap: wrap; overflow: visible; border-radius: 16px; }
+}
+/* Creador */
+.cat-item .acciones button.con-texto { width: auto; min-width: 28px; padding: 0 6px; font-size: 0.72rem; }
+@media (max-width: 400px) { .categoria.opcional { margin-left: 6px; } .categoria .cab { gap: 6px; } }
+/* Panel de objeto: filas alineadas */
+.comprador .num { font-family: var(--f-body); }
+@media (max-width: 520px) {
+  .comprador { grid-template-columns: minmax(0, 1fr); gap: 2px; padding-bottom: 6px; border-bottom: 1px solid var(--linea); }
+  .linea-juego { grid-template-columns: minmax(0, 1fr); }
+  .linea-juego .copiar { justify-self: start; }
+}
+/* Guía del mapa */
+.guia-mapa .seccion > h2 { margin: 28px 0 10px; }
+#gm-otros .grid-3 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+#gm-otros .ficha-dl.compacta { grid-template-columns: minmax(0, 1fr); gap: 0; }
+#gm-otros .ficha-dl.compacta dt { margin-top: 6px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-3); }
+@media (max-width: 400px) { #gm-otros .grid-3 { grid-template-columns: minmax(0, 1fr); } }
+/* Pantallas táctiles: más objetivos de toque */
+@media (pointer: coarse) {
+  .compra-nombre { padding: 9px 0; }
+  .guia .indice a { min-height: 40px; display: inline-flex; align-items: center; }
+  .comprador .heroe-chip { min-height: 36px; }
+  .builder-cab .pretitulo a { display: inline-block; padding: 8px 0; }
+}
+.vacio.cargando { min-height: 60vh; }
+
+/* ---------- Ajustes de la 3.ª revisión ---------- */
+@media (max-width: 520px) {
+  /* Cabecera de fase: la cifra en su línea y el objetivo a todo el ancho */
+  .panel-fase-cab { flex-wrap: wrap; }
+  .panel-fase-cab > :first-child { flex: 1 1 100%; }
+  .panel-fase-cab > .num { order: -1; font-size: 0.8rem; }
+  /* Cronología: el minuto encima del texto */
+  .cronologia li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+@media (pointer: coarse) { .compra-mas summary { min-height: 40px; padding: 0; } }
+/* Guía del mapa: índice fijo en escritorio */
+@media (min-width: 901px) {
+  .indice-mapa { position: sticky; top: calc(var(--barra-alto) + env(safe-area-inset-top, 0px)); z-index: 29; background: var(--bg); padding: 6px 0; }
+  .guia-mapa .seccion { scroll-margin-top: 176px; }
+}
+/* Pantallas estrechas: la fila del menú avisa de que se desplaza */
+@media (max-width: 900px) {
+  .nav { mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); scroll-padding-inline: 24px; }
+}
+/* Velocidad: las secciones largas de la guía del mapa no se maquetan hasta acercarse */
+.guia-mapa .seccion { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 
 </style>
 
@@ -560,7 +795,7 @@ details.plegable > .contenido { padding: 0 14px 14px; }
    Taller de Deadlock — núcleo: datos, utilidades, router, almacén
    ============================================================ */
 
-const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null };
+const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null, compras: null, fases: {}, mapa: null };
 const IDX = { heroPorId: {}, heroPorClase: {}, heroPorNombre: {}, objPorClase: {}, objPorId: {}, objPorNombre: {} };
 const PREF = (() => {
   let p = { nombres: 'en', ventana: '7d', bracket: 'todos', fuenteTier: 'datos' };
@@ -575,6 +810,12 @@ const TIPOS_HEROE = { marksman: 'Tirador', mystic: 'Místico', brawler: 'Luchado
 const TIERS = ['S', 'A', 'B', 'C', 'D'];
 
 /* ---------- Utilidades DOM y formato ---------- */
+// Red de seguridad: el append() nativo escribe como texto los arrays ("url1,url2") y los null ("null").
+// Aquí se aplanan y se descartan, igual que hace el().
+(() => {
+  const nativo = Element.prototype.append;
+  Element.prototype.append = function (...hijos) { return nativo.apply(this, hijos.flat(Infinity).filter((x) => x != null && x !== false)); };
+})();
 const $ = (sel, raiz = document) => raiz.querySelector(sel);
 const $$ = (sel, raiz = document) => Array.from(raiz.querySelectorAll(sel));
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -587,15 +828,24 @@ function el(tag, attrs, ...hijos) {
     else if (k === 'text') e.textContent = v;
     else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
     else if (k === 'dataset') Object.assign(e.dataset, v);
-    else if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else if (k === 'style' && typeof v === 'object') { for (const [p, val] of Object.entries(v)) { if (val == null) continue; if (p.startsWith('--')) e.style.setProperty(p, val); else e.style[p] = val; } }
     else e.setAttribute(k, v === true ? '' : v);
   }
   for (const h of hijos.flat(Infinity)) { if (h == null || h === false) continue; e.append(h instanceof Node ? h : document.createTextNode(String(h))); }
   return e;
 }
 const fmtNum = new Intl.NumberFormat('es-ES');
-function fmt(n, dec = 0) { if (n == null || Number.isNaN(n)) return '—'; return new Intl.NumberFormat('es-ES', { maximumFractionDigits: dec, minimumFractionDigits: 0 }).format(n); }
-function fmtPct(n, dec = 1) { if (n == null) return '—'; return fmt(n, dec) + ' %'; }
+// El formato es-ES no agrupa los números de 4 cifras (2300); aquí se fuerza el punto (2.300).
+// Un formateador por nº de decimales: crearlo en cada llamada era lo más caro al pintar.
+const FORMATEADORES = new Map();
+function fmt(n, dec = 0) {
+  if (n == null || Number.isNaN(n)) return '—';
+  let f = FORMATEADORES.get(dec);
+  if (!f) FORMATEADORES.set(dec, (f = new Intl.NumberFormat('es-ES', { maximumFractionDigits: dec, minimumFractionDigits: 0 })));
+  return f.format(n).replace(/^(-?\d)(\d{3})(?=,|$)/, '$1.$2');
+}
+// Espacio duro antes de «%» para que no se separe del número al partir la línea
+function fmtPct(n, dec = 1) { if (n == null) return '—'; return fmt(n, dec) + ' %'; }
 function fmtSouls(n) { if (n == null) return '—'; return fmt(n) + ' almas'; }
 function fmtFecha(ts) {
   if (!ts) return '—';
@@ -615,10 +865,12 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 /** Texto de la API con marcas {{Clase|texto}} y **negrita** → HTML seguro */
 function rico(texto) {
   if (!texto) return '';
-  let s = esc(texto);
+  // Caracteres invisibles de unión y la terminación de género «vivo/a» de los textos del juego
+  let s = esc(String(texto).replace(/[⁠​]/g, '').replace(/([a-záéíóúñ])\/a\b/g, '$1'));
   s = s.replace(/\{\{([A-Za-z_]+)\|([^}]*)\}\}/g, (m, c, t) => `<span class="atr atr-${esc(c)}">${t}</span>`);
   s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
-  s = s.replace(/\n/g, '<br>');
+  // Los textos del juego traen saltos de línea a mitad de frase: si sigue minúscula, es la misma frase
+  s = s.replace(/\n(?=[a-záéíóúñ])/g, ' ').replace(/\n/g, '<br>');
   return s;
 }
 
@@ -629,8 +881,8 @@ function nombreO(o) { if (!o) return '—'; return PREF.nombres === 'es' ? o.nom
 function nombreOAlt(o) { if (!o || o.nombre === o.nombre_es) return ''; return PREF.nombres === 'es' ? o.nombre : o.nombre_es; }
 function heroe(idOClase) { return IDX.heroPorId[idOClase] || IDX.heroPorClase[idOClase] || IDX.heroPorNombre[sinAcentos(idOClase)] || null; }
 function objeto(x) { if (!x) return null; return IDX.objPorClase[x] || IDX.objPorId[x] || IDX.objPorNombre[sinAcentos(x)] || null; }
-function imgH(h, clase = 'icono-heroe') { return el('img', { src: h.imagen.icono, alt: nombreH(h), class: clase, loading: 'lazy', width: 36, height: 36 }); }
-function imgO(o, attrs = {}) { return el('img', Object.assign({ src: o.imagen, alt: nombreO(o), loading: 'lazy', class: RANURAS[o.ranura] ? RANURAS[o.ranura].clase : '', title: nombreO(o) + ' · ' + fmtSouls(o.coste) }, attrs)); }
+function imgH(h, clase = 'icono-heroe') { return el('img', { loading: 'lazy', src: h.imagen.icono, alt: nombreH(h), class: clase, width: 36, height: 36 }); }
+function imgO(o, attrs = {}) { return el('img', Object.assign({ loading: 'lazy', src: o.imagen, alt: nombreO(o), class: RANURAS[o.ranura] ? RANURAS[o.ranura].clase : '', title: nombreO(o) + ' · ' + fmtSouls(o.coste) }, attrs)); }
 function chipH(h, extra, mini) {
   const a = el('a', { class: 'heroe-chip' + (mini ? ' mini' : ''), href: '#heroe-' + h.clase }, imgH(h, ''), el('span', null, nombreH(h)));
   if (extra != null) a.append(el('span', { class: 'num' }, extra));
@@ -676,6 +928,12 @@ function toast(msg, ms = 2600) {
   const t = el('div', { class: 'toast' }, msg); $('#toasts').append(t);
   setTimeout(() => t.remove(), ms);
 }
+/** Aviso con botón «Deshacer» (para acciones que borran algo sin confirmar) */
+function toastDeshacer(msg, deshacer, ms = 6000) {
+  const t = el('div', { class: 'toast con-accion' }, el('span', null, msg), el('button', { type: 'button', class: 'boton mini', onclick: () => { t.remove(); deshacer(); } }, 'Deshacer'));
+  $('#toasts').append(t);
+  setTimeout(() => t.remove(), ms);
+}
 let modalActual = null;
 function abrirModal(titulo, contenido, opciones = {}) {
   cerrarModal();
@@ -705,6 +963,14 @@ function abrirPanel(contenido, titulo) {
 function abrirObjeto(o) {
   if (typeof o === 'string') o = objeto(o);
   if (!o) return;
+  // El panel usa la guía de objetos y los datos de compra: si aún no han llegado, se abre al llegar
+  const necesita = ['objGuia', 'compras', 'fases'];
+  if (!hayDatos(necesita)) {
+    toast('Cargando la ficha de ' + nombreO(o) + '…', 1800);
+    const ruta = rutaActual;
+    asegurarDatos(necesita).then(() => { if (rutaActual === ruta) abrirObjeto(o); });
+    return;
+  }
   const r = RANURAS[o.ranura] || {};
   const g = guiaObjeto(o);
   const st = D.objStats && D.objStats.objetos[o.id];
@@ -714,23 +980,61 @@ function abrirObjeto(o) {
     el('div', { class: 'fila', style: { marginTop: '6px' } }, el('span', { class: 'chip ' + r.clase }, r.nombre || o.ranura), el('span', { class: 'chip' }, o.tier >= 5 ? 'Solo Street Brawl' : 'Tier ' + o.tier), el('span', { class: 'chip num' }, o.tier >= 5 ? 'no está en partida normal' : fmtSouls(o.coste)), o.activo ? el('span', { class: 'chip laton' }, 'Activo' + (o.enfriamiento ? ' · ' + o.enfriamiento + ' s' : '')) : null, o.imbuir ? el('span', { class: 'chip laton' }, 'Imbuir') : null))));
   if (g && g.resumen) cont.append(el('p', { class: 'sec', style: { fontSize: '1.02rem' } }, g.resumen));
   const stats = o.stats.filter((s) => s.etiqueta !== s.clave);
-  if (stats.length) cont.append(el('div', { class: 'stats-lista' }, stats.map((s) => el('div', { class: 'stat' }, el('span', null, s.etiqueta), el('b', null, (s.valor > 0 && !/Penal|Reducci|Penalty/.test(s.etiqueta) ? '+' : '') + fmt(s.valor, 2) + s.sufijo)))));
+  if (stats.length) cont.append(el('div', { class: 'stats-lista' }, stats.map((s) => el('div', { class: 'stat' }, el('span', null, s.etiqueta), el('b', null, (s.valor > 0 && !/Penal|Reducci|Penalty|Tiempo|Acumulaci|Frecuencia|Duraci|Enfriamiento/.test(s.etiqueta) ? '+' : '') + fmt(s.valor, 2) + (s.sufijo === 'm' && /esprint|velocidad/i.test(s.etiqueta) ? ' m/s' : s.sufijo))))));
   const bloques = [['Pasiva', o.pasiva || o.descripcion], ['Activa', o.activa]].filter((b) => b[1]);
-  for (const [t, txt] of bloques) cont.append(el('h4', null, t), el('div', { class: 'desc', html: rico(txt) }));
+  for (const [t, txt] of bloques) cont.append(el('h3', { class: 'sub' }, t), el('div', { class: 'desc', html: rico(txt) }));
+  // Cuándo comprarlo: dato real (minuto y almas medias) + guía concreta
+  const cg = compraGlobal(o.clase);
+  if (o.tier < 5 && (cg || (g && g.cuando))) {
+    const caja = el('section', { class: 'cuando-caja' }, el('h3', { class: 'sub' }, 'Cuándo comprarlo'));
+    if (cg) caja.append(el('p', { class: 'pequeno' }, 'En partidas reales se compra de media hacia el ', el('b', { class: 'num' }, 'min ' + fmt(cg.min, 1)), ', cuando se llevan unas ', el('b', { class: 'num' }, fmt(cg.almas) + ' almas'), ' acumuladas (14 días, todos los héroes).'));
+    // La primera frase de la guía («Media global min X con…») repite el párrafo de datos de arriba
+    let cuandoG = g && g.cuando ? String(g.cuando) : '';
+    if (cg && cuandoG) cuandoG = cuandoG.replace(/^Media global:?\s*(?:min(?:uto)?\s*)?[\d,]+ con ~?[\d.]+ almas(?:\s*\([^)]*\))?[;.,]\s*/, '').replace(/^([a-záéíóúñ])/, (m) => m.toUpperCase());
+    if (cuandoG) caja.append(el('p', { class: 'sec' }, cuandoG));
+    if (g && (g.senales || []).length) caja.append(el('div', { class: 'etiqueta' }, 'Señales para comprarlo'), el('ul', { class: 'sec pequeno' }, g.senales.map((s) => el('li', null, s))));
+    if (g && g.no_comprar_si) caja.append(el('p', { class: 'sec pequeno' }, el('b', null, 'No lo compres si: '), g.no_comprar_si));
+    if (g && g.vender) caja.append(el('p', { class: 'sec pequeno' }, el('b', null, 'Vender o mejorar: '), g.vender));
+    if (g && g.nota_juego) caja.append(lineaJuego('Nota para el juego', g.nota_juego));
+    cont.append(caja);
+  }
   if (g) {
-    if (g.para_que) cont.append(el('h4', null, '¿Cuándo comprarlo?'), el('p', { class: 'sec' }, g.para_que));
-    if (g.contra) cont.append(el('h4', null, 'Especialmente bueno contra'), el('p', { class: 'sec' }, g.contra));
+    if (g.para_que) cont.append(el('h3', { class: 'sub' }, 'Para qué sirve'), el('p', { class: 'sec' }, g.para_que));
+    if (g.contra) cont.append(el('h3', { class: 'sub' }, 'Especialmente bueno contra'), el('p', { class: 'sec' }, g.contra));
     if (g.etiquetas && g.etiquetas.length) cont.append(el('div', { class: 'etiquetas-obj', style: { marginTop: '8px' } }, g.etiquetas.map((t) => el('span', { class: 'chip' }, etiquetaObj(t)))));
   }
-  if (o.componente) { const c = objeto(o.componente); if (c) cont.append(el('h4', null, 'Se mejora desde'), el('div', null, chipO(c))); }
+  if (o.componente) { const c = objeto(o.componente); if (c) cont.append(el('h3', { class: 'sub' }, 'Se mejora desde'), el('div', null, chipO(c))); }
   const mejoras = D.objetos.filter((x) => x.componente === o.clase);
-  if (mejoras.length) cont.append(el('h4', null, 'Se puede mejorar a'), el('div', { class: 'fila' }, mejoras.map((m) => chipO(m))));
-  if (st) cont.append(el('h4', null, 'Uso en los últimos 14 días'), el('div', { class: 'fila', style: { gap: '14px' } }, el('span', null, 'Winrate ', el('b', { class: 'num' }, fmtPct(st.wr))), el('span', null, 'Compra media al min ', el('b', { class: 'num' }, st.compra_min || '—')), el('span', null, 'Partidas ', el('b', { class: 'num' }, fmt(st.partidas)))));
-  // Héroes que más lo compran (según objetos populares por fase)
-  const compradores = [];
-  for (const h of D.heroes) { if (!h.populares) continue; let mejor = 0, fase = ''; for (const f of ['inicio', 'medio', 'final']) for (const p of h.populares[f]) if (p.clase === o.clase && p.pick > mejor) { mejor = p.pick; fase = f; } if (mejor >= 15) compradores.push({ h, pick: mejor, fase }); }
-  compradores.sort((a, b) => b.pick - a.pick);
-  if (compradores.length) cont.append(el('h4', null, 'Quién lo compra más'), el('div', { class: 'fila' }, compradores.slice(0, 10).map((c) => chipH(c.h, fmtPct(c.pick, 0), true))));
+  if (mejoras.length) cont.append(el('h3', { class: 'sub' }, 'Se puede mejorar a'), el('div', { class: 'fila' }, mejoras.map((m) => chipO(m))));
+  if (st) cont.append(el('h3', { class: 'sub' }, 'Uso en los últimos 14 días'), el('div', { class: 'fila', style: { gap: '14px' } }, el('span', null, 'Gana el ', el('b', { class: 'num' }, fmtPct(st.wr)), ' de las partidas en que se compra'), el('span', null, 'Partidas ', el('b', { class: 'num' }, fmt(st.partidas)))));
+  // Quién lo compra y cuándo (datos reales por héroe); si no hay, los objetos populares por fase
+  const porHeroe = [];
+  for (const h of D.heroes) { const x = compraDe(h, o.clase); if (x && x.pick >= 3) porHeroe.push({ h, ...x }); }
+  porHeroe.sort((a, b) => b.pick - a.pick);
+  if (porHeroe.length) {
+    cont.append(el('h3', { class: 'sub' }, 'Quién lo compra y cuándo'), el('div', { class: 'lista-compradores' }, porHeroe.slice(0, 10).map((c) => el('div', { class: 'comprador' }, chipH(c.h, fmtPct(c.pick, 0), true),
+      el('span', { class: 'num pequeno sec' }, 'min ' + c.min.toFixed(1).replace('.', ',') + ' · ~' + fmt(c.almas) + ' almas' + (c.vendido >= 50 && c.venta_min ? ' · se vende hacia el min ' + fmt(c.venta_min, 0) : ''))))));
+  } else {
+    const compradores = [];
+    for (const h of D.heroes) { if (!h.populares) continue; let mejor = 0; for (const f of ['inicio', 'medio', 'final']) for (const p of h.populares[f]) if (p.clase === o.clase && p.pick > mejor) mejor = p.pick; if (mejor >= 15) compradores.push({ h, pick: mejor }); }
+    compradores.sort((a, b) => b.pick - a.pick);
+    if (compradores.length) cont.append(el('h3', { class: 'sub' }, 'Quién lo compra más'), el('div', { class: 'fila' }, compradores.slice(0, 10).map((c) => chipH(c.h, fmtPct(c.pick, 0), true))));
+  }
+  // Builds del Taller que lo recomiendan (por fase), con enlace a la ficha del héroe
+  const enTaller = [];
+  for (const h of D.heroes) {
+    const f = typeof fasesDe === 'function' ? fasesDe(h) : null; if (!f) continue;
+    for (const fa of f.fases || []) {
+      const nombreFase = ({ inicial: 'inicial', media: 'media', avanzada: 'avanzada' })[fa.fase] || fa.fase;
+      if ((fa.nucleo || []).some((e) => e.clase === o.clase)) enTaller.push({ h, txt: 'núcleo, fase ' + nombreFase });
+      else if ((fa.situacionales || []).some((e) => e.clase === o.clase)) enTaller.push({ h, txt: 'situacional, fase ' + nombreFase });
+    }
+  }
+  if (enTaller.length) {
+    const vistos = new Set(); const unicos = enTaller.filter((x) => (vistos.has(x.h.id) ? false : vistos.add(x.h.id)));
+    cont.append(el('h3', { class: 'sub' }, 'Lo recomiendan las builds del Taller'), el('div', { class: 'lista-compradores' }, unicos.slice(0, 14).map((x) => el('div', { class: 'comprador' }, chipH(x.h, null, true), el('span', { class: 'pequeno sec' }, x.txt)))),
+      unicos.length > 14 ? el('p', { class: 'muted pequeno' }, 'Y ' + (unicos.length - 14) + ' héroes más.') : '');
+  }
   cont.append(el('div', { style: { marginTop: '16px' } }, el('a', { class: 'boton mini', href: '#objetos', onclick: cerrarPanel }, 'Ver todos los objetos')));
   abrirPanel(cont, nombreO(o));
 }
@@ -777,7 +1081,7 @@ function decodificarBuild(c) {
   try {
     const b = JSON.parse(decodeURIComponent(escape(atob(c.trim()))));
     if (!b || !b.heroe || !Array.isArray(b.categorias)) return null;
-    b.categorias = b.categorias.map((cat) => ({ nombre: String((cat && cat.nombre) || 'Objetos'), objetos: Array.isArray(cat && cat.objetos) ? cat.objetos.filter((x) => x && objeto(x.clase)).map((x) => ({ clase: x.clase, nota: String(x.nota || '') })) : [] }));
+    b.categorias = b.categorias.map((cat) => ({ nombre: String((cat && cat.nombre) || 'Objetos'), descripcion: String((cat && cat.descripcion) || ''), opcional: cat && cat.opcional != null ? !!cat.opcional : undefined, objetos: Array.isArray(cat && cat.objetos) ? cat.objetos.filter((x) => x && objeto(x.clase)).map((x) => ({ clase: x.clase, nota: String(x.nota || '') })) : [] }));
     b.desbloqueo = Array.isArray(b.desbloqueo) ? b.desbloqueo.filter((x) => [1, 2, 3, 4].includes(x)) : [];
     b.orden = Array.isArray(b.orden) ? b.orden.filter((x) => x && [1, 2, 3, 4].includes(x.h)).map((x) => ({ h: x.h, pa: [1, 2, 5].includes(x.pa) ? x.pa : 1 })) : [];
     b.nombre = String(b.nombre || 'Build importada'); b.notas = String(b.notas || '');
@@ -787,6 +1091,13 @@ function decodificarBuild(c) {
 }
 async function copiar(texto) {
   try { await navigator.clipboard.writeText(texto); toast('Copiado al portapapeles'); return true; } catch (e) {
+    // Segundo intento: método clásico (funciona donde la API moderna está bloqueada)
+    try {
+      const oculto = el('textarea', { style: { position: 'fixed', top: '-1000px', opacity: '0' } }, texto);
+      document.body.append(oculto); oculto.select();
+      const ok = document.execCommand('copy'); oculto.remove();
+      if (ok) { toast('Copiado al portapapeles'); return true; }
+    } catch (e2) { /* sigue al cuadro manual */ }
     const ta = el('textarea', { class: 'entrada', style: { width: '100%', height: '120px' } }, texto);
     abrirModal('Copia el texto', el('div', null, el('p', { class: 'sec' }, 'Tu navegador no permite copiar automáticamente. Selecciónalo y cópialo:'), ta)); ta.select(); return false;
   }
@@ -820,6 +1131,7 @@ const RUTAS = {};
 let rutaActual = '';
 function tokenRuta() { const h = (location.hash || '#tier').slice(1); try { return decodeURIComponent(h) || 'tier'; } catch (e) { return 'tier'; } }
 function ir(token) { if (location.hash !== '#' + token) location.hash = token; else render(); }
+let rutaPintada = '';
 function render() {
   const token = tokenRuta();
   const [base, ...resto] = token.split('-');
@@ -827,7 +1139,18 @@ function render() {
   const vista = RUTAS[base] || RUTAS.tier;
   rutaActual = token;
   const raiz = $('#vista'); raiz.innerHTML = '';
-  cerrarPanel(); cerrarModal();
+  // Solo al cambiar de sección: un repintado de la misma (al llegar datos) no cierra lo que el lector abrió
+  if (token !== rutaPintada) { cerrarPanel(); cerrarModal(); }
+  rutaPintada = token;
+  // Si la sección necesita datos que aún no han llegado, se espera a ellos (solo a esos) y se vuelve a pintar
+  const necesita = datosDeRuta(token);
+  if (!hayDatos(necesita)) {
+    const activaN = { heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base;
+    $$('#nav a').forEach((a) => a.classList.toggle('activo', a.dataset.ruta === activaN));
+    raiz.append(el('div', { class: 'vacio cargando' }, 'Cargando…'));
+    asegurarDatos(necesita).then(() => { if (rutaActual === token) render(); });
+    return;
+  }
   try { const out = vista(param, token); if (out) raiz.append(out); } catch (e) { console.error(e); raiz.append(el('div', { class: 'vacio' }, 'No se pudo mostrar esta sección. ', el('a', { href: '#tier' }, 'Volver al inicio'))); }
   const activa = { heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base;
   $$('#nav a').forEach((a) => a.classList.toggle('activo', a.dataset.ruta === activa));
@@ -862,6 +1185,8 @@ function montarBusqueda() {
     e.preventDefault(); items.forEach((a, i) => a.classList.toggle('sel', i === sel));
   });
   document.addEventListener('click', (e) => { if (!e.target.closest('.cabecera-acciones')) cerrar(); });
+  // Si el lector ya escribió mientras cargaban los datos, se busca al montar
+  if (document.activeElement === input && input.value.trim().length >= 2) buscar();
 }
 
 /* ---------- Carga de datos ---------- */
@@ -870,6 +1195,8 @@ function montarBusqueda() {
 let promesaDatosLocales = null;
 // construir.js sustituye 2026-10-23 por la fecha de los datos con los que se generó esta página.
 const GENERADO_PAGINA = '2026-10-23';
+// construir.js sustituye ed97924bc3 por una huella de data/*.json (ver cargarJSON)
+const HUELLA_DATOS = 'ed97924bc3';
 /** Con doble clic: avisa si data/datos.js es más viejo que la página (p. ej. tras un git pull sin regenerar) */
 function avisarDatosLocalesViejos() {
   if (location.protocol !== 'file:' || !window.__DATOS__ || !/^\d{4}-\d{2}-\d{2}$/.test(GENERADO_PAGINA)) return;
@@ -894,21 +1221,51 @@ async function cargarJSON(ruta, opcional) {
     if (opcional) return null;
     throw new Error(ruta + ': no está en data/datos.js. Abre la web con «Abrir Taller de Deadlock.bat» o ejecuta «node scripts/construir.js» en la carpeta del proyecto.');
   }
-  try { const r = await fetch(ruta, { cache: 'no-cache' }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } catch (e) { if (opcional) return null; throw new Error(ruta + ': ' + e.message); }
+  // Con la huella de los datos en la URL, el navegador puede usar su caché sin riesgo: al cambiar los datos cambia la URL
+  // (en claude.ai los archivos los sirve la plataforma: se piden como siempre, sin parámetro)
+  const version = !window.claude && /^[0-9a-f]{10}$/.test(HUELLA_DATOS) ? HUELLA_DATOS : '';
+  try { const r = await fetch(ruta + (version ? '?v=' + encodeURIComponent(version) : ''), { cache: version ? 'default' : 'no-cache' }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } catch (e) { if (opcional) return null; throw new Error(ruta + ': ' + e.message); }
+}
+/* Datos que se cargan bajo demanda: cada sección espera solo a lo que usa y el resto llega en segundo plano.
+   (Antes se descargaban los 21 archivos antes de pintar nada; builds, fases y compras pesan ~0,9 MB comprimidos.) */
+const GRUPOS_DATOS = {
+  guias: ['data/guias.json', (j) => { D.guias = (j && j.heroes) || {}; }],
+  builds: ['data/builds.json', (j) => { D.builds = j; }],
+  comps: ['data/comps.json', (j) => { D.comps = j; }],
+  objGuia: ['data/objetos_guia.json', (j) => { D.objGuia = (j && j.objetos) || {}; }],
+  sistemas: ['data/sistemas.json', (j) => { D.sistemas = j; }],
+  itemizacion: ['data/itemizacion.json', (j) => { D.itemizacion = j; }],
+  compras: ['data/compras.json', (j) => { D.compras = j; }],
+  fases: ['data/fases.json', (j) => { D.fases = (j && j.heroes) || {}; }],
+  mapa: ['data/mapa.json', (j) => { D.mapa = j; }],
+};
+const DATOS_POR_RUTA = {
+  tier: ['guias'], heroes: ['guias'], heroe: ['guias', 'fases', 'compras', 'builds', 'mapa', 'objGuia'],
+  objetos: ['objGuia'], objeto: ['objGuia', 'compras', 'fases'],
+  builds: [], build: ['guias', 'fases', 'compras', 'builds', 'objGuia'],
+  equipos: ['guias', 'comps'], guia: ['sistemas'], 'guia-objetos': ['itemizacion'], 'guia-mapa': ['mapa'], novedades: ['guias', 'objGuia'],
+};
+/** Datos que necesita una ruta (#guia-mapa tiene los suyos; si no, los de su sección) */
+function datosDeRuta(token) { const base = token.split('-')[0]; return DATOS_POR_RUTA[token] || DATOS_POR_RUTA[RUTAS[base] ? base : 'tier'] || DATOS_POR_RUTA.tier; }
+const datosCargados = new Set(); const promesasDatos = {};
+function hayDatos(claves) { return (claves || []).every((k) => datosCargados.has(k)); }
+function asegurarDatos(claves) {
+  return Promise.all((claves || []).map((k) => promesasDatos[k] || (promesasDatos[k] = cargarJSON(GRUPOS_DATOS[k][0], true)
+    .then((j) => { GRUPOS_DATOS[k][1](j); }).catch(() => { /* opcional: la sección lo indica */ }).then(() => { datosCargados.add(k); }))));
 }
 async function cargarDatos() {
-  const [heroes, habilidades, objetos, stats, sinergias, builds, objStats, rangos, version, guias, meta, comps, objGuia, parche, sistemas, itemizacion, habStats] = await Promise.all([
+  const [heroes, habilidades, objetos, stats, sinergias, objStats, rangos, version, meta, parche, habStats] = await Promise.all([
     cargarJSON('data/heroes.json'), cargarJSON('data/habilidades.json'), cargarJSON('data/objetos.json'), cargarJSON('data/stats.json'),
-    cargarJSON('data/sinergias.json', true), cargarJSON('data/builds.json', true), cargarJSON('data/objetos_stats.json', true), cargarJSON('data/rangos.json', true), cargarJSON('data/version.json', true),
-    cargarJSON('data/guias.json', true), cargarJSON('data/meta.json', true), cargarJSON('data/comps.json', true), cargarJSON('data/objetos_guia.json', true), cargarJSON('data/parche.json', true), cargarJSON('data/sistemas.json', true),
-    cargarJSON('data/itemizacion.json', true), cargarJSON('data/habilidades_stats.json', true), cargarJSON('data/habilidades_extra.json', true),
-  ]).then((r) => { const extra = r.pop(); if (extra && extra.habilidades) for (const lista of Object.values(r[1] || {})) for (const a of lista) { const e = extra.habilidades[a.clase]; if (!e) continue; if (!a.descripcion) a.descripcion = e.descripcion || ''; if (!a.resumen) a.resumen = e.resumen || ''; } return r; });
-  Object.assign(D, { heroes, habilidades, objetos, stats, sinergias, builds, objStats, rangos: rangos || [], version, meta, comps, parche, sistemas, itemizacion, habStats });
+    cargarJSON('data/sinergias.json', true), cargarJSON('data/objetos_stats.json', true), cargarJSON('data/rangos.json', true), cargarJSON('data/version.json', true),
+    cargarJSON('data/meta.json', true), cargarJSON('data/parche.json', true), cargarJSON('data/habilidades_stats.json', true),
+    cargarJSON('data/habilidades_extra.json', true),
+    // La sección de entrada suele ser la tier list, que usa las guías (arquetipo, dificultad): se piden ya, en paralelo
+    asegurarDatos(datosDeRuta(tokenRuta())),
+  ]).then((r) => { r.pop(); const extra = r.pop(); if (extra && extra.habilidades) for (const lista of Object.values(r[1] || {})) for (const a of lista) { const e = extra.habilidades[a.clase]; if (!e) continue; if (!a.descripcion) a.descripcion = e.descripcion || ''; if (!a.resumen) a.resumen = e.resumen || ''; } return r; });
+  Object.assign(D, { heroes, habilidades, objetos, stats, sinergias, objStats, rangos: rangos || [], version, meta, parche, habStats });
   // Preferencias guardadas con claves que ya no existen (p. ej. un rango renombrado)
   if (!stats.datos[PREF.ventana]) PREF.ventana = '7d';
   if (!stats.datos[PREF.ventana][PREF.bracket]) PREF.bracket = 'todos';
-  D.guias = (guias && guias.heroes) || {};
-  D.objGuia = (objGuia && objGuia.objetos) || {};
   for (const h of heroes) { IDX.heroPorId[h.id] = h; IDX.heroPorClase[h.clase] = h; IDX.heroPorNombre[sinAcentos(h.nombre)] = h; IDX.heroPorNombre[sinAcentos(h.nombre_en)] = h; }
   for (const o of objetos) { IDX.objPorClase[o.clase] = o; IDX.objPorId[o.id] = o; IDX.objPorNombre[sinAcentos(o.nombre)] = o; IDX.objPorNombre[sinAcentos(o.nombre_es)] = o; }
   const fecha = version && version.generado ? fmtFecha(version.generado) : '';
@@ -964,20 +1321,21 @@ async function refrescarEnVivo() {
   } catch (e) { /* sin caché */ }
   const ahora = Math.floor(Date.now() / 1000);
   const nuevos = {}; let ok = 0;
-  for (const v of D.stats.ventanas) {
-    nuevos[v.clave] = {};
-    for (const b of D.stats.brackets) {
-      const q = new URLSearchParams({ min_unix_timestamp: String(ahora - v.dias * 86400) });
-      if (b.min) q.set('min_average_badge', String(b.min));
-      const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 15000);
-      try {
-        const r = await fetch('https://api.deadlock-api.com/v1/analytics/hero-stats?' + q, { signal: ctrl.signal });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const filas = await r.json();
-        if (Array.isArray(filas) && filas.length) { nuevos[v.clave][b.clave] = calcularBracket(filas); ok++; }
-      } catch (e) { /* esta combinación se queda con los datos del archivo */ } finally { clearTimeout(t); }
-    }
-  }
+  // Las peticiones (periodos × rangos) van en paralelo, de 4 en 4 para no cargar la API
+  const tareas = [];
+  for (const v of D.stats.ventanas) { nuevos[v.clave] = {}; for (const b of D.stats.brackets) tareas.push([v, b]); }
+  const pedir = async ([v, b]) => {
+    const q = new URLSearchParams({ min_unix_timestamp: String(ahora - v.dias * 86400) });
+    if (b.min) q.set('min_average_badge', String(b.min));
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 15000);
+    try {
+      const r = await fetch('https://api.deadlock-api.com/v1/analytics/hero-stats?' + q, { signal: ctrl.signal });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const filas = await r.json();
+      if (Array.isArray(filas) && filas.length) { nuevos[v.clave][b.clave] = calcularBracket(filas); ok++; }
+    } catch (e) { /* esta combinación se queda con los datos del archivo */ } finally { clearTimeout(t); }
+  };
+  for (let i = 0; i < tareas.length; i += 4) await Promise.all(tareas.slice(i, i + 4).map(pedir));
   if (!ok) return false;
   for (const [v, porB] of Object.entries(nuevos)) Object.assign(D.stats.datos[v] = D.stats.datos[v] || {}, porB);
   VIVO.estado = 'vivo'; VIVO.hora = Date.now();
@@ -997,11 +1355,17 @@ async function iniciar() {
   render();
   avisarDatosLocalesViejos();
   ALMACEN.conectar();
+  // El resto de datos, en segundo plano cuando el navegador esté libre (así las demás secciones abren al instante)
+  // (no se precarga con el ahorro de datos activado o en redes muy lentas)
+  const conexion = navigator.connection || {};
+  const precargar = () => { if (!conexion.saveData && !/2g/.test(conexion.effectiveType || '')) asegurarDatos(Object.keys(GRUPOS_DATOS)); };
+  // La precarga empieza cuando la sección de entrada ya tiene sus datos (no compite con ella)
+  asegurarDatos(datosDeRuta(tokenRuta())).then(() => { if ('requestIdleCallback' in window) requestIdleCallback(precargar, { timeout: 4000 }); else setTimeout(precargar, 1500); });
   // Estadísticas en vivo: al llegar, se repinta solo si el lector está en una vista de listas y no tiene nada abierto
   refrescarEnVivo().then((cambio) => {
     if (!cambio) return;
     const base = tokenRuta().split('-')[0];
-    if (['tier', 'heroes'].includes(base) && !panelActual && !modalActual && window.scrollY < 120) render();
+    if (base === 'tier' && !panelActual && !modalActual && window.scrollY < 120) render();
   }).catch(() => { /* seguimos con los datos del archivo */ });
   if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === 'function') {
     try { window.claude.hot.snapshot(() => ({ hash: location.hash })); } catch (e) { /* sin hot */ }
@@ -1016,10 +1380,10 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
    Vistas: tier list, héroes, ficha de héroe, objetos, equipos, guía, novedades
    ============================================================ */
 
-function segmento(opciones, valor, onCambio, clasePorValor) {
-  const s = el('div', { class: 'segmento', role: 'group' });
+function segmento(opciones, valor, onCambio, clasePorValor, etiqueta) {
+  const s = el('div', { class: 'segmento', role: 'group', 'aria-label': etiqueta || null });
   for (const [v, texto] of opciones) {
-    const b = el('button', { type: 'button', class: (v === valor ? 'activo ' : '') + (clasePorValor ? clasePorValor(v) : ''), onclick: () => { $$('button', s).forEach((x) => x.classList.remove('activo')); b.classList.add('activo'); onCambio(v); } }, texto);
+    const b = el('button', { type: 'button', 'aria-pressed': v === valor ? 'true' : 'false', class: (v === valor ? 'activo ' : '') + (clasePorValor ? clasePorValor(v) : ''), onclick: () => { $$('button', s).forEach((x) => { x.classList.remove('activo'); x.setAttribute('aria-pressed', 'false'); }); b.classList.add('activo'); b.setAttribute('aria-pressed', 'true'); onCambio(v); } }, texto);
     s.append(b);
   }
   return s;
@@ -1283,8 +1647,41 @@ RUTAS.heroe = function (clase) {
   cab.append(info); raiz.append(cab);
 
   // Subnavegación
-  const secciones = [['jugar', 'Cómo jugarlo'], ['habilidades', 'Habilidades'], ['orden', 'Orden de habilidades'], ['build', 'Build'], ['datos', 'Objetos por datos'], ['comunidad', 'Builds de la comunidad'], ['vs', 'Counters y sinergias'], ['stats', 'Estadísticas'], ['fuentes', 'Fuentes']];
-  raiz.append(el('nav', { class: 'subnav', 'aria-label': 'Secciones de la ficha' }, secciones.map(([id, t]) => el('a', { href: '#' + rutaActual, onclick: (e) => { e.preventDefault(); const dest = document.getElementById('b-' + id); if (dest) dest.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, t))));
+  const secciones = [['jugar', 'Cómo jugarlo'], ['habilidades', 'Habilidades'], ['orden', 'Orden de habilidades'], ['build', 'Build'], ...(fasesDe(h) && fasesDe(h).plan_mapa ? [['mapa', 'Plan de mapa']] : []), ['datos', 'Objetos por datos'], ['comunidad', 'Builds de la comunidad'], ['vs', 'Counters y sinergias'], ['stats', 'Estadísticas'], ['fuentes', 'Fuentes']];
+  // Los bloques usan content-visibility (no se maquetan hasta acercarse): para saltar con precisión se
+  // desactiva un momento, se salta y se vuelve a saltar cuando ya tienen su altura real
+  // Solo hace falta maquetar los bloques anteriores al destino (son los que deciden dónde cae). Se quedan
+  // maquetados: si volvieran a su altura provisional, la página se movería después del salto.
+  const saltarA = (dest) => {
+    for (let b = dest.previousElementSibling; b; b = b.previousElementSibling) if (b.classList && b.classList.contains('bloque')) b.style.contentVisibility = 'visible';
+    dest.style.contentVisibility = 'visible';
+    dest.scrollIntoView({ block: 'start' });
+    requestAnimationFrame(() => dest.scrollIntoView({ block: 'start' }));
+  };
+  const subnav = el('nav', { class: 'subnav', 'aria-label': 'Secciones de la ficha' }, secciones.map(([id, t]) => el('a', { href: '#' + rutaActual, 'data-bloque': 'b-' + id, onclick: (e) => { e.preventDefault(); const dest = document.getElementById('b-' + id); if (dest) saltarA(dest); } }, t)));
+  raiz.append(subnav);
+  // Marca en el índice la sección que se está leyendo: la última cuyo principio ya pasó bajo las barras fijas
+  // (tras un salto, la pulsada, aunque asome el final de la anterior)
+  const marcar = (id) => {
+    $$('a', subnav).forEach((a) => a.classList.toggle('activo', a.dataset.bloque === id));
+    // En móvil el índice se desplaza de lado: que el enlace marcado quede a la vista (sin mover la página)
+    const a = subnav.querySelector('a.activo');
+    if (a && subnav.scrollWidth > subnav.clientWidth) subnav.scrollTo({ left: a.offsetLeft - (subnav.clientWidth - a.offsetWidth) / 2, behavior: 'smooth' });
+  };
+  let fijadoHasta = 0;
+  subnav.addEventListener('click', (e) => { const a = e.target.closest('a[data-bloque]'); if (a) { marcar(a.dataset.bloque); fijadoHasta = Date.now() + 900; } });
+  if ('IntersectionObserver' in window) setTimeout(() => {
+    const bloques = secciones.map(([id]) => document.getElementById('b-' + id)).filter(Boolean);
+    const io = new IntersectionObserver(() => {
+      if (Date.now() < fijadoHasta) return;
+      const umbral = (window.innerWidth <= 900 ? 176 : 130) + 12;
+      let actual = bloques[0];
+      for (const b of bloques) if (b.getBoundingClientRect().top <= umbral) actual = b;
+      if (actual) marcar(actual.id);
+    }, { rootMargin: '-100px 0px -40% 0px', threshold: [0, 0.01] });
+    bloques.forEach((b) => io.observe(b));
+    window.addEventListener('hashchange', () => io.disconnect(), { once: true });
+  }, 0);
 
   // Cómo jugarlo
   const panel = el('div', { class: 'arquetipo-panel' });
@@ -1348,9 +1745,11 @@ RUTAS.heroe = function (clase) {
   if (!ordenCont.children.length) ordenCont.append(el('div', { class: 'muted' }, 'Sin datos de orden de habilidades todavía.'));
   raiz.append(bloque('orden', 'Orden de habilidades', '', ordenCont));
 
-  // Build recomendada
+  // Build recomendada: por fases (núcleo + situacionales, con cuándo comprar) si existe; si no, la guía clásica
   const buildCont = el('div');
-  if (g && g.build) {
+  const porFases = bloqueBuildFases(h);
+  if (porFases) buildCont.append(porFases);
+  else if (g && g.build) {
     buildCont.append(el('div', { class: 'build-fases' },
       el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Inicio de línea'), el('span', { class: 'num pequeno muted' }, fmtSouls((g.build.inicio || []).reduce((s2, e) => s2 + ((objeto(e.clase || e.objeto) || {}).coste || 0), 0)))), listaItemsBuild(g.build.inicio, 'por_que')),
       el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Medio de partida'), el('span', { class: 'num pequeno muted' }, fmtSouls((g.build.medio || []).reduce((s2, e) => s2 + ((objeto(e.clase || e.objeto) || {}).coste || 0), 0)))), listaItemsBuild(g.build.medio, 'por_que')),
@@ -1358,7 +1757,9 @@ RUTAS.heroe = function (clase) {
       el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Situacionales'), el('span', { class: 'pequeno muted' }, 'según el rival')), listaItemsBuild(g.build.situacionales, 'cuando'))));
     buildCont.append(el('div', { class: 'fila', style: { marginTop: '12px' } }, el('a', { class: 'boton primario', href: '#build-nueva-' + h.clase }, 'Abrir esta build en el creador y personalizarla')));
   } else buildCont.append(el('div', { class: 'muted' }, 'La build explicada de este héroe llegará en la próxima actualización. Mientras tanto, abajo tienes los objetos con mejores resultados y las builds de la comunidad.'));
-  raiz.append(bloque('build', 'Build recomendada', 'por fases, con el porqué de cada objeto', buildCont));
+  raiz.append(bloque('build', 'Build recomendada', porFases ? 'por fases, con cuándo comprar cada objeto y sus situacionales (a la derecha en pantalla ancha)' : 'por fases, con el porqué de cada objeto', buildCont));
+  const planMapa = bloquePlanMapa(h);
+  if (planMapa) raiz.append(bloque('mapa', 'Plan de mapa', 'mejoras de puente, jungla, cajas y rutas', planMapa));
 
   // Objetos por datos
   const datosCont = el('div', { class: 'build-fases' });
@@ -1380,7 +1781,7 @@ RUTAS.heroe = function (clase) {
     const caja = el('div', { class: 'build-com' });
     const antigua = (b.actualizado || 0) < limiteFecha;
     caja.append(el('div', { class: 'cab' }, el('div', null, el('b', null, b.nombre || 'Build sin nombre'), el('span', { class: 'muted pequeno' }, b.actualizado ? ' · actualizada el ' + fmtFecha(b.actualizado) : ''), antigua ? el('span', { class: 'chip aviso', style: { marginLeft: '6px' } }, 'anterior al parche actual') : null), el('div', { class: 'fila' }, b.stats ? el('span', { class: 'chip ' + (b.stats.wr >= 50 ? 'ok' : 'mal') }, fmtPct(b.stats.wr) + ' en ' + fmt(b.stats.partidas) + ' partidas') : null, b.favoritos ? el('span', { class: 'chip' }, fmt(b.favoritos) + ' favoritos') : null, el('a', { class: 'boton mini', href: `#build-com-${h.id}-${b.id}` }, 'Abrir en el creador'))));
-    for (const c of b.categorias.slice(0, 8)) { if (!c.objetos.length) continue; caja.append(el('div', { class: 'cat' }, el('div', { class: 'etiqueta' }, nombreCategoria(c.nombre)), el('div', { class: 'objs' }, c.objetos.slice(0, 14).map((x) => { const o = objeto(x.clase); return o ? imgO(o, { class: (RANURAS[o.ranura] || {}).clase || '', title: nombreO(o) + (x.nota ? ' — ' + x.nota : ''), onclick: () => abrirObjeto(o) }) : null; })))); }
+    for (const c of b.categorias.slice(0, 8)) { if (!c.objetos.length) continue; caja.append(el('div', { class: 'cat' + (c.opcional ? ' opcional' : '') }, el('div', { class: 'etiqueta' }, nombreCategoria(c.nombre), c.opcional ? el('span', { class: 'chip opcional-chip', style: { marginLeft: '6px' } }, 'Opcional') : null), el('div', { class: 'objs' }, c.objetos.slice(0, 14).map((x) => { const o = objeto(x.clase); return o ? imgO(o, { class: (RANURAS[o.ranura] || {}).clase || '', title: nombreO(o) + (x.nota ? ' — ' + x.nota : ''), onclick: () => abrirObjeto(o) }) : null; })))); }
     if (b.orden && b.orden.length) { const sec = secuenciaDesdeBuild(b); caja.append(el('div', { class: 'cat' }, el('div', { class: 'etiqueta' }, 'Orden de habilidades'), vistaSecuencia(h, sec.slice(0, 10)))); }
     comCont.append(caja);
   }
@@ -1429,7 +1830,7 @@ RUTAS.objetos = function (param) {
   const estado = { q: '', ranura: RANURAS[param] ? param : '', tier: '', activo: '', etiqueta: '', orden: 'tier' };
   raiz.append(cabecera(D.objetos.length + ' objetos del parche actual', 'Objetos', 'Pulsa un objeto para ver sus estadísticas, para qué sirve, cuándo comprarlo y quién lo compra más.'));
   const etiquetas = new Set(); for (const g of Object.values(D.objGuia || {})) for (const t of g.etiquetas || []) etiquetas.add(t);
-  const q = el('input', { class: 'entrada', type: 'search', placeholder: 'Nombre en español o inglés', oninput: (e) => { estado.q = e.target.value; pintar(); }, 'aria-label': 'Filtrar objetos' });
+  const q = el('input', { class: 'entrada', type: 'search', placeholder: 'Nombre (ES o EN)', oninput: (e) => { estado.q = e.target.value; pintar(); }, 'aria-label': 'Filtrar objetos' });
   const ctrl = el('div', { class: 'controles' },
     el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Buscar'), q),
     el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Categoría'), segmento([['', 'Todas'], ['weapon', 'Arma'], ['vitality', 'Vitalidad'], ['spirit', 'Espíritu']], estado.ranura, (v) => { estado.ranura = v; pintar(); }, (v) => RANURAS[v] ? RANURAS[v].clase : '')),
@@ -1604,9 +2005,11 @@ RUTAS.equipos = function () {
 /* ============================================================ GUÍA */
 RUTAS.guia = function (param) {
   const raiz = el('div');
-  const pestana = param === 'objetos' ? 'objetos' : 'sistemas';
-  raiz.append(cabecera('Cómo funciona el juego', 'Guía', 'Lo que necesitas entender para decidir una build: cómo funcionan las almas, los niveles, las categorías de objetos y el escalado; y, en la segunda pestaña, qué objetos comprar según tu arquetipo y contra qué.'));
-  raiz.append(el('div', { class: 'tabs' }, el('button', { type: 'button', class: pestana === 'sistemas' ? 'activo' : '', onclick: () => ir('guia') }, 'Sistemas del juego'), el('button', { type: 'button', class: pestana === 'objetos' ? 'activo' : '', onclick: () => ir('guia-objetos') }, 'Itemización: qué comprar y por qué')));
+  const pestana = param === 'objetos' ? 'objetos' : param === 'mapa' ? 'mapa' : 'sistemas';
+  raiz.append(cabecera('Cómo funciona el juego', 'Guía', 'Tres pestañas: cómo funcionan las almas, los niveles, las categorías de objetos y el escalado; qué objetos comprar según tu arquetipo y contra qué; y el mapa: mejoras de puente, jungla, cajas y rutas.'));
+  const pest = (id, ruta, texto) => el('button', { type: 'button', class: pestana === id ? 'activo' : '', 'aria-current': pestana === id ? 'page' : null, onclick: () => ir(ruta) }, texto);
+  raiz.append(el('div', { class: 'tabs', role: 'navigation', 'aria-label': 'Pestañas de la guía' }, pest('sistemas', 'guia', 'Sistemas del juego'), pest('objetos', 'guia-objetos', 'Itemización: qué comprar y por qué'), pest('mapa', 'guia-mapa', 'Mapa y jungla')));
+  if (pestana === 'mapa') { raiz.append(vistaGuiaMapa()); return raiz; }
   const fuente = pestana === 'objetos' ? D.itemizacion : D.sistemas;
   if (!fuente || !fuente.secciones) { raiz.append(el('div', { class: 'vacio' }, 'Esta guía se cargará en la próxima actualización.')); return raiz; }
   const cont = el('div', { class: 'guia' });
@@ -1668,16 +2071,697 @@ RUTAS.novedades = function () {
 
 'use strict';
 /* ============================================================
+   Builds por fase (núcleo + situacionales), cuándo comprar cada objeto,
+   textos para pegar en el editor de builds del juego y plan de mapa
+   (mejoras de puente, jungla, cajas, rutas sobre el minimapa).
+   ============================================================ */
+
+const FASES = { inicial: { nombre: 'Fase inicial', min: '0-10' }, media: { nombre: 'Fase media', min: '10-22' }, avanzada: { nombre: 'Fase avanzada', min: '22+' } };
+const NUM_ROMANO = ['', 'I', 'II', 'III', 'IV', 'IV'];
+const MEJORAS_PUENTE = {
+  arma: { nombre: 'Arma', juego: 'Gun', color: 'var(--arma)', efecto: 'cadencia y munición' },
+  supervivencia: { nombre: 'Supervivencia', juego: 'Survival', color: 'var(--vit)', efecto: 'vida máxima y regeneración' },
+  habilidades: { nombre: 'Lanzamiento', juego: 'Casting', color: 'var(--esp)', efecto: 'poder de espíritu y recarga' },
+  movilidad: { nombre: 'Movimiento', juego: 'Movement', color: 'var(--movil)', efecto: 'aguante, esprint y tirolina' },
+};
+const TIPO_CAMPAMENTO = {
+  weak: { nombre: 'Débil', r: 9, color: '#a7c4b1' },
+  medium: { nombre: 'Mediano', r: 12, color: '#e2b65a' },
+  strong: { nombre: 'Fuerte', r: 15, color: '#e8794a' },
+  vault: { nombre: 'Sinner\'s Sacrifice', r: 12, color: '#b892f2' },
+};
+const CARRIL_ESPEJO = { York: 'Greenwich', Greenwich: 'York', Broadway: 'Broadway' };
+
+/* ---------- Datos ---------- */
+function fasesDe(h) { return (h && D.fases && D.fases[h.id]) || null; }
+function compraDe(h, clase) { const c = h && D.compras && D.compras.heroes && D.compras.heroes[h.id]; return (c && c.objetos && c.objetos[clase]) || null; }
+function compraGlobal(clase) { return (D.compras && D.compras.objetos && D.compras.objetos[clase]) || null; }
+function textoCompra(d) {
+  if (!d) return '';
+  const p = [];
+  if (d.min != null) p.push('min ' + d.min.toFixed(1).replace('.', ','));
+  if (d.almas != null) p.push('~' + fmt(d.almas) + ' almas');
+  if (d.pick != null) p.push('lo compra el ' + fmt(d.pick, 0) + ' %');
+  return p.join(' · ');
+}
+/** Pantalla estrecha (móvil o tableta en vertical): ahí se pliegan los textos largos */
+function pantallaEstrecha() { try { return window.matchMedia('(max-width: 960px)').matches; } catch (e) { return false; } }
+/** Lo que se paga por cada objeto en orden de compra: si ya tienes su componente, solo la diferencia */
+// previos: lista de clases ya compradas en orden, o el inventario (Map clase → unidades) que devuelve otra llamada.
+// Al mejorar, el componente se gasta: otra mejora del mismo componente ya no lo descuenta.
+function pagosDe(lista, previos) {
+  const tengo = new Map(previos instanceof Map ? previos : []);
+  const comprar = (o) => {
+    const n = o.componente ? tengo.get(o.componente) || 0 : 0;
+    const comp = n > 0 ? objeto(o.componente) : null;
+    if (comp) { if (n > 1) tengo.set(o.componente, n - 1); else tengo.delete(o.componente); }
+    tengo.set(o.clase, (tengo.get(o.clase) || 0) + 1);
+    return { o, paga: o.coste - (comp ? comp.coste : 0), desde: comp };
+  };
+  if (Array.isArray(previos)) for (const c of previos) { const o = objeto(c); if (o) comprar(o); }
+  const pagos = [];
+  for (const e of lista || []) { const o = objeto(e.clase || e.objeto); if (o) pagos.push(comprar(o)); }
+  pagos.inventario = tengo;
+  return pagos;
+}
+/** Objetos que quedan en el inventario al final: los componentes que se mejoran desaparecen */
+function objetosFinales(clases) {
+  const set = new Set(clases.map((c) => (objeto(c) || {}).clase).filter(Boolean));
+  const consumidos = new Set();
+  for (const c of set) { const o = objeto(c); if (o.componente && set.has(o.componente)) consumidos.add(o.componente); }
+  return [...set].filter((c) => !consumidos.has(c)).map(objeto);
+}
+/** "Improved Spirit (lo mejora)" → { etiqueta: 'Se mejora desde', texto: 'Improved Spirit' } */
+function relacionReemplazo(x) {
+  const s = String(x || '').trim(); if (!s || /^se a[ñn]ade/i.test(s)) return null;
+  const m = s.match(/^(.*?)\s*\((.*)\)\s*$/);
+  const nombre = nombreObjetoTexto(m ? m[1] : s); const nota = m ? m[2].trim() : '';
+  if (!nota) return { etiqueta: 'En lugar de', texto: nombre };
+  if (/^l[oa]s? mejora/i.test(nota)) return { etiqueta: 'Se mejora desde', texto: nombre };
+  let r = nota.match(/^l[oa]s? retrasa\s*(.*)$/i); if (r) return { etiqueta: 'Retrasa', texto: nombre + (r[1] ? ' ' + r[1] : '') };
+  r = nota.match(/^v[eé]ndel[oa]s?\s*(.*)$/i); if (r) return { etiqueta: 'Vende', texto: nombre + (r[1] ? ' (' + r[1] + ')' : '') };
+  return { etiqueta: 'En lugar de', texto: nombre + ' (' + nota + ')' };
+}
+function chipCompra(d) {
+  if (!d) return null;
+  return el('span', { class: 'chip compra-chip num', title: 'Dato real de las partidas de los últimos 14 días: minuto medio de compra, almas acumuladas que se suelen llevar en ese minuto y porcentaje de partidas en que se compra.' }, textoCompra(d));
+}
+function botonCopiar(texto, etiqueta, titulo) {
+  return el('button', { type: 'button', class: 'boton mini copiar', title: titulo || 'Copiar al portapapeles', 'aria-label': (etiqueta || 'Copiar') + ': ' + String(texto).slice(0, 60), onclick: (e) => { e.stopPropagation(); copiar(texto); } }, etiqueta || 'Copiar');
+}
+function lineaJuego(etiqueta, texto) {
+  return el('div', { class: 'linea-juego' }, el('span', { class: 'etiqueta' }, etiqueta), el('span', { class: 'texto mono' }, texto), botonCopiar(texto));
+}
+function tileObjeto(o) {
+  const r = RANURAS[o.ranura] || {};
+  return el('button', { type: 'button', class: 'tile-obj ' + (r.clase || ''), onclick: () => abrirObjeto(o), title: nombreO(o) + ' · ' + fmtSouls(o.coste), 'aria-label': 'Ver ' + nombreO(o) },
+    el('img', { src: o.imagen, alt: '', loading: 'lazy' }), el('span', { class: 'tier' }, NUM_ROMANO[o.tier] || ''));
+}
+function nombreObjetoTexto(x) { const o = objeto(x); return o ? nombreO(o) : String(x || ''); }
+
+/* ---------- Build por fases (ficha de héroe) ---------- */
+/** Quita del texto las cifras reales que ya da la ficha de datos de la tarjeta (y que se desfasan al actualizar los datos);
+    el % de victorias, que la ficha no da, se pone con el dato del día */
+function sinCifrasReales(t, d) {
+  let s = String(t || '');
+  if (!s) return s;
+  // (?:[^.]|\.(?=\d))* = hasta el siguiente punto que no sea el de miles (1.650)
+  s = s.replace(/\s*\((?:[Dd]ato real|real|curva real)[^()]*\)/g, '')
+    .replace(/\s*\(~?[\d.]+ almas[^()]*%[^()]*\)/g, '')
+    .replace(/\s*\(\d+(?:,\d)?[\s ]?% de (?:las |sus )?partidas\)/g, '')
+    // Si la frase quitada seguía a «;» o «:», la anterior se cierra con punto
+    .replace(/([;:,])?\s*[Ee]n partidas reales se compra hacia el min (?:[^.]|\.(?=\d))*\./g, (m, p) => (p ? '.' : ''))
+    .replace(/([;:,])?\s*[Ee]n partidas reales:(?:[^.]|\.(?=\d))*\./g, (m, p) => (p ? '.' : ''))
+    .replace(/([;:,])?\s*[Dd]ato real:?(?:[^.]|\.(?=\d))*\./g, (m, p) => (p ? '.' : ''))
+    // "hacia el min 8,1 con ~5.200 almas (41 % de pick)" → "hacia el min 8,1": la ficha ya da almas y %
+    .replace(/\s*con ~?[\d.]+ almas(?: acumuladas)?\s*\([^()]*%[^()]*\)/g, '')
+    .replace(/\s*~?[\d.]+ almas\s*\(\d+(?:,\d)?[\s ]?%[^()]*\)/g, '');
+  if (d && d.wr != null) s = s.replace(/Con él gana el [\d,]+[\s ]?%/g, 'Con él gana el ' + fmt(d.wr, 1) + ' %');
+  return s.replace(/\s+([,.;:])/g, '$1').replace(/([;:,])\s*\./g, '.').replace(/\s{2,}/g, ' ').trim();
+}
+/** "Si mueres 2 veces…" detrás de «Cómpralo si:» → "Mueres 2 veces…" */
+function sinSiInicial(t) { const s = String(t || ''); return /^si\s/i.test(s) ? s.slice(3, 4).toUpperCase() + s.slice(4) : s; }
+function tarjetaCompra(h, e, situacional, pago, abierto) {
+  const o = objeto(e.clase || e.objeto); if (!o) return null;
+  const r = RANURAS[o.ranura] || {};
+  const d = compraDe(h, o.clase);
+  const rel = situacional ? relacionReemplazo(e.reemplaza) : null;
+  const coste = pago && pago.desde ? `${fmt(o.coste)} · pagas ${fmt(pago.paga)} si ya tienes ${nombreO(pago.desde)}` : fmt(o.coste);
+  return el('article', { class: 'compra ' + (r.clase || '') + (situacional ? ' situacional' : '') },
+    tileObjeto(o),
+    el('div', { class: 'compra-cuerpo' },
+      el('div', { class: 'compra-cab' },
+        el('button', { type: 'button', class: 'compra-nombre', onclick: () => abrirObjeto(o) }, nombreO(o)),
+        el('span', { class: 'muted pequeno num' }, coste + ' · ' + (r.nombre || '')),
+        chipCompra(d)),
+      e.cuando ? el('p', { class: 'compra-cuando' }, el('b', null, situacional ? 'Cómpralo si: ' : 'Cuándo: '), situacional ? sinSiInicial(sinCifrasReales(e.cuando, d)) : sinCifrasReales(e.cuando, d)) : null,
+      rel ? el('p', { class: 'compra-meta' }, el('b', null, rel.etiqueta + ': '), rel.texto) : null,
+      e.por_que ? el('details', { class: 'compra-mas', open: abierto }, el('summary', null, 'Por qué'), el('p', { class: 'compra-porque' }, sinCifrasReales(e.por_que, d))) : null,
+      e.nota_juego ? el('div', { class: 'compra-nota' }, el('span', { class: 'mono' }, e.nota_juego), botonCopiar(e.nota_juego, 'Copiar nota', 'Copia la nota para pegarla en este objeto dentro del editor de builds del juego')) : null));
+}
+/** "Fase inicial 0-10 · Gana la línea…" → nombre corto para la categoría del juego + el resto como su descripción */
+function partirTitulo(t, situacionales) {
+  const s = String(t || '').trim(); const i = s.indexOf(' · ');
+  if (i < 0) return { nombre: s, desc: '' };
+  let nombre = s.slice(0, i).trim(); const resto = s.slice(i + 3).trim();
+  if (situacionales && !/situacional|opcional/i.test(nombre)) nombre += ' · situacionales';
+  return { nombre, desc: resto ? resto[0].toUpperCase() + resto.slice(1) : '' };
+}
+function lineasCategoria(t, situacionales) {
+  const p = partirTitulo(t, situacionales); if (!p.nombre) return null;
+  return el('div', { class: 'lineas-categoria' },
+    lineaJuego(situacionales ? 'Nombre de la categoría opcional en el juego' : 'Nombre de la categoría en el juego', p.nombre),
+    p.desc ? lineaJuego('Descripción de la categoría', p.desc) : null);
+}
+/** Clases del núcleo de las fases anteriores a la dada (lo que ya llevas al empezarla) */
+function nucleoPrevio(h, fase) {
+  // Inventario al empezar la fase: el núcleo de las anteriores, con los componentes ya gastados en sus mejoras
+  const f = fasesDe(h); let inv = new Map();
+  for (const x of (f && f.fases) || []) { if (x === fase) break; inv = pagosDe(x.nucleo, inv).inventario; }
+  return inv;
+}
+function panelFase(h, f) {
+  const info = FASES[f.fase] || { nombre: f.fase, min: f.minutos || '' };
+  const estrecha = pantallaEstrecha();
+  const previos = nucleoPrevio(h, f);
+  const pagos = pagosDe(f.nucleo, previos);
+  const pagaFase = pagos.reduce((s, p) => s + p.paga, 0);
+  const pagoDe = (e) => pagos.find((p) => p.o.clase === (objeto(e.clase || e.objeto) || {}).clase);
+  const nucleo = el('section', { class: 'panel-fase', 'aria-label': info.nombre, id: 'fase-' + f.fase },
+    el('div', { class: 'panel-fase-cab' },
+      el('div', null, el('h3', null, info.nombre, el('span', { class: 'muted pequeno' }, ' · ' + (f.minutos || info.min) + ' min')), f.objetivo ? el('p', { class: 'sec pequeno' }, f.objetivo) : null),
+      el('span', { class: 'num pequeno muted', title: 'Almas que pagas en objetos en esta fase: al mejorar un objeto solo pagas la diferencia' }, fmtSouls(pagaFase) + ' en objetos')),
+    // Orden de compra de un vistazo, para calcarlo en el editor del juego
+    el('div', { class: 'orden-compra', 'aria-label': 'Orden de compra de la ' + info.nombre.toLowerCase() }, pagos.map((p) => tileObjeto(p.o))),
+    lineasCategoria(f.titulo_categoria_juego, false),
+    el('div', { class: 'compras' }, (f.nucleo || []).map((e) => tarjetaCompra(h, e, false, pagoDe(e), !estrecha))));
+  let opc = null;
+  if ((f.situacionales || []).length) {
+    const tituloOpc = 'Situacionales de la ' + info.nombre.toLowerCase();
+    const cuerpoOpc = [lineasCategoria(f.titulo_situacionales_juego, true), el('div', { class: 'compras' }, f.situacionales.map((e) => tarjetaCompra(h, e, true, null, false)))];
+    opc = el('section', { class: 'panel-fase opcional', 'aria-label': tituloOpc },
+      // En móvil los situacionales quedan debajo de su fase: plegados para no alargar la página
+      el('details', { class: 'opcional-plegable', open: !estrecha },
+        el('summary', { class: 'panel-fase-cab' }, el('h3', null, tituloOpc + ' ', el('span', { class: 'chip opcional-chip' }, 'Opcional')), el('span', { class: 'muted pequeno' }, f.situacionales.length + ' objetos · según el rival y la partida')),
+        cuerpoOpc));
+  }
+  return el('div', { class: 'fase-fila' + (opc ? '' : ' sin-opcional') }, nucleo, opc);
+}
+function ayudaJuego() {
+  return el('details', { class: 'plegable ayuda-juego' }, el('summary', null, 'Cómo pasar esta build al juego'),
+    el('div', { class: 'contenido sec pequeno' }, el('ol', null,
+      el('li', null, 'En el juego abre la tienda (tecla B), entra en las builds del héroe y crea una nueva (Create New Build).'),
+      el('li', null, 'Pega el nombre y la descripción de la build con los botones «Copiar» de arriba.'),
+      el('li', null, 'Por cada fase pulsa «Añadir categoría», pega su nombre y su descripción, y añade los objetos en el mismo orden.'),
+      el('li', null, 'Crea otra categoría para los situacionales de esa fase y márcala como «Opcional»: el juego la muestra a la derecha de la build.'),
+      el('li', null, 'Si el editor te deja añadir una nota al objeto, pega la que copias con «Copiar nota».'),
+      el('li', null, 'Para las habilidades usa «Editar» en «Orden de los puntos de habilidad» y sigue la secuencia de la sección Orden de habilidades.'))));
+}
+function textoBuildFases(h) {
+  const f = fasesDe(h); if (!f) return '';
+  const L = [`${f.titulo_build_juego || 'Build de ' + nombreH(h)} — ${nombreH(h)} (Taller de Deadlock)`];
+  if (f.descripcion_build_juego) L.push(f.descripcion_build_juego);
+  for (const fase of f.fases || []) {
+    const info = FASES[fase.fase] || { nombre: fase.fase };
+    const tn = partirTitulo(fase.titulo_categoria_juego || info.nombre, false);
+    L.push('', `== Categoría: ${tn.nombre}${/\d/.test(tn.nombre) ? '' : ` (${fase.minutos || info.min} min)`}`);
+    if (tn.desc) L.push('Descripción: ' + tn.desc);
+    if (fase.objetivo) L.push('Objetivo: ' + fase.objetivo);
+    const pagos = pagosDe(fase.nucleo, nucleoPrevio(h, fase));
+    (fase.nucleo || []).forEach((e, i) => {
+      const o = objeto(e.clase || e.objeto); if (!o) return; const d = compraDe(h, o.clase); const p = pagos.find((x) => x.o === o);
+      L.push(`${i + 1}. ${nombreO(o)} (${fmt(o.coste)}${p && p.desde ? ', pagas ' + fmt(p.paga) + ' si ya tienes ' + nombreO(p.desde) : ''})${d ? ' [' + textoCompra(d) + ']' : ''}`);
+      if (e.nota_juego) L.push('   Nota para el juego: ' + e.nota_juego);
+      if (e.cuando) L.push('   Cuándo: ' + sinCifrasReales(e.cuando, d));
+      if (e.por_que) L.push('   Por qué: ' + sinCifrasReales(e.por_que, d));
+    });
+    if ((fase.situacionales || []).length) {
+      const ts = partirTitulo(fase.titulo_situacionales_juego || info.nombre, true);
+      L.push('', `-- Categoría opcional: ${ts.nombre}`);
+      if (ts.desc) L.push('Descripción: ' + ts.desc);
+      for (const e of fase.situacionales) {
+        const o = objeto(e.clase || e.objeto); if (!o) continue; const rel = relacionReemplazo(e.reemplaza); const d = compraDe(h, o.clase);
+        L.push(`- ${nombreO(o)} (${fmt(o.coste)})${d ? ' [' + textoCompra(d) + ']' : ''}`);
+        if (e.nota_juego) L.push('   Nota para el juego: ' + e.nota_juego);
+        if (e.cuando) L.push('   Cómpralo si: ' + sinSiInicial(sinCifrasReales(e.cuando, d)));
+        if (rel) L.push(`   ${rel.etiqueta}: ${rel.texto}`);
+        if (e.por_que) L.push('   Por qué: ' + sinCifrasReales(e.por_que, d));
+      }
+    }
+  }
+  if ((f.vender || []).length) { L.push('', '== Qué vender y cuándo'); for (const v of f.vender) L.push(`- ${nombreObjetoTexto(v.clase || v.objeto)}: ${v.cuando}`); }
+  return L.join('\n');
+}
+function bloqueBuildFases(h) {
+  const f = fasesDe(h); if (!f || !(f.fases || []).length) return null;
+  const cont = el('div', { class: 'build-por-fases' });
+  cont.append(el('div', { class: 'fila acciones-build' },
+    el('button', { type: 'button', class: 'boton primario', onclick: () => copiar(textoBuildFases(h)) }, 'Copiar build completa'),
+    el('a', { class: 'boton', href: '#build-nueva-' + h.clase }, 'Abrir en el creador y personalizar')));
+  if (f.titulo_build_juego) cont.append(lineaJuego('Nombre de la build en el juego', f.titulo_build_juego));
+  if (f.descripcion_build_juego) cont.append(lineaJuego('Descripción de la build en el juego', f.descripcion_build_juego));
+  cont.append(ayudaJuego());
+  // Saltos rápidos entre fases (la build es larga)
+  const saltos = f.fases.map((x) => [x.fase, (FASES[x.fase] || { nombre: x.fase }).nombre.replace(/^Fase /, '')]);
+  if ((f.vender || []).length) saltos.push(['vender', 'Qué vender']);
+  cont.append(el('nav', { class: 'saltos-fase', 'aria-label': 'Ir a una fase' }, el('span', { class: 'etiqueta' }, 'Ir a'),
+    saltos.map(([id, t]) => el('a', { href: '#', onclick: (ev) => { ev.preventDefault(); const d = document.getElementById(id === 'vender' ? 'vender-build' : 'fase-' + id); if (d) d.scrollIntoView({ block: 'start' }); } }, t[0].toUpperCase() + t.slice(1)))));
+  for (const fase of f.fases) cont.append(panelFase(h, fase));
+  if ((f.vender || []).length) cont.append(el('section', { class: 'tarjeta vender', id: 'vender-build' }, el('h3', null, 'Qué vender y cuándo'),
+    el('div', { class: 'col' }, f.vender.map((v) => { const o = objeto(v.clase || v.objeto); return o ? el('div', { class: 'vender-fila' }, chipO(o), el('span', { class: 'sec pequeno' }, v.cuando)) : null; }))));
+  cont.append(el('p', { class: 'muted pequeno' }, 'Minutos y almas: media real de las partidas de los últimos 14 días con este héroe (api.deadlock-api.com). «Almas» son las almas acumuladas que se suelen llevar en ese minuto, no las que tienes en mano.'));
+  return cont;
+}
+
+/* ---------- Minimapa ---------- */
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svg(tag, attrs, ...hijos) {
+  const e = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) if (v != null) e.setAttribute(k, v);
+  for (const h of hijos.flat()) if (h != null) e.append(h instanceof Node ? h : document.createTextNode(String(h)));
+  return e;
+}
+function campamentosMapa() { return (D.mapa && D.mapa.campamentos) || []; }
+function campamento(id) { return campamentosMapa().find((c) => c.id === id) || null; }
+/** Campamento equivalente para la base de arriba: giro de 180° del mapa y el más cercano del mismo tipo */
+function campamentoGirado(c) {
+  const x = 1 - c.x, y = 1 - c.y;
+  let mejor = null, dmin = Infinity;
+  for (const d of campamentosMapa()) { if (d.tipo !== c.tipo) continue; const dd = Math.hypot(d.x - x, d.y - y); if (dd < dmin) { dmin = dd; mejor = d; } }
+  return mejor || { ...c, x, y };
+}
+/** "temprana (2:00-8:00): campamento pequeño…" → { corta: "Temprana (2:00-8:00)", resto: "Campamento pequeño…" } */
+function partirEtapa(etapa) {
+  const s = String(etapa || '').trim();
+  const m = s.match(/^([^:(,]+(?:\([^)]*\))?)[:,]?\s*(.*)$/);
+  const may = (t) => t ? t[0].toUpperCase() + t.slice(1) : '';
+  return m ? { corta: may(m[1].trim()), resto: may(m[2].trim()) } : { corta: may(s), resto: '' };
+}
+/** "~46-61 s (desplazamiento ~21 s: 131 m…; limpieza ~25-40 s según daño)" → { total: "~46-61 s", desglose: "desplazamiento ~21 s · limpieza ~25-40 s según daño" } */
+function partirTiempo(t) {
+  const s = String(t || '');
+  const m = s.match(/^([^(]+?)\s*\((.*)\)\s*$/);
+  if (!m) return { total: s, desglose: '' };
+  return { total: m[1].trim(), desglose: m[2].split(';').map((p) => p.split(':')[0].trim()).filter(Boolean).join(' · ') };
+}
+/** Pone el punto de miles a los números de 4 cifras dentro de un texto (~1389 → ~1.389) */
+// (sin tocar el año de una fecha: 06-03-2026)
+function milesEnTexto(s) { return String(s || '').replace(/(^|[^\d.,\-/])(\d)(\d{3})(?!\d)(?![.,\-/]\d)/g, '$1$2.$3'); }
+/** york_abajo_media → "ruta media"; con las horas de la etapa si las hay: "ruta media · 8:00-20:00" */
+const SUFIJO_RUTA = { temprana: 'temprana', media: 'media', walker: 'del Walker', puente: 'del puente', oeste: 'oeste', este: 'este', campanario: 'del campanario', capilla: 'de la capilla', exterior: 'exterior', obra: 'de la obra' };
+// Al girar el mapa 180°, la ruta oeste de Broadway pasa a ser la este y la de la capilla cae en la obra
+const SUFIJO_ARRIBA = { oeste: 'este', este: 'oeste', capilla: 'obra' };
+function nombreRuta(r, arriba) {
+  let suf = String(r.id || '').split('_').slice(2).join('_');
+  if (arriba && SUFIJO_ARRIBA[suf]) suf = SUFIJO_ARRIBA[suf];
+  const horas = ((partirEtapa(r.etapa).corta.match(/\(([^)]*)\)/) || [])[1] || '').split(' o ')[0];
+  return 'ruta ' + (SUFIJO_RUTA[suf] || suf || partirEtapa(r.etapa).corta.toLowerCase()) + (horas ? ' · ' + horas : '');
+}
+function rutaPorId(id) { return ((D.mapa && D.mapa.rutas) || []).find((r) => r.id === id) || null; }
+function minimapa(opts = {}) {
+  const { ruta = [], capas = ['campamentos', 'puentes', 'urna', 'grietas'], titulo = 'Minimapa', marcarCampamentos } = opts;
+  const zoom = ruta.length > 0 && opts.zoom !== false;
+  const caja = el('figure', { class: 'minimapa' });
+  // Con ruta: encuadre cuadrado alrededor de sus campamentos (mínimo 40 % del mapa); f agranda las marcas en proporción
+  let vb = [0, 0, 1000, 1000];
+  if (zoom) {
+    const xs = ruta.map((c) => c.x * 1000), ys = ruta.map((c) => c.y * 1000);
+    const lado = Math.min(1000, Math.max(400, Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) + 220));
+    const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+    const lim = (v) => Math.max(0, Math.min(1000 - lado, v));
+    vb = [lim(cx - lado / 2), lim(cy - lado / 2), lado, lado];
+  }
+  // En pantallas pequeñas el mapa se pinta a ~320 px: marcas algo más grandes para poder tocarlas
+  const f = Math.max(0.6, vb[2] / 1000) * (typeof window !== 'undefined' && window.innerWidth < 600 ? 1.35 : 1);
+  const lienzo = svg('svg', { viewBox: vb.map((v) => Math.round(v)).join(' '), role: 'img', 'aria-label': titulo });
+  // Fondo del mapa (ya aclarado en el archivo); se pide cuando el mapa se acerca a la pantalla
+  const fondo = svg('image', { x: 0, y: 0, width: 1000, height: 1000 });
+  const urlFondo = 'assets/img/mapa/minimap_midtown_mid.webp';
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((ents) => { if (ents.some((e) => e.isIntersecting)) { fondo.setAttribute('href', urlFondo); io.disconnect(); } }, { rootMargin: '800px 0px' });
+    setTimeout(() => io.observe(caja), 0);
+  } else fondo.setAttribute('href', urlFondo);
+  lienzo.append(fondo);
+  const P = (D.mapa && D.mapa.puntos) || {};
+  const capa = (n) => capas.includes(n);
+  // Tocar el mapa muestra debajo qué es la marca más cercana (el <title> no se ve en pantallas táctiles,
+  // y así también responden las marcas pequeñas)
+  const info = el('p', { class: 'info-mapa muted pequeno', 'aria-live': 'polite' }, 'Toca una marca para ver qué es.');
+  const marcas = [];
+  const conInfo = (nodo, texto, x, y) => { nodo.style.cursor = 'pointer'; marcas.push({ x, y, texto }); return nodo; };
+  lienzo.addEventListener('click', (ev) => {
+    const m = lienzo.getScreenCTM(); if (!m) return;
+    const pt = lienzo.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const q = pt.matrixTransform(m.inverse());
+    const escala = vb[2] / (lienzo.getBoundingClientRect().width || 1); // unidades del mapa por píxel de pantalla
+    let mejor = null, dmin = 24 * escala;
+    for (const mk of marcas) { const d = Math.hypot(mk.x - q.x, mk.y - q.y); if (d < dmin) { dmin = d; mejor = mk; } }
+    if (mejor) info.textContent = mejor.texto;
+  });
+  // Los números de las zonas de cajas se pintan al final, encima de las demás marcas
+  const textosEncima = [];
+  if (capa('zonas_cajas')) for (const z of (((D.mapa && D.mapa.mecanicas) || {}).cajas || {}).zonas_densas || []) {
+    const g = svg('g', null, svg('circle', { cx: z.x * 1000, cy: z.y * 1000, r: (12 + (z.cuantas || 10)) * f, fill: 'rgba(201,162,122,0.28)', stroke: '#c9a27a', 'stroke-width': 2.5 * f, 'stroke-dasharray': `${5 * f} ${4 * f}` }), svg('title', null, z.zona));
+    textosEncima.push(svg('text', { x: z.x * 1000, y: z.y * 1000 + 6 * f, 'text-anchor': 'middle', 'font-size': 16 * f, 'font-weight': 700, fill: '#f3e3cf', stroke: '#0d1110', 'stroke-width': 3 * f, 'paint-order': 'stroke', 'font-family': 'IBM Plex Mono, monospace', 'pointer-events': 'none' }, String(z.cuantas || '')));
+    lienzo.append(conInfo(g, `Zona de cajas: ${z.zona} · ${z.cuantas} piezas${z.detalle ? ' (' + z.detalle + ')' : ''}`, z.x * 1000, z.y * 1000));
+  }
+  if (capa('contenedores')) for (const p of P.contenedores || []) lienzo.append(conInfo(svg('circle', { cx: p.x * 1000, cy: p.y * 1000, r: 3.5 * Math.max(1, f), fill: '#f0c972', opacity: 0.85 }), 'Contenedor dorado: 50 % de soltar una mejora permanente. Se rompe con cualquier cosa.', p.x * 1000, p.y * 1000));
+  if (capa('cajas_duras')) for (const p of P.cajas_duras || []) lienzo.append(conInfo(svg('rect', { x: p.x * 1000 - 4 * Math.max(1, f), y: p.y * 1000 - 4 * Math.max(1, f), width: 8 * Math.max(1, f), height: 8 * Math.max(1, f), fill: '#c9a27a', stroke: '#111', 'stroke-width': 1.5 }), 'Caja dura: solo se rompe con un golpe pesado; da más almas que una de madera.', p.x * 1000, p.y * 1000));
+  if (capa('tiendas')) for (const p of P.tiendas || []) lienzo.append(conInfo(svg('rect', { x: p.x * 1000 - 9 * f, y: p.y * 1000 - 9 * f, width: 18 * f, height: 18 * f, rx: 3, fill: '#4fb3bf', stroke: '#0d1110', 'stroke-width': 3 * f }), 'Tienda (lateral o secreta).', p.x * 1000, p.y * 1000));
+  if (capa('campamentos')) for (const c of campamentosMapa()) {
+    const t = TIPO_CAMPAMENTO[c.tipo] || TIPO_CAMPAMENTO.medium;
+    const dest = marcarCampamentos && marcarCampamentos.has(c.id);
+    const r = t.r * f, op = dest || !marcarCampamentos ? 1 : 0.45;
+    const forma = c.tipo === 'vault'
+      ? svg('rect', { x: c.x * 1000 - r, y: c.y * 1000 - r, width: r * 2, height: r * 2, transform: `rotate(45 ${c.x * 1000} ${c.y * 1000})`, fill: t.color, stroke: '#0d1110', 'stroke-width': 3 * f, opacity: op })
+      : svg('circle', { cx: c.x * 1000, cy: c.y * 1000, r, fill: t.color, stroke: '#0d1110', 'stroke-width': 3 * f, opacity: op });
+    const texto = `${c.nombre || c.id} · ${t.nombre}${c.aparece ? ' · aparece ' + c.aparece : ''}${c.reaparece ? ' · reaparece ' + c.reaparece : ''}`;
+    forma.append(svg('title', null, texto));
+    lienzo.append(conInfo(forma, texto, c.x * 1000, c.y * 1000));
+  }
+  if (capa('puentes')) for (const p of P.puentes || []) lienzo.append(conInfo(svg('rect', { x: p.x * 1000 - 13 * f, y: p.y * 1000 - 13 * f, width: 26 * f, height: 26 * f, transform: `rotate(45 ${p.x * 1000} ${p.y * 1000})`, fill: '#6f9cf2', stroke: '#fff', 'stroke-width': 3 * f }, svg('title', null, 'Mejora de puente')), 'Mejora de puente: sale a las 5:00 y cada 5 minutos; dura 160 s.', p.x * 1000, p.y * 1000));
+  if (capa('urna')) for (const p of P.urna || []) lienzo.append(conInfo(svg('circle', { cx: p.x * 1000, cy: p.y * 1000, r: 11 * f, fill: 'none', stroke: '#5fd3c0', 'stroke-width': 5 * f }, svg('title', null, 'Urna de almas')), 'Urna de almas: aparece a las 10:00 y da 4 mejoras permanentes a quien la entrega.', p.x * 1000, p.y * 1000));
+  if (capa('grietas')) for (const p of P.grietas || []) lienzo.append(conInfo(svg('circle', { cx: p.x * 1000, cy: p.y * 1000, r: 13 * f, fill: 'none', stroke: '#e86b8f', 'stroke-width': 4 * f, 'stroke-dasharray': `${6 * f} ${5 * f}` }, svg('title', null, 'Grieta inestable')), 'Grieta inestable: sale entre las 10:00 y las 12:00, en el puente de York o en el de Greenwich.', p.x * 1000, p.y * 1000));
+  if (ruta.length) {
+    // Ruta en blanco: un color que no usa ninguna otra marca del mapa; números con un tamaño mínimo legible
+    // En el mapa entero los números serían diminutos (sobre todo en el móvil): tamaño mínimo legible
+    const fr = Math.max(f, vb[2] / 1000 >= 0.99 ? (window.innerWidth < 600 ? 2 : 1.25) : f);
+    const pts = ruta.map((c) => `${c.x * 1000},${c.y * 1000}`).join(' ');
+    lienzo.append(svg('polyline', { points: pts, fill: 'none', stroke: '#0d1110', 'stroke-width': 11 * f, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+    lienzo.append(svg('polyline', { points: pts, fill: 'none', stroke: '#ffffff', 'stroke-width': 6 * f, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': `${14 * f} ${8 * f}` }));
+    ruta.forEach((c, i) => {
+      const t = TIPO_CAMPAMENTO[c.tipo] || {};
+      const g = svg('g', null,
+        svg('circle', { cx: c.x * 1000, cy: c.y * 1000, r: 17 * fr, fill: '#ffffff', stroke: '#0d1110', 'stroke-width': 3 * fr }),
+        svg('text', { x: c.x * 1000, y: c.y * 1000 + 6 * fr, 'text-anchor': 'middle', 'font-size': 18 * fr, 'font-weight': 700, fill: '#0d1110', 'font-family': 'IBM Plex Mono, monospace' }, String(i + 1)),
+        svg('title', null, `${i + 1}. ${c.nombre || c.id}`));
+      // Al final de la lista: si coincide con otra marca, gana el paso de la ruta
+      marcas.unshift({ x: c.x * 1000, y: c.y * 1000, texto: `${i + 1}. ${c.nombre || c.id} · ${t.nombre || ''}${c.aparece ? ' · aparece ' + c.aparece : ''}` });
+      g.style.cursor = 'pointer';
+      lienzo.append(g);
+    });
+  }
+  // Nombres de carril y de base encima de todo, para orientarse (York a la izquierda, Greenwich a la derecha;
+  // Hidden King abajo). En la vista ampliada solo los que caben enteros en el encuadre.
+  lienzo.append(textosEncima);
+  const cabe = (x, y, ancho, alto) => x - ancho / 2 >= vb[0] && x + ancho / 2 <= vb[0] + vb[2] && y - alto * 0.8 >= vb[1] && y <= vb[1] + vb[3];
+  const rotulo = (x, y, t, tam, color) => (cabe(x, y, t.length * tam * f * 0.6, tam * f) ? svg('text', { x, y, 'text-anchor': 'middle', 'font-size': tam * f, 'font-weight': 700, fill: color || '#f3eee2', stroke: '#0d1110', 'stroke-width': 4 * f, 'paint-order': 'stroke', 'font-family': 'Inter, system-ui, sans-serif', 'pointer-events': 'none' }, t) : null);
+  for (const y of [270, 730]) lienzo.append(rotulo(165, y, 'York', 26, '#f1cc30'), rotulo(500, y, 'Broadway', 26, '#7fd3e6'), rotulo(845, y, 'Greenwich', 26, '#8fd27a'));
+  lienzo.append(rotulo(500, 985, 'Base Hidden King', 24), rotulo(500, 34, 'Base Archmother', 24));
+  caja.append(lienzo);
+  if (ruta.length) caja.append(el('button', { type: 'button', class: 'boton-mapa', onclick: () => caja.replaceWith(minimapa({ ...opts, zoom: !zoom })) }, zoom ? 'Ver el mapa entero' : 'Acercar a la ruta'));
+  caja.append(info);
+  const ley = el('figcaption', { class: 'leyenda-mapa' });
+  if (capa('campamentos')) for (const [k, t] of Object.entries(TIPO_CAMPAMENTO)) ley.append(el('span', null, el('i', { style: { background: t.color, borderRadius: k === 'vault' ? '2px' : '50%', transform: k === 'vault' ? 'rotate(45deg) scale(0.85)' : null } }), t.nombre));
+  if (capa('puentes')) ley.append(el('span', null, el('i', { style: { background: '#6f9cf2', transform: 'rotate(45deg)', borderRadius: '2px' } }), 'Mejora de puente'));
+  if (capa('urna')) ley.append(el('span', null, el('i', { style: { border: '3px solid #5fd3c0', background: 'transparent', borderRadius: '50%' } }), 'Urna'));
+  if (capa('grietas')) ley.append(el('span', null, el('i', { style: { border: '3px dashed #e86b8f', background: 'transparent', borderRadius: '50%' } }), 'Grieta'));
+  if (capa('contenedores')) ley.append(el('span', null, el('i', { style: { background: '#f0c972', borderRadius: '50%', width: '7px', height: '7px' } }), 'Contenedor de mejoras'));
+  if (capa('zonas_cajas')) ley.append(el('span', null, el('i', { style: { border: '2px dashed #c9a27a', background: 'rgba(201,162,122,0.28)', borderRadius: '50%' } }), 'Zona de cajas (nº de piezas)'));
+  if (capa('cajas_duras')) ley.append(el('span', null, el('i', { style: { background: '#c9a27a' } }), 'Caja dura'));
+  if (capa('tiendas')) ley.append(el('span', null, el('i', { style: { background: '#4fb3bf' } }), 'Tienda'));
+  if (ruta.length) ley.append(el('span', null, el('i', { style: { background: '#ffffff', borderRadius: '50%', border: '1px solid #0d1110' } }), 'Ruta (en orden)'));
+  caja.append(ley);
+  return caja;
+}
+
+/* ---------- Plan de mapa (ficha de héroe) ---------- */
+function bloquePlanMapa(h) {
+  const f = fasesDe(h); const pm = f && f.plan_mapa; if (!pm) return null;
+  const M = (D.mapa && D.mapa.mecanicas) || {};
+  const mp = M.mejoras_puente || {};
+  const cont = el('div', { class: 'plan-mapa' });
+  // Con la base arriba elegida: el plan está escrito para la base de abajo (las rutas sí se giran)
+  const avisoArriba = el('div', { class: 'aviso-caja', hidden: PREF.ladoMapa !== 'arriba' }, el('b', null, 'Juegas con la base arriba (Archmother). '), 'Los textos de este plan están escritos para la base de abajo: cambia York por Greenwich (y al revés) y cada campamento por su equivalente. Las rutas de jungla de más abajo ya están giradas para tu lado.');
+  cont.append(avisoArriba);
+  if (pm.linea) cont.append(el('div', { class: 'nota-caja' }, el('b', null, 'Línea: '), pm.linea));
+
+  const grid = el('div', { class: 'grid-2', style: { marginTop: '14px' } });
+  // Mejoras de puente
+  const cajaPuente = el('section', { class: 'tarjeta' }, el('h3', null, 'Mejoras de los puentes: cuáles coger'),
+    el('p', { class: 'muted pequeno' }, 'Salen a las 5:00 y cada 5 minutos en los dos puentes del centro, una en cada uno y visible en el minimapa. El tipo es al azar (a las 10:00 suelen salir los dos que no salieron a las 5:00, aunque no está confirmado). Se cogen con un golpe pesado, duran 160 s y se pierden al morir. ', el('a', { href: '#guia-mapa' }, 'Más detalles en la guía del mapa'), '.'));
+  const lista = el('div', { class: 'puentes' });
+  for (const m of (pm.mejoras_puente || []).slice().sort((a, b) => (a.prioridad || 9) - (b.prioridad || 9))) {
+    const t = MEJORAS_PUENTE[m.tipo] || { nombre: m.tipo, juego: '', color: 'var(--laton)', efecto: '' };
+    const ir = String(m.ir_a_por_ella || '');
+    lista.append(el('div', { class: 'puente', style: { '--c': t.color } },
+      el('div', { class: 'puente-cab' }, el('span', { class: 'puente-prio num', title: 'Prioridad' }, m.prioridad || '–'), el('b', null, t.nombre), el('span', { class: 'muted pequeno' }, t.juego ? `${t.juego} · ${t.efecto}` : ''),
+        ir ? el('span', { class: 'chip ' + (/siempre/i.test(ir) ? 'ok' : /no merece/i.test(ir) ? 'mal' : 'aviso') }, ir) : null),
+      m.por_que ? el('p', { class: 'sec pequeno' }, m.por_que) : null));
+  }
+  cajaPuente.append(lista);
+  cajaPuente.append(el('details', { class: 'plegable', style: { marginTop: '8px' } }, el('summary', null, '¿Son permanentes las mejoras de los puentes?'), el('div', { class: 'contenido' }, aclaracionPermanentes())));
+  if (pm.mejoras_permanentes) cajaPuente.append(el('div', { style: { marginTop: '10px' } }, el('div', { class: 'etiqueta' }, 'Mejoras permanentes (contenedores dorados, Sinner\'s Sacrifice)'), el('p', { class: 'sec pequeno' }, pm.mejoras_permanentes)));
+  grid.append(cajaPuente);
+
+  // Cronología
+  if ((pm.cronologia || []).length) grid.append(el('section', { class: 'tarjeta' }, el('h3', null, 'Minuto a minuto'),
+    el('ol', { class: 'cronologia' }, pm.cronologia.map((c) => el('li', null, el('span', { class: 'cron-min num' }, c.min), el('span', null, c.accion))))));
+  cont.append(grid);
+
+  // Jungla y rutas
+  const jg = pm.jungla || {};
+  const cajaJ = el('section', { class: 'tarjeta', style: { marginTop: '14px' } }, el('h3', null, 'Jungla: cuándo y por dónde'));
+  if (jg.cuando_empezar) cajaJ.append(el('p', { class: 'sec' }, el('b', null, 'Cuándo empezar: '), jg.cuando_empezar));
+  if (jg.que_campamentos) cajaJ.append(el('p', { class: 'sec' }, el('b', null, 'Qué campamentos: '), jg.que_campamentos));
+  const rutas = (jg.rutas || []).map((r) => ({ ...r, def: rutaPorId(r.ruta_id) })).filter((r) => r.def);
+  if (rutas.length && campamentosMapa().length) {
+    const carrilDe = (r) => r.def.carril || r.carril;
+    const sufijo = (r) => String(r.def.id || '').split('_').slice(2).join('_');
+    const lado0 = PREF.ladoMapa === 'arriba' ? 'arriba' : 'abajo';
+    // Con la base arriba, tu carril C usa la ruta de abajo del carril espejo, girada 180°
+    const carrilVisto = (r, lado) => (lado === 'abajo' ? carrilDe(r) : CARRIL_ESPEJO[carrilDe(r)]);
+    const estado = { lado: lado0, carril: carrilVisto(rutas[0], lado0), etapa: sufijo(rutas[0]) };
+    const zona = el('div', { class: 'ruta-zona' });
+    const ctlCarril = el('div', { class: 'control' }), ctlEtapa = el('div', { class: 'control' });
+    const controles = el('div', { class: 'controles', style: { margin: '8px 0' } },
+      el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Tu base en el minimapa'), segmento([['abajo', 'Abajo (Hidden King)'], ['arriba', 'Arriba (Archmother)']], estado.lado, (v) => { estado.lado = v; PREF.ladoMapa = v; guardarPref(); avisoArriba.hidden = v !== 'arriba'; pintarControles(); pintar(); }, null, 'Tu base en el minimapa')),
+      ctlCarril, ctlEtapa);
+    cajaJ.append(controles, zona);
+    const opcionesDe = () => rutas.filter((r) => carrilVisto(r, estado.lado) === estado.carril);
+    function pintarControles() {
+      const carriles = ['York', 'Broadway', 'Greenwich'].filter((c) => rutas.some((r) => carrilVisto(r, estado.lado) === c));
+      if (!carriles.includes(estado.carril)) estado.carril = carriles[0];
+      ctlCarril.innerHTML = ''; ctlCarril.append(el('span', { class: 'etiqueta' }, 'Tu carril'), segmento(carriles.map((c) => [c, c]), estado.carril, (v) => { estado.carril = v; pintarControles(); pintar(); }, null, 'Tu carril'));
+      const ops = opcionesDe();
+      if (!ops.some((r) => sufijo(r) === estado.etapa)) estado.etapa = ops.length ? sufijo(ops[0]) : '';
+      ctlEtapa.innerHTML = '';
+      if (ops.length > 1) ctlEtapa.append(el('span', { class: 'etiqueta' }, 'Ruta'), segmento(ops.map((r) => [sufijo(r), nombreRuta(r.def, estado.lado === 'arriba').replace(/^ruta /, '')]), estado.etapa, (v) => { estado.etapa = v; pintar(); }, null, 'Ruta de jungla'));
+    }
+    pintarControles();
+    // La primera frase de «Cuándo salir» habla de oleadas y tiempos; las siguientes nombran campamentos del otro lado
+    const primeraFrase = (t) => String(t || '').replace(/\([^)]*\)/g, '').replace(/\s{2,}/g, ' ').replace(/\s+([.,;:])/g, '$1')
+      .split(/(?<=[a-záéíóú0-9)])\.\s+(?=[A-ZÁÉÍÓÚ])|;\s+/)[0].replace(/\.?\s*$/, '.')
+      .replace(/\bla (oeste|este)\b/g, (m, x) => 'la ' + (x === 'oeste' ? 'este' : 'oeste'));
+    const cambiaCarriles = (t) => String(t || '').replace(/\b(York|Greenwich)\b/g, (m) => (m === 'York' ? 'Greenwich' : 'York'));
+    const pintar = () => {
+      zona.innerHTML = '';
+      const ops = opcionesDe();
+      const r = ops.find((x) => sufijo(x) === estado.etapa) || ops[0];
+      if (!r) { zona.append(el('div', { class: 'vacio' }, 'No hay ruta para este carril con este héroe.')); return; }
+      const arriba = estado.lado === 'arriba';
+      // Base arriba: cada campamento se cambia por su equivalente exacto al otro lado (dato del mapa); si falta, el más cercano girado
+      const pasos = [];
+      for (const p of r.def.pasos || []) {
+        const c0 = campamento(p.campamento); if (!c0) continue;
+        const c = arriba ? (c0.espejo && campamento(c0.espejo)) || campamentoGirado(c0) : c0;
+        if (pasos.length && pasos[pasos.length - 1].c.id === c.id) continue;
+        // El mapa es casi simétrico: si el equivalente cae lejos del punto girado o cambia de tipo, se avisa
+        const aprox = arriba && (Math.hypot(1 - c0.x - c.x, 1 - c0.y - c.y) > 0.06 || c.tipo !== c0.tipo);
+        pasos.push({ c, nota: arriba ? '' : p.nota, aprox });
+      }
+      const cuadro = el('div', { class: 'ruta-grid' });
+      cuadro.append(minimapa({ ruta: pasos.map((p) => p.c), marcarCampamentos: new Set(pasos.map((p) => p.c.id)), titulo: 'Ruta de jungla en ' + estado.carril }));
+      const et = partirEtapa(r.def.etapa), tp = partirTiempo(r.def.tiempo_aprox);
+      const detalleCamp = (c) => [c.composicion, c.almas_aprox ? 'almas: ' + milesEnTexto(c.almas_aprox) : ''].filter(Boolean).join(' · ');
+      // Almas de la vuelta con la base arriba: suma de lo que dan sus campamentos a los 10 min
+      const almas10 = (c) => { const m = String(c.almas_aprox || '').match(/~?([\d.]+) a los 10 min/); return m ? parseInt(m[1].replace(/\./g, ''), 10) : 0; };
+      const sumaArriba = arriba ? pasos.reduce((s, p) => s + almas10(p.c), 0) : 0;
+      const sinEquivalente = arriba && /campanario/.test(r.def.id || '');
+      const lista2 = el('div', null,
+        el('h4', { class: 'ruta-titulo' }, estado.carril + ' · ' + nombreRuta(r.def, arriba)),
+        tp.total ? el('p', { class: 'muted pequeno' }, 'Unos ' + tp.total.replace(/^~/, '') + (tp.desglose ? ' (' + tp.desglose + ')' : '')) : null,
+        sinEquivalente ? el('div', { class: 'aviso-caja' }, 'Esta ruta no tiene equivalente exacto con la base arriba: los Sinner\'s de ese lado están sueltos en la Sunken Plaza. Los pasos son los más parecidos.') : null,
+        // Con la base arriba, los textos escritos para la ruta de abajo nombran campamentos de ese lado: no se muestran
+        !arriba && et.resto ? el('p', { class: 'sec pequeno' }, et.resto) : null,
+        r.def.cuando ? el('p', { class: 'sec pequeno' }, el('b', null, 'Cuándo salir: '), arriba ? primeraFrase(cambiaCarriles(r.def.cuando)) : r.def.cuando) : null,
+        el('ol', { class: 'pasos-ruta' }, pasos.map((p) => el('li', null, el('b', null, p.c.nombre || p.c.id),
+          el('span', { class: 'muted pequeno' }, (/sinner/i.test(p.c.nombre || '') ? '' : ' · ' + ((TIPO_CAMPAMENTO[p.c.tipo] || {}).nombre || p.c.tipo)) + (p.c.aparece ? ' · aparece ' + p.c.aparece : '') + (p.c.reaparece ? ' · reaparece ' + p.c.reaparece : '')),
+          p.aprox ? el('span', { class: 'chip aviso pequeno', style: { marginLeft: '6px' }, title: 'Al otro lado no hay un campamento idéntico en ese sitio: es el más parecido' }, 'equivalente aproximado') : null,
+          p.nota ? el('div', { class: 'sec pequeno' }, milesEnTexto(p.nota)) : (detalleCamp(p.c) ? el('div', { class: 'sec pequeno' }, detalleCamp(p.c)) : null)))),
+        r.nota ? el('div', { class: 'nota-caja' }, el('b', null, 'Con ' + nombreH(h) + (arriba ? ' (consejo escrito para la base de abajo; sirve con los campamentos equivalentes): ' : ': ')), r.nota) : null,
+        !arriba && r.def.almas_aprox ? el('p', { class: 'muted pequeno' }, 'Almas aproximadas de la vuelta: ' + milesEnTexto(r.def.almas_aprox)) : null,
+        arriba && sumaArriba ? el('p', { class: 'muted pequeno' }, 'Almas de estos campamentos a los 10 min: ~' + fmt(sumaArriba) + ' (más cajas y mejoras).') : null,
+        arriba ? el('p', { class: 'muted pequeno' }, 'Base arriba: es la ruta de abajo girada 180°, con York y Greenwich cambiados. El mapa es casi simétrico: los pasos sin equivalente exacto van marcados.') : null);
+      cuadro.append(lista2);
+      zona.append(cuadro);
+    };
+    pintar();
+  }
+  if (pm.cajas) cajaJ.append(el('p', { class: 'sec', style: { marginTop: '10px' } }, el('b', null, 'Cajas: '), pm.cajas));
+  if (pm.rotaciones) cajaJ.append(el('p', { class: 'sec' }, el('b', null, 'Rotaciones: '), pm.rotaciones));
+  cont.append(cajaJ);
+  return cont;
+}
+
+/* ---------- Guía: mapa y jungla ---------- */
+/** Respuesta corta a la duda más común: las mejoras de los puentes NO son permanentes */
+function aclaracionPermanentes() {
+  return el('ul', { class: 'lista-aclaracion sec pequeno' },
+    el('li', null, el('b', null, 'Las de los puentes son temporales: '), 'duran 160 s y se pierden al morir. Salen desde las 5:00 (no desde las 10:00) y se renuevan cada 5 minutos.'),
+    el('li', null, el('b', null, 'Lo que pasa a las 10:00 y confunde: '), 'sale la segunda tanda de los puentes, aparece la Urna de almas, las mejoras permanentes suben a nivel 2 y, entre las 10:00 y las 12:00, sale la Grieta inestable.'),
+    el('li', null, el('b', null, 'Las permanentes salen de: '), 'contenedores dorados (50 % de soltar una), Sinner\'s Sacrifice (desde las 8:00; con golpe pesado da 4), la Urna (4 a quien la entrega), el jefe central (2 a cada jugador del equipo) y el objeto Golden Goose Egg.'));
+}
+
+/** Nombres en español de los puntos del mapa (los datos traen claves internas) */
+const NOMBRE_PUNTO = { urna: 'Urna de almas', grieta: 'Grieta inestable', sinner: 'Sinner\'s Sacrifice', jefe_central: 'Jefe central', respiraderos: 'Respiraderos de vapor', snacks: 'Tentempiés de curación', teletransportes: 'Teletransportes', tienda_lateral: 'Tienda lateral', tienda_secreta: 'Tienda secreta', pozo_base: 'Pozo de almas de la base', movilidad_mapa: 'Cuerdas, plataformas de salto y túneles' };
+/** Termina una frase con punto si no lo tiene */
+function frase(t) { const s = String(t || '').trim(); return !s ? '' : /[.!?…)]$/.test(s) ? s : s + '.'; }
+/** Celda de tabla con su etiqueta (en móvil la tabla se ve como tarjetas y la etiqueta va delante) */
+function celda(etiqueta, contenido, clase) { return el('td', { 'data-label': etiqueta, class: clase || null }, contenido); }
+
+function vistaGuiaMapa() {
+  const cont = el('div', { class: 'guia-mapa' });
+  const M = (D.mapa && D.mapa.mecanicas) || null;
+  if (!M) { cont.append(el('div', { class: 'vacio' }, 'La guía del mapa se cargará en la próxima actualización.')); return cont; }
+  const mp = M.mejoras_puente || {};
+  const secciones = [];
+  const seccion = (id, titulo, ...hijos) => { secciones.push([id, titulo]); return el('section', { class: 'seccion', id }, el('h2', null, titulo), ...hijos); };
+  const indice = el('nav', { class: 'saltos-fase indice-mapa', 'aria-label': 'Secciones de la guía del mapa' });
+  cont.append(indice);
+
+  // Mejoras de puente
+  const filasP = [['Qué son', mp.que_son], ['Dónde', mp.donde], ['Cuándo aparecen', mp.aparecen], ['Cuánto duran', mp.duracion], ['Si nadie la coge', mp.caducan], ['Cómo se coge', mp.como_coger]].filter((f) => f[1]);
+  const secP = seccion('gm-puentes', 'Mejoras de los puentes');
+  if (filasP.length) secP.append(el('dl', { class: 'ficha-dl' }, filasP.map(([k, v]) => [el('dt', null, k), el('dd', null, v)])));
+  secP.append(el('div', { class: 'nota-caja' }, el('b', null, '¿Son permanentes? No.'), aclaracionPermanentes()));
+  if ((mp.tipos || []).length) {
+    const tb = el('table', { class: 'tabla tabla-tarjetas' }, el('thead', null, el('tr', null, ['Tipo', 'Minuto 5', 'Minuto 20', 'Minuto 40', 'A quién le sirve'].map((t) => el('th', null, t)))));
+    tb.append(el('tbody', null, mp.tipos.map((t) => {
+      const T = MEJORAS_PUENTE[t.id] || { nombre: t.nombre_es || t.id, color: 'var(--laton)' };
+      return el('tr', null, celda('Tipo', [el('span', { class: 'chip', style: { color: T.color } }, T.nombre), t.nombre_juego_en ? el('div', { class: 'muted pequeno' }, 'En inglés: ' + t.nombre_juego_en) : null]),
+        celda('Minuto 5', t.efecto_min5 || '—', 'pequeno'), celda('Minuto 20', t.efecto_min20 || '—', 'pequeno'), celda('Minuto 40', t.efecto_min40 || '—', 'pequeno'), celda('A quién le sirve', t.para_quien || '', 'pequeno sec col-ancha'));
+    })));
+    secP.append(el('div', { class: 'tabla-env' }, tb));
+  }
+  cont.append(secP);
+
+  // Mejoras permanentes
+  const perm = M.mejoras_permanentes || {};
+  if ((perm.fuentes || []).length || (perm.tipos || []).length) {
+    const secM = seccion('gm-permanentes', 'Mejoras permanentes');
+    const limpio = (v) => (v && v.trim() !== '—' ? v : null);
+    if ((perm.fuentes || []).length) secM.append(el('ul', { class: 'sec' }, perm.fuentes.map((x) => el('li', null, el('b', null, x.fuente + ': '), [x.como, x.cuando, x.probabilidad].map(limpio).filter(Boolean).join(' · ')))));
+    if ((perm.tipos || []).length) {
+      const tb = el('table', { class: 'tabla tabla-tarjetas' }, el('thead', null, el('tr', null, ['Mejora', 'Desde el min 0', 'Desde el min 10', 'Desde el min 30'].map((t) => el('th', null, t)))));
+      tb.append(el('tbody', null, perm.tipos.map((t) => el('tr', null, celda('Mejora', el('b', null, t.nombre_es || String(t.id).replace(/_/g, ' '))), celda('Desde el min 0', t.valores_min0 || '—', 'pequeno nowrap'), celda('Desde el min 10', t.valores_min10 || '—', 'pequeno nowrap'), celda('Desde el min 30', t.valores_min30 || '—', 'pequeno nowrap')))));
+      secM.append(el('div', { class: 'tabla-env' }, tb));
+    }
+    if (perm.se_pueden_elegir) secM.append(el('p', { class: 'sec' }, el('b', null, '¿Se puede elegir? '), perm.se_pueden_elegir));
+    cont.append(secM);
+  }
+
+  // Mapa completo con capas
+  const secMapa = seccion('gm-mapa', 'Mapa: campamentos, puentes, urna y grietas');
+  const capasDisp = [['campamentos', 'Campamentos'], ['puentes', 'Mejoras de puente'], ['urna', 'Urna'], ['grietas', 'Grieta'], ['zonas_cajas', 'Zonas de cajas'], ['contenedores', 'Contenedores de mejoras'], ['cajas_duras', 'Cajas duras'], ['tiendas', 'Tiendas']];
+  let capas = ['campamentos', 'puentes', 'urna', 'grietas', 'tiendas'];
+  const zonaMapa = el('div');
+  const chips = el('div', { class: 'fila', style: { marginBottom: '8px' } }, capasDisp.map(([k, t]) => el('button', { type: 'button', class: 'chip boton-chip' + (capas.includes(k) ? ' activo' : ''), 'aria-pressed': capas.includes(k) ? 'true' : 'false', onclick: (e) => { capas = capas.includes(k) ? capas.filter((x) => x !== k) : [...capas, k]; e.currentTarget.classList.toggle('activo'); e.currentTarget.setAttribute('aria-pressed', capas.includes(k) ? 'true' : 'false'); pintarMapa(); } }, t)));
+  const pintarMapa = () => { zonaMapa.innerHTML = ''; zonaMapa.append(el('div', { class: 'mapa-grande' }, minimapa({ capas, titulo: 'Mapa con capas' }))); };
+  secMapa.append(chips, zonaMapa); pintarMapa();
+  cont.append(secMapa);
+
+  // Cronología
+  if ((M.cronologia || []).length) cont.append(seccion('gm-cronologia', 'Cronología de la partida', el('ol', { class: 'cronologia' }, M.cronologia.map((c) => el('li', null, el('span', { class: 'cron-min num' }, c.min), el('span', null, c.evento))))));
+
+  // Oleadas y cajas
+  const otros = el('div', { class: 'grid-2' });
+  if (M.ciclo_oleadas) {
+    // "Intro… Ventanas para la jungla: (1) … (2) …" → párrafo + lista
+    const partes = String(M.ciclo_oleadas).split(/\s*\((\d)\)\s*/);
+    const intro = partes[0]; const items = []; for (let i = 2; i < partes.length; i += 2) items.push(partes[i].replace(/[;,]\s*$/, ''));
+    otros.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Oleadas y tiempo para la jungla'), el('p', { class: 'sec pequeno' }, intro), items.length ? el('ol', { class: 'sec pequeno lista-ventanas' }, items.map((t) => el('li', null, frase(t[0].toUpperCase() + t.slice(1))))) : null));
+  }
+  const cj = M.cajas || {};
+  // Zonas con más cajas del lado de abajo (las de arriba son sus equivalentes girados)
+  const zonas = (cj.zonas_densas || []).filter((z) => z.lado !== 'arriba').sort((a, b) => (b.cuantas || 0) - (a.cuantas || 0)).slice(0, 8);
+  if (cj.aparecen || cj.consejo) otros.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Cajas'),
+    el('dl', { class: 'ficha-dl compacta' }, [['Aparecen', cj.aparecen], ['Reaparecen', cj.reaparecen], ['Tipos', cj.tipos], ['Qué dan', cj.que_dan]].filter((x) => x[1]).map(([k, v]) => [el('dt', null, k), el('dd', { class: 'pequeno' }, frase(v))])),
+    cj.consejo ? el('p', { class: 'sec pequeno' }, el('b', null, 'Consejo: '), cj.consejo) : null,
+    zonas.length ? el('div', null, el('div', { class: 'etiqueta', style: { marginTop: '10px' } }, 'Dónde hay más cajas (base abajo; actívalo en el mapa con «Zonas de cajas»)'),
+      el('ol', { class: 'sec pequeno lista-ventanas' }, zonas.map((z) => el('li', null, el('b', null, z.zona), ' · ' + z.cuantas + ' piezas' + (z.detalle ? ': ' + z.detalle : ''))))) : null));
+  if (otros.children.length) cont.append(seccion('gm-oleadas', 'Oleadas y cajas', otros));
+
+  // Otros puntos del mapa
+  if ((M.otros || []).length) cont.append(seccion('gm-otros', 'Otros objetivos y puntos del mapa', el('div', { class: 'grid-3' }, M.otros.map((o) => el('div', { class: 'tarjeta' },
+    el('h3', null, NOMBRE_PUNTO[o.id] || String(o.id).replace(/_/g, ' ')), o.nombre_en ? el('div', { class: 'muted pequeno' }, 'En inglés: ' + o.nombre_en) : null,
+    el('dl', { class: 'ficha-dl compacta' }, [['Cuándo', o.cuando], ['Dónde', o.donde], ['Para qué', o.para_que]].filter((x) => x[1] && x[1].trim() !== '—').map(([k, v]) => [el('dt', null, k), el('dd', { class: 'pequeno' }, v)])))))));
+
+  // Rutas tipo
+  const rutas = (D.mapa && D.mapa.rutas) || [];
+  if (rutas.length) {
+    const secR = seccion('gm-rutas', 'Rutas de jungla por carril', el('p', { class: 'sec' }, 'Rutas para la base de abajo (Hidden King). Con la base arriba (Archmother), la ruta del carril York equivale a la de Greenwich girada 180° (y al revés). En la ficha de cada héroe tienes las que mejor le encajan, con el botón para cambiar de lado.'));
+    let sel = rutas[0].id;
+    const zona = el('div');
+    const pintarR = () => {
+      zona.innerHTML = '';
+      const r = rutas.find((x) => x.id === sel) || rutas[0];
+      const pasos = (r.pasos || []).map((p) => ({ c: campamento(p.campamento), nota: p.nota })).filter((p) => p.c);
+      const et = partirEtapa(r.etapa), tp = partirTiempo(r.tiempo_aprox);
+      zona.append(el('div', { class: 'ruta-grid' }, minimapa({ ruta: pasos.map((p) => p.c), marcarCampamentos: new Set(pasos.map((p) => p.c.id)) }),
+        el('div', null, el('h3', { class: 'ruta-titulo' }, `${r.carril} · ${nombreRuta(r)}`), et.resto ? el('p', { class: 'sec pequeno' }, et.resto) : null, r.para ? el('p', { class: 'sec pequeno' }, el('b', null, 'Para: '), r.para) : null, r.cuando ? el('p', { class: 'sec pequeno' }, el('b', null, 'Cuándo: '), r.cuando) : null,
+          el('ol', { class: 'pasos-ruta' }, pasos.map((p) => el('li', null, el('b', null, p.c.nombre || p.c.id), el('span', { class: 'muted pequeno' }, (/sinner/i.test(p.c.nombre || '') ? '' : ' · ' + ((TIPO_CAMPAMENTO[p.c.tipo] || {}).nombre || '')) + (p.c.aparece ? ' · aparece ' + p.c.aparece : '')), p.nota ? el('div', { class: 'sec pequeno' }, milesEnTexto(p.nota)) : null))),
+          tp.total ? el('p', { class: 'muted pequeno' }, 'Tiempo aproximado: ' + tp.total + (tp.desglose ? ' (' + tp.desglose + ')' : '')) : null,
+          r.almas_aprox ? el('p', { class: 'muted pequeno' }, 'Almas aproximadas: ' + milesEnTexto(r.almas_aprox)) : null)));
+    };
+    const select = el('select', { class: 'select', 'aria-label': 'Elegir ruta', onchange: (e) => { sel = e.target.value; pintarR(); } }, rutas.map((r) => el('option', { value: r.id }, `${r.carril} · ${nombreRuta(r)}`)));
+    secR.append(el('div', { class: 'controles' }, el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Ruta'), select)), zona);
+    pintarR();
+    cont.append(secR);
+  }
+
+  // Campamentos (tabla filtrable; en móvil, tarjetas)
+  const camps = campamentosMapa();
+  if (camps.length) {
+    const secC = seccion('gm-campamentos', `Los ${camps.length} campamentos`, el('p', { class: 'sec pequeno' }, 'Tipo, carril, cuándo aparecen y reaparecen, y cuántas almas dan. Los Sinner\'s Sacrifice son máquinas: se golpean (mejor con golpe pesado) y el último golpe, con todas las luces encendidas, da 4 mejoras permanentes.'));
+    // En móvil la lista de 51 tarjetas es muy larga: empieza filtrada por York
+    let filtro = pantallaEstrecha() ? 'York' : '';
+    const zonaT = el('div', { class: 'tabla-env' });
+    const pintarT = () => {
+      zonaT.innerHTML = '';
+      const tb = el('table', { class: 'tabla tabla-tarjetas tabla-campamentos' }, el('thead', null, el('tr', null, ['Campamento', 'Tipo', 'Carril', 'Lado', 'Aparece', 'Reaparece', 'Almas'].map((t) => el('th', null, t)))));
+      const lista = camps.filter((c) => !filtro || c.carril === filtro).sort((a, b) => String(a.carril).localeCompare(String(b.carril)) || String(a.lado).localeCompare(String(b.lado)));
+      tb.append(el('tbody', null, lista.map((c) => el('tr', null,
+        celda('Campamento', [el('b', null, c.nombre || c.id), c.composicion ? el('div', { class: 'muted pequeno' }, c.composicion) : null, c.nota && c.tipo !== 'vault' ? el('details', { class: 'compra-mas' }, el('summary', null, 'Detalles'), el('p', { class: 'pequeno sec' }, milesEnTexto(c.nota))) : null]),
+        celda('Tipo', (TIPO_CAMPAMENTO[c.tipo] || {}).nombre || c.tipo), celda('Carril', c.carril || ''), celda('Lado', c.lado || ''),
+        celda('Aparece', c.aparece || '', 'nowrap'), celda('Reaparece', c.reaparece || '', 'pequeno'), celda('Almas', milesEnTexto(c.almas_aprox || ''), 'pequeno')))));
+      zonaT.append(tb);
+    };
+    secC.append(el('div', { class: 'controles' }, el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Carril'), segmento([['', 'Todos'], ['York', 'York'], ['Broadway', 'Broadway'], ['Greenwich', 'Greenwich']], filtro, (v) => { filtro = v; pintarT(); }, null, 'Filtrar campamentos por carril'))), zonaT);
+    pintarT();
+    cont.append(secC);
+  }
+  if ((M.fuentes || []).length) cont.append(el('details', { class: 'plegable', id: 'gm-fuentes', style: { marginTop: '10px' } }, el('summary', null, 'Fuentes'), el('ul', { class: 'contenido fuentes' }, M.fuentes.map((f) => el('li', null, el('a', { href: f.url, target: '_blank', rel: 'noopener' }, f.titulo || f.url), f.fecha ? el('span', { class: 'muted' }, ' · ' + f.fecha) : null)))));
+
+  // Índice de secciones (el router usa el #, así que se salta con scroll)
+  // Las secciones usan content-visibility: se maquetan las anteriores al destino antes de saltar (y se quedan así)
+  const saltarSeccion = (d) => {
+    for (let s = d.previousElementSibling; s; s = s.previousElementSibling) if (s.classList && s.classList.contains('seccion')) s.style.contentVisibility = 'visible';
+    d.style.contentVisibility = 'visible'; d.scrollIntoView({ block: 'start' }); requestAnimationFrame(() => d.scrollIntoView({ block: 'start' }));
+  };
+  indice.append(el('span', { class: 'etiqueta' }, 'Ir a'), ...secciones.map(([id, t]) => el('a', { href: '#', onclick: (ev) => { ev.preventDefault(); const d = document.getElementById(id); if (d) saltarSeccion(d); } }, t.replace(/^Los \d+ /, '').replace(/^Mapa: .*/, 'Mapa').replace(/^\w/, (m) => m.toUpperCase()))));
+  return cont;
+}
+
+
+'use strict';
+/* ============================================================
    Creador de builds: lista de builds guardadas y editor
    ============================================================ */
 
+/** Una categoría es opcional si lo marca su campo (como en el juego) o, en builds antiguas, si su nombre lo sugiere */
+function esOpcional(c) { return c.opcional != null ? !!c.opcional : /situacional|opcional|contra|optional/i.test(c.nombre || ''); }
 function buildNueva(h) {
   return { id: uid(), nombre: 'Build de ' + nombreH(h), heroe: h.id, creado: Date.now(), actualizado: Date.now(), notas: '', desbloqueo: [], orden: [], categorias: [
-    { nombre: 'Inicio de línea', objetos: [] }, { nombre: 'Medio de partida', objetos: [] }, { nombre: 'Final', objetos: [] }, { nombre: 'Situacionales', objetos: [] }] };
+    { nombre: 'Fase inicial', objetos: [], opcional: false }, { nombre: 'Inicial · situacionales', objetos: [], opcional: true },
+    { nombre: 'Fase media', objetos: [], opcional: false }, { nombre: 'Media · situacionales', objetos: [], opcional: true },
+    { nombre: 'Fase avanzada', objetos: [], opcional: false }, { nombre: 'Avanzada · situacionales', objetos: [], opcional: true }] };
 }
 function buildDesdeGuia(h) {
-  const b = buildNueva(h); const g = guia(h);
-  if (g && g.build) {
+  const b = buildNueva(h); const g = guia(h); const f = fasesDe(h);
+  if (f && (f.fases || []).length) {
+    // Build por fases: núcleo + situacionales (opcional) por fase, con la nota corta para el juego
+    const conv = (arr) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: e.nota_juego || e.cuando || e.por_que || '' } : null; }).filter(Boolean);
+    b.categorias = [];
+    for (const fase of f.fases) {
+      const info = FASES[fase.fase] || { nombre: fase.fase };
+      const tn = partirTitulo(fase.titulo_categoria_juego || info.nombre, false), ts = partirTitulo(fase.titulo_situacionales_juego || info.nombre, true);
+      b.categorias.push({ nombre: tn.nombre, descripcion: tn.desc || fase.objetivo || '', objetos: conv(fase.nucleo), opcional: false });
+      if ((fase.situacionales || []).length) b.categorias.push({ nombre: ts.nombre, descripcion: ts.desc, objetos: conv(fase.situacionales), opcional: true });
+    }
+    b.nombre = f.titulo_build_juego || nombreH(h) + ' · por fases';
+    b.notas = f.descripcion_build_juego || (g && g.arquetipo_por_que) || '';
+  } else if (g && g.build) {
     const conv = (arr, campo) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: e[campo] || '' } : null; }).filter(Boolean);
     b.categorias = [{ nombre: 'Inicio de línea', objetos: conv(g.build.inicio, 'por_que') }, { nombre: 'Medio de partida', objetos: conv(g.build.medio, 'por_que') }, { nombre: 'Final', objetos: conv(g.build.final, 'por_que') }, { nombre: 'Situacionales', objetos: conv(g.build.situacionales, 'cuando') }];
     b.nombre = nombreH(h) + ' · ' + (ARQUETIPOS[g.arquetipo_principal] || ARQUETIPOS.hibrido).nombre.toLowerCase();
@@ -1705,7 +2789,7 @@ function buildDesdeGuia(h) {
 function buildDesdeComunidad(h, com) {
   const b = buildNueva(h);
   b.nombre = com.nombre || 'Build de la comunidad'; b.notas = (com.descripcion || '').slice(0, 400);
-  b.categorias = com.categorias.filter((c) => c.objetos.length).map((c) => ({ nombre: c.nombre || 'Objetos', objetos: c.objetos.map((x) => ({ clase: x.clase, nota: x.nota || '' })) }));
+  b.categorias = com.categorias.filter((c) => c.objetos.length).map((c) => ({ nombre: nombreCategoria(c.nombre), descripcion: c.descripcion || '', opcional: c.opcional != null ? !!c.opcional : undefined, objetos: c.objetos.map((x) => ({ clase: x.clase, nota: x.nota || '' })) }));
   if (!b.categorias.length) b.categorias = buildNueva(h).categorias;
   b.desbloqueo = (com.desbloqueo || []).slice(); b.orden = (com.orden || []).slice();
   return b;
@@ -1716,7 +2800,13 @@ function textoBuild(b) {
   if (b.notas) lineas.push(b.notas, '');
   const acciones = nivelesDeSecuencia(h, secuenciaDesdeBuild(b));
   if (acciones.length) { lineas.push('Orden de habilidades:'); lineas.push(acciones.map((a) => { const ab = abs[a.h - 1]; return (a.tipo === 'desbloqueo' ? '[' + (ab ? (PREF.nombres === 'es' ? ab.nombre : ab.nombre_en || ab.nombre) : a.h) + ']' : (ab ? (PREF.nombres === 'es' ? ab.nombre : ab.nombre_en || ab.nombre) : a.h) + ' ' + a.tier) + (a.nivel ? ' (N' + a.nivel + ')' : ''); }).join(' → ')); lineas.push(''); }
-  for (const c of b.categorias) { if (!c.objetos.length) continue; lineas.push(c.nombre + ':'); for (const x of c.objetos) { const o = objeto(x.clase); if (o) lineas.push(`  - ${nombreO(o)} (${fmt(o.coste)})${x.nota ? ' — ' + x.nota : ''}`); } lineas.push(''); }
+  for (const c of b.categorias) {
+    if (!c.objetos.length) continue;
+    lineas.push(c.nombre + (esOpcional(c) ? ' (opcional)' : '') + ':');
+    if (c.descripcion) lineas.push('  ' + c.descripcion);
+    for (const x of c.objetos) { const o = objeto(x.clase); if (!o) continue; const d = compraDe(h, o.clase); lineas.push(`  - ${nombreO(o)} (${fmt(o.coste)})${d ? ' [' + textoCompra(d) + ']' : ''}${x.nota ? ' — ' + x.nota : ''}`); }
+    lineas.push('');
+  }
   return lineas.join('\n');
 }
 
@@ -1838,41 +2928,70 @@ RUTAS.build = function (param) {
 
   // ----- Columna derecha: objetos por categoría -----
   const colObj = el('div', { class: 'col' });
-  colObj.append(el('h2', null, 'Objetos por fase'), el('p', { class: 'sec pequeno' }, 'Añade objetos a cada fase y escribe por qué los compras. Puedes renombrar, reordenar y crear categorías (por ejemplo «Contra curación»).'));
+  colObj.append(el('h2', null, 'Objetos por fase'), el('p', { class: 'sec pequeno' }, 'Añade objetos a cada fase y escribe por qué los compras. Marca como «Opcional» las categorías de situacionales: en el juego aparecen a la derecha. Con «Copiar» llevas el nombre de cada categoría y la nota de cada objeto al editor del juego. Debajo de cada objeto ves en qué minuto y con cuántas almas se suele comprar con este héroe.'));
   const resumen = el('div', { class: 'ranuras' }); colObj.append(resumen);
   const cats = el('div', { class: 'categorias' }); colObj.append(cats);
   colObj.append(el('div', { class: 'fila' }, el('button', { class: 'boton', type: 'button', onclick: () => { b.categorias.push({ nombre: 'Nueva categoría', objetos: [] }); sucio = true; pintarObj(); } }, '＋ Añadir categoría')));
   function pintarResumen() {
     resumen.innerHTML = '';
     const cuenta = { weapon: 0, vitality: 0, spirit: 0 }; const coste = { weapon: 0, vitality: 0, spirit: 0 };
-    for (const c of b.categorias) if (!/situacional|opcional|contra|optional/i.test(c.nombre)) for (const x of c.objetos) { const o = objeto(x.clase); if (o) { cuenta[o.ranura]++; coste[o.ranura] += o.coste; } }
+    // Al mejorar un objeto, la mejora sustituye a su componente (pagas la diferencia y no ocupa otra ranura):
+    // solo cuentan los objetos que quedan al final
+    const finales = objetosFinales(b.categorias.filter((c) => !esOpcional(c)).flatMap((c) => c.objetos.map((x) => x.clase)));
+    for (const o of finales) { cuenta[o.ranura]++; coste[o.ranura] += o.coste; }
     // Bonus pasivo por almas invertidas en cada categoría (cost_bonuses del cliente; idéntico para todos los héroes)
     const BONUS = { weapon: [[800, 9], [1600, 12], [2400, 15], [3200, 18], [4800, 46], [6400, 54], [8000, 62], [11200, 74], [16000, 86], [22400, 100], [28800, 115]], vitality: [[800, 9], [1600, 12], [2400, 15], [3200, 20], [4800, 38], [6400, 42], [8000, 46], [11200, 50], [16000, 54], [22400, 60], [28800, 66]], spirit: [[800, 7], [1600, 11], [2400, 15], [3200, 19], [4800, 38], [6400, 45], [8000, 52], [11200, 59], [16000, 66], [22400, 75], [28800, 100]] };
     const bonusDe = (k, souls) => { let b = 0; for (const [s, v] of BONUS[k]) if (souls >= s) b = v; return b; };
     const textoBonus = { weapon: (v) => '+' + v + ' % daño de arma', vitality: (v) => '+' + v + ' % de vida', spirit: (v) => '+' + v + ' de espíritu' };
     for (const [k, r] of Object.entries(RANURAS)) resumen.append(el('div', { class: 'ranura ' + r.clase, title: 'Bonus pasivo por almas invertidas en ' + r.nombre.toLowerCase() + ' (el gran salto está en 4.800)' }, el('b', null, cuenta[k]), el('span', null, r.nombre + ' · ' + fmtSouls(coste[k]) + ' · ' + textoBonus[k](bonusDe(k, coste[k])))));
     const total = coste.weapon + coste.vitality + coste.spirit; const nObj = cuenta.weapon + cuenta.vitality + cuenta.spirit;
-    let activos = 0; for (const c of b.categorias) if (!/situacional|opcional|contra|optional/i.test(c.nombre)) for (const x of c.objetos) { const o = objeto(x.clase); if (o && o.activo) activos++; }
+    const activos = finales.filter((o) => o.activo).length;
     const nivel = (h.niveles || []).filter((n) => n.souls <= total).pop();
-    resumen.append(el('div', { class: 'ranura', style: { gridColumn: '1 / -1', background: 'var(--bg-3)' } }, el('span', null, 'Build principal (sin situacionales): ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem' } }, fmtSouls(total)), nivel ? ' · equivale aproximadamente al nivel ' + nivel.nivel : '', ' · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: nObj > 12 ? 'var(--mal)' : 'inherit' } }, nObj + '/12'), ' ranuras (9 base + 1 por cada Walker enemigo destruido) · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: activos > 4 ? 'var(--mal)' : 'inherit' } }, activos + '/4'), ' activos')));
+    resumen.append(el('div', { class: 'ranura', style: { gridColumn: '1 / -1', background: 'var(--bg-3)' } }, el('span', null, 'Build principal al final (sin situacionales; cada mejora sustituye a su componente): ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem' } }, fmtSouls(total)), nivel ? ' · equivale aproximadamente al nivel ' + nivel.nivel : '', ' · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: nObj > 12 ? 'var(--mal)' : 'inherit' } }, nObj + '/12'), ' ranuras (9 base + 1 por cada Walker enemigo destruido) · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: activos > 4 ? 'var(--mal)' : 'inherit' } }, activos + '/4'), ' activos')));
     if (nObj > 12 || activos > 4) resumen.append(el('div', { class: 'aviso-caja', style: { gridColumn: '1 / -1' } }, nObj > 12 ? 'Hay más de 12 objetos en la build principal: en el juego no caben todos a la vez, marca cuáles se venden. ' : '', activos > 4 ? 'Hay más de 4 objetos activos: solo se pueden equipar 4.' : ''));
   }
   function pintarObj() {
     cats.innerHTML = ''; pintarResumen();
     b.categorias.forEach((c, ci) => {
-      const caja = el('div', { class: 'categoria' });
+      const caja = el('div', { class: 'categoria' + (esOpcional(c) ? ' opcional' : '') });
       const nombre = el('input', { value: c.nombre, 'aria-label': 'Nombre de la categoría', oninput: (e) => { c.nombre = e.target.value; sucio = true; pintarResumen(); } });
-      const total = c.objetos.reduce((s, x) => s + ((objeto(x.clase) || {}).coste || 0), 0);
-      caja.append(el('div', { class: 'cab' }, nombre, el('span', { class: 'total' }, fmtSouls(total)),
-        el('button', { class: 'boton mini', type: 'button', title: 'Subir', disabled: ci === 0, onclick: () => { [b.categorias[ci - 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci - 1]]; sucio = true; pintarObj(); } }, '▲'),
-        el('button', { class: 'boton mini', type: 'button', title: 'Bajar', disabled: ci === b.categorias.length - 1, onclick: () => { [b.categorias[ci + 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci + 1]]; sucio = true; pintarObj(); } }, '▼'),
-        el('button', { class: 'boton mini peligro', type: 'button', title: 'Quitar categoría', onclick: () => { b.categorias.splice(ci, 1); sucio = true; pintarObj(); } }, '✕')));
+      // Lo que se paga en esta categoría, sabiendo lo que ya llevas de las anteriores (las mejoras pagan la diferencia)
+      const previos = b.categorias.slice(0, ci).filter((x) => !esOpcional(x)).flatMap((x) => x.objetos.map((y) => y.clase));
+      const total = esOpcional(c) ? c.objetos.reduce((s, x) => s + ((objeto(x.clase) || {}).coste || 0), 0) : pagosDe(c.objetos, previos).reduce((s, p) => s + p.paga, 0);
+      const idOpc = 'opc-' + b.id + '-' + ci;
+      const nCat = c.nombre || 'categoría';
+      caja.append(el('div', { class: 'cab' }, nombre, el('span', { class: 'total', title: esOpcional(c) ? 'Precio de lista de los objetos opcionales' : 'Almas que pagas en esta categoría (al mejorar, solo la diferencia)' }, fmtSouls(total)),
+        el('button', { class: 'boton mini', type: 'button', title: 'Copiar el nombre de la categoría para pegarlo en el juego', 'aria-label': 'Copiar nombre de la categoría ' + nCat, onclick: () => copiar(c.nombre) }, 'Copiar'),
+        el('button', { class: 'boton mini', type: 'button', title: 'Subir', 'aria-label': 'Subir la categoría ' + nCat, disabled: ci === 0, onclick: () => { [b.categorias[ci - 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci - 1]]; sucio = true; pintarObj(); } }, '▲'),
+        el('button', { class: 'boton mini', type: 'button', title: 'Bajar', 'aria-label': 'Bajar la categoría ' + nCat, disabled: ci === b.categorias.length - 1, onclick: () => { [b.categorias[ci + 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci + 1]]; sucio = true; pintarObj(); } }, '▼'),
+        el('button', { class: 'boton mini peligro', type: 'button', title: 'Quitar categoría', 'aria-label': 'Quitar la categoría ' + nCat, onclick: () => {
+          if (!c.objetos.length) { b.categorias.splice(ci, 1); sucio = true; pintarObj(); return; }
+          abrirModal('Quitar categoría', el('div', { class: 'col' }, el('p', null, '¿Quitar «' + nCat + '» y sus ' + c.objetos.length + ' objetos?'), el('div', { class: 'fila' },
+            el('button', { class: 'boton peligro', type: 'button', onclick: () => { b.categorias.splice(ci, 1); sucio = true; cerrarModal(); pintarObj(); } }, 'Sí, quitar'),
+            el('button', { class: 'boton', type: 'button', onclick: cerrarModal }, 'Cancelar'))));
+        } }, '✕')));
+      caja.append(el('div', { class: 'cat-opciones' },
+        el('label', { for: idOpc, class: 'pequeno' }, el('input', { type: 'checkbox', id: idOpc, checked: esOpcional(c), onchange: (e) => { c.opcional = e.target.checked; sucio = true; pintarObj(); } }), ' Opcional (en el juego va a la derecha)')));
+      // Descripción de la categoría (el editor del juego la muestra bajo el nombre)
+      caja.append(el('div', { class: 'cat-desc' },
+        el('textarea', { class: 'entrada', rows: 2, placeholder: 'Descripción de la categoría (opcional)', 'aria-label': 'Descripción de la categoría ' + nCat, oninput: (e) => { c.descripcion = e.target.value; sucio = true; } }, c.descripcion || ''),
+        el('button', { class: 'boton mini', type: 'button', title: 'Copiar la descripción para pegarla en el juego', 'aria-label': 'Copiar la descripción de la categoría ' + nCat, onclick: () => copiar(c.descripcion || '') }, 'Copiar')));
       const items = el('div', { class: 'items' });
       c.objetos.forEach((x, xi) => {
         const o = objeto(x.clase); if (!o) return;
         const r = RANURAS[o.ranura] || {};
-        items.append(el('div', { class: 'cat-item ' + (r.clase || '') }, imgO(o, { onclick: () => abrirObjeto(o) }), el('div', { style: { minWidth: 0 } }, el('div', { class: 'nombre' }, nombreO(o), el('span', { class: 'coste' }, fmt(o.coste) + ' · ' + (r.nombre || '') + ' T' + o.tier)), el('textarea', { placeholder: '¿Por qué este objeto?', rows: 1, oninput: (e) => { x.nota = e.target.value; sucio = true; } }, x.nota || '')),
-          el('div', { class: 'acciones' }, el('button', { type: 'button', title: 'Subir', disabled: xi === 0, onclick: () => { [c.objetos[xi - 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi - 1]]; sucio = true; pintarObj(); } }, '▲'), el('button', { type: 'button', title: 'Bajar', disabled: xi === c.objetos.length - 1, onclick: () => { [c.objetos[xi + 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi + 1]]; sucio = true; pintarObj(); } }, '▼'), el('button', { type: 'button', title: 'Quitar', onclick: () => { c.objetos.splice(xi, 1); sucio = true; pintarObj(); } }, '✕'))));
+        const d = compraDe(h, o.clase);
+        items.append(el('div', { class: 'cat-item ' + (r.clase || '') }, imgO(o, { onclick: () => abrirObjeto(o) }), el('div', { style: { minWidth: 0 } }, el('div', { class: 'nombre' }, nombreO(o), el('span', { class: 'coste' }, fmt(o.coste) + ' · ' + (r.nombre || '') + ' T' + o.tier)), d ? el('div', { class: 'cat-compra num' }, textoCompra(d)) : null, el('textarea', { placeholder: 'Cuándo y por qué comprarlo', 'aria-label': 'Nota de ' + nombreO(o), rows: 2, oninput: (e) => { x.nota = e.target.value; sucio = true; } }, x.nota || '')),
+          el('div', { class: 'acciones' },
+            el('button', { type: 'button', class: 'con-texto', title: 'Copiar la nota para pegarla en el juego', 'aria-label': 'Copiar nota de ' + nombreO(o), onclick: () => copiar(x.nota || nombreO(o)) }, 'Nota'),
+            el('button', { type: 'button', title: 'Subir', 'aria-label': 'Subir ' + nombreO(o), disabled: xi === 0, onclick: () => { [c.objetos[xi - 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi - 1]]; sucio = true; pintarObj(); } }, '▲'),
+            el('button', { type: 'button', title: 'Bajar', 'aria-label': 'Bajar ' + nombreO(o), disabled: xi === c.objetos.length - 1, onclick: () => { [c.objetos[xi + 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi + 1]]; sucio = true; pintarObj(); } }, '▼'),
+            el('button', { type: 'button', title: 'Quitar', 'aria-label': 'Quitar ' + nombreO(o), onclick: () => {
+              // «Deshacer» devuelve la categoría tal como estaba (así varios deshacer seguidos respetan el orden)
+              const antes = c.objetos.slice(); c.objetos.splice(xi, 1); sucio = true; pintarObj();
+              $$('#toasts .toast.con-accion').forEach((t) => t.remove());
+              toastDeshacer('Quitado ' + nombreO(o), () => { c.objetos.splice(0, c.objetos.length, ...antes); pintarObj(); });
+            } }, '✕'))));
       });
       caja.append(items);
       caja.append(el('div', { class: 'fila', style: { marginTop: '8px' } }, el('button', { class: 'boton mini', type: 'button', onclick: () => abrirCatalogo((o) => { c.objetos.push({ clase: o.clase, nota: '' }); sucio = true; pintarObj(); }) }, '＋ Añadir objeto')));

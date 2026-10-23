@@ -3,13 +3,29 @@
    Creador de builds: lista de builds guardadas y editor
    ============================================================ */
 
+/** Una categoría es opcional si lo marca su campo (como en el juego) o, en builds antiguas, si su nombre lo sugiere */
+function esOpcional(c) { return c.opcional != null ? !!c.opcional : /situacional|opcional|contra|optional/i.test(c.nombre || ''); }
 function buildNueva(h) {
   return { id: uid(), nombre: 'Build de ' + nombreH(h), heroe: h.id, creado: Date.now(), actualizado: Date.now(), notas: '', desbloqueo: [], orden: [], categorias: [
-    { nombre: 'Inicio de línea', objetos: [] }, { nombre: 'Medio de partida', objetos: [] }, { nombre: 'Final', objetos: [] }, { nombre: 'Situacionales', objetos: [] }] };
+    { nombre: 'Fase inicial', objetos: [], opcional: false }, { nombre: 'Inicial · situacionales', objetos: [], opcional: true },
+    { nombre: 'Fase media', objetos: [], opcional: false }, { nombre: 'Media · situacionales', objetos: [], opcional: true },
+    { nombre: 'Fase avanzada', objetos: [], opcional: false }, { nombre: 'Avanzada · situacionales', objetos: [], opcional: true }] };
 }
 function buildDesdeGuia(h) {
-  const b = buildNueva(h); const g = guia(h);
-  if (g && g.build) {
+  const b = buildNueva(h); const g = guia(h); const f = fasesDe(h);
+  if (f && (f.fases || []).length) {
+    // Build por fases: núcleo + situacionales (opcional) por fase, con la nota corta para el juego
+    const conv = (arr) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: e.nota_juego || e.cuando || e.por_que || '' } : null; }).filter(Boolean);
+    b.categorias = [];
+    for (const fase of f.fases) {
+      const info = FASES[fase.fase] || { nombre: fase.fase };
+      const tn = partirTitulo(fase.titulo_categoria_juego || info.nombre, false), ts = partirTitulo(fase.titulo_situacionales_juego || info.nombre, true);
+      b.categorias.push({ nombre: tn.nombre, descripcion: tn.desc || fase.objetivo || '', objetos: conv(fase.nucleo), opcional: false });
+      if ((fase.situacionales || []).length) b.categorias.push({ nombre: ts.nombre, descripcion: ts.desc, objetos: conv(fase.situacionales), opcional: true });
+    }
+    b.nombre = f.titulo_build_juego || nombreH(h) + ' · por fases';
+    b.notas = f.descripcion_build_juego || (g && g.arquetipo_por_que) || '';
+  } else if (g && g.build) {
     const conv = (arr, campo) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: e[campo] || '' } : null; }).filter(Boolean);
     b.categorias = [{ nombre: 'Inicio de línea', objetos: conv(g.build.inicio, 'por_que') }, { nombre: 'Medio de partida', objetos: conv(g.build.medio, 'por_que') }, { nombre: 'Final', objetos: conv(g.build.final, 'por_que') }, { nombre: 'Situacionales', objetos: conv(g.build.situacionales, 'cuando') }];
     b.nombre = nombreH(h) + ' · ' + (ARQUETIPOS[g.arquetipo_principal] || ARQUETIPOS.hibrido).nombre.toLowerCase();
@@ -37,7 +53,7 @@ function buildDesdeGuia(h) {
 function buildDesdeComunidad(h, com) {
   const b = buildNueva(h);
   b.nombre = com.nombre || 'Build de la comunidad'; b.notas = (com.descripcion || '').slice(0, 400);
-  b.categorias = com.categorias.filter((c) => c.objetos.length).map((c) => ({ nombre: c.nombre || 'Objetos', objetos: c.objetos.map((x) => ({ clase: x.clase, nota: x.nota || '' })) }));
+  b.categorias = com.categorias.filter((c) => c.objetos.length).map((c) => ({ nombre: nombreCategoria(c.nombre), descripcion: c.descripcion || '', opcional: c.opcional != null ? !!c.opcional : undefined, objetos: c.objetos.map((x) => ({ clase: x.clase, nota: x.nota || '' })) }));
   if (!b.categorias.length) b.categorias = buildNueva(h).categorias;
   b.desbloqueo = (com.desbloqueo || []).slice(); b.orden = (com.orden || []).slice();
   return b;
@@ -48,7 +64,13 @@ function textoBuild(b) {
   if (b.notas) lineas.push(b.notas, '');
   const acciones = nivelesDeSecuencia(h, secuenciaDesdeBuild(b));
   if (acciones.length) { lineas.push('Orden de habilidades:'); lineas.push(acciones.map((a) => { const ab = abs[a.h - 1]; return (a.tipo === 'desbloqueo' ? '[' + (ab ? (PREF.nombres === 'es' ? ab.nombre : ab.nombre_en || ab.nombre) : a.h) + ']' : (ab ? (PREF.nombres === 'es' ? ab.nombre : ab.nombre_en || ab.nombre) : a.h) + ' ' + a.tier) + (a.nivel ? ' (N' + a.nivel + ')' : ''); }).join(' → ')); lineas.push(''); }
-  for (const c of b.categorias) { if (!c.objetos.length) continue; lineas.push(c.nombre + ':'); for (const x of c.objetos) { const o = objeto(x.clase); if (o) lineas.push(`  - ${nombreO(o)} (${fmt(o.coste)})${x.nota ? ' — ' + x.nota : ''}`); } lineas.push(''); }
+  for (const c of b.categorias) {
+    if (!c.objetos.length) continue;
+    lineas.push(c.nombre + (esOpcional(c) ? ' (opcional)' : '') + ':');
+    if (c.descripcion) lineas.push('  ' + c.descripcion);
+    for (const x of c.objetos) { const o = objeto(x.clase); if (!o) continue; const d = compraDe(h, o.clase); lineas.push(`  - ${nombreO(o)} (${fmt(o.coste)})${d ? ' [' + textoCompra(d) + ']' : ''}${x.nota ? ' — ' + x.nota : ''}`); }
+    lineas.push('');
+  }
   return lineas.join('\n');
 }
 
@@ -170,41 +192,70 @@ RUTAS.build = function (param) {
 
   // ----- Columna derecha: objetos por categoría -----
   const colObj = el('div', { class: 'col' });
-  colObj.append(el('h2', null, 'Objetos por fase'), el('p', { class: 'sec pequeno' }, 'Añade objetos a cada fase y escribe por qué los compras. Puedes renombrar, reordenar y crear categorías (por ejemplo «Contra curación»).'));
+  colObj.append(el('h2', null, 'Objetos por fase'), el('p', { class: 'sec pequeno' }, 'Añade objetos a cada fase y escribe por qué los compras. Marca como «Opcional» las categorías de situacionales: en el juego aparecen a la derecha. Con «Copiar» llevas el nombre de cada categoría y la nota de cada objeto al editor del juego. Debajo de cada objeto ves en qué minuto y con cuántas almas se suele comprar con este héroe.'));
   const resumen = el('div', { class: 'ranuras' }); colObj.append(resumen);
   const cats = el('div', { class: 'categorias' }); colObj.append(cats);
   colObj.append(el('div', { class: 'fila' }, el('button', { class: 'boton', type: 'button', onclick: () => { b.categorias.push({ nombre: 'Nueva categoría', objetos: [] }); sucio = true; pintarObj(); } }, '＋ Añadir categoría')));
   function pintarResumen() {
     resumen.innerHTML = '';
     const cuenta = { weapon: 0, vitality: 0, spirit: 0 }; const coste = { weapon: 0, vitality: 0, spirit: 0 };
-    for (const c of b.categorias) if (!/situacional|opcional|contra|optional/i.test(c.nombre)) for (const x of c.objetos) { const o = objeto(x.clase); if (o) { cuenta[o.ranura]++; coste[o.ranura] += o.coste; } }
+    // Al mejorar un objeto, la mejora sustituye a su componente (pagas la diferencia y no ocupa otra ranura):
+    // solo cuentan los objetos que quedan al final
+    const finales = objetosFinales(b.categorias.filter((c) => !esOpcional(c)).flatMap((c) => c.objetos.map((x) => x.clase)));
+    for (const o of finales) { cuenta[o.ranura]++; coste[o.ranura] += o.coste; }
     // Bonus pasivo por almas invertidas en cada categoría (cost_bonuses del cliente; idéntico para todos los héroes)
     const BONUS = { weapon: [[800, 9], [1600, 12], [2400, 15], [3200, 18], [4800, 46], [6400, 54], [8000, 62], [11200, 74], [16000, 86], [22400, 100], [28800, 115]], vitality: [[800, 9], [1600, 12], [2400, 15], [3200, 20], [4800, 38], [6400, 42], [8000, 46], [11200, 50], [16000, 54], [22400, 60], [28800, 66]], spirit: [[800, 7], [1600, 11], [2400, 15], [3200, 19], [4800, 38], [6400, 45], [8000, 52], [11200, 59], [16000, 66], [22400, 75], [28800, 100]] };
     const bonusDe = (k, souls) => { let b = 0; for (const [s, v] of BONUS[k]) if (souls >= s) b = v; return b; };
     const textoBonus = { weapon: (v) => '+' + v + ' % daño de arma', vitality: (v) => '+' + v + ' % de vida', spirit: (v) => '+' + v + ' de espíritu' };
     for (const [k, r] of Object.entries(RANURAS)) resumen.append(el('div', { class: 'ranura ' + r.clase, title: 'Bonus pasivo por almas invertidas en ' + r.nombre.toLowerCase() + ' (el gran salto está en 4.800)' }, el('b', null, cuenta[k]), el('span', null, r.nombre + ' · ' + fmtSouls(coste[k]) + ' · ' + textoBonus[k](bonusDe(k, coste[k])))));
     const total = coste.weapon + coste.vitality + coste.spirit; const nObj = cuenta.weapon + cuenta.vitality + cuenta.spirit;
-    let activos = 0; for (const c of b.categorias) if (!/situacional|opcional|contra|optional/i.test(c.nombre)) for (const x of c.objetos) { const o = objeto(x.clase); if (o && o.activo) activos++; }
+    const activos = finales.filter((o) => o.activo).length;
     const nivel = (h.niveles || []).filter((n) => n.souls <= total).pop();
-    resumen.append(el('div', { class: 'ranura', style: { gridColumn: '1 / -1', background: 'var(--bg-3)' } }, el('span', null, 'Build principal (sin situacionales): ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem' } }, fmtSouls(total)), nivel ? ' · equivale aproximadamente al nivel ' + nivel.nivel : '', ' · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: nObj > 12 ? 'var(--mal)' : 'inherit' } }, nObj + '/12'), ' ranuras (9 base + 1 por cada Walker enemigo destruido) · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: activos > 4 ? 'var(--mal)' : 'inherit' } }, activos + '/4'), ' activos')));
+    resumen.append(el('div', { class: 'ranura', style: { gridColumn: '1 / -1', background: 'var(--bg-3)' } }, el('span', null, 'Build principal al final (sin situacionales; cada mejora sustituye a su componente): ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem' } }, fmtSouls(total)), nivel ? ' · equivale aproximadamente al nivel ' + nivel.nivel : '', ' · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: nObj > 12 ? 'var(--mal)' : 'inherit' } }, nObj + '/12'), ' ranuras (9 base + 1 por cada Walker enemigo destruido) · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: activos > 4 ? 'var(--mal)' : 'inherit' } }, activos + '/4'), ' activos')));
     if (nObj > 12 || activos > 4) resumen.append(el('div', { class: 'aviso-caja', style: { gridColumn: '1 / -1' } }, nObj > 12 ? 'Hay más de 12 objetos en la build principal: en el juego no caben todos a la vez, marca cuáles se venden. ' : '', activos > 4 ? 'Hay más de 4 objetos activos: solo se pueden equipar 4.' : ''));
   }
   function pintarObj() {
     cats.innerHTML = ''; pintarResumen();
     b.categorias.forEach((c, ci) => {
-      const caja = el('div', { class: 'categoria' });
+      const caja = el('div', { class: 'categoria' + (esOpcional(c) ? ' opcional' : '') });
       const nombre = el('input', { value: c.nombre, 'aria-label': 'Nombre de la categoría', oninput: (e) => { c.nombre = e.target.value; sucio = true; pintarResumen(); } });
-      const total = c.objetos.reduce((s, x) => s + ((objeto(x.clase) || {}).coste || 0), 0);
-      caja.append(el('div', { class: 'cab' }, nombre, el('span', { class: 'total' }, fmtSouls(total)),
-        el('button', { class: 'boton mini', type: 'button', title: 'Subir', disabled: ci === 0, onclick: () => { [b.categorias[ci - 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci - 1]]; sucio = true; pintarObj(); } }, '▲'),
-        el('button', { class: 'boton mini', type: 'button', title: 'Bajar', disabled: ci === b.categorias.length - 1, onclick: () => { [b.categorias[ci + 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci + 1]]; sucio = true; pintarObj(); } }, '▼'),
-        el('button', { class: 'boton mini peligro', type: 'button', title: 'Quitar categoría', onclick: () => { b.categorias.splice(ci, 1); sucio = true; pintarObj(); } }, '✕')));
+      // Lo que se paga en esta categoría, sabiendo lo que ya llevas de las anteriores (las mejoras pagan la diferencia)
+      const previos = b.categorias.slice(0, ci).filter((x) => !esOpcional(x)).flatMap((x) => x.objetos.map((y) => y.clase));
+      const total = esOpcional(c) ? c.objetos.reduce((s, x) => s + ((objeto(x.clase) || {}).coste || 0), 0) : pagosDe(c.objetos, previos).reduce((s, p) => s + p.paga, 0);
+      const idOpc = 'opc-' + b.id + '-' + ci;
+      const nCat = c.nombre || 'categoría';
+      caja.append(el('div', { class: 'cab' }, nombre, el('span', { class: 'total', title: esOpcional(c) ? 'Precio de lista de los objetos opcionales' : 'Almas que pagas en esta categoría (al mejorar, solo la diferencia)' }, fmtSouls(total)),
+        el('button', { class: 'boton mini', type: 'button', title: 'Copiar el nombre de la categoría para pegarlo en el juego', 'aria-label': 'Copiar nombre de la categoría ' + nCat, onclick: () => copiar(c.nombre) }, 'Copiar'),
+        el('button', { class: 'boton mini', type: 'button', title: 'Subir', 'aria-label': 'Subir la categoría ' + nCat, disabled: ci === 0, onclick: () => { [b.categorias[ci - 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci - 1]]; sucio = true; pintarObj(); } }, '▲'),
+        el('button', { class: 'boton mini', type: 'button', title: 'Bajar', 'aria-label': 'Bajar la categoría ' + nCat, disabled: ci === b.categorias.length - 1, onclick: () => { [b.categorias[ci + 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci + 1]]; sucio = true; pintarObj(); } }, '▼'),
+        el('button', { class: 'boton mini peligro', type: 'button', title: 'Quitar categoría', 'aria-label': 'Quitar la categoría ' + nCat, onclick: () => {
+          if (!c.objetos.length) { b.categorias.splice(ci, 1); sucio = true; pintarObj(); return; }
+          abrirModal('Quitar categoría', el('div', { class: 'col' }, el('p', null, '¿Quitar «' + nCat + '» y sus ' + c.objetos.length + ' objetos?'), el('div', { class: 'fila' },
+            el('button', { class: 'boton peligro', type: 'button', onclick: () => { b.categorias.splice(ci, 1); sucio = true; cerrarModal(); pintarObj(); } }, 'Sí, quitar'),
+            el('button', { class: 'boton', type: 'button', onclick: cerrarModal }, 'Cancelar'))));
+        } }, '✕')));
+      caja.append(el('div', { class: 'cat-opciones' },
+        el('label', { for: idOpc, class: 'pequeno' }, el('input', { type: 'checkbox', id: idOpc, checked: esOpcional(c), onchange: (e) => { c.opcional = e.target.checked; sucio = true; pintarObj(); } }), ' Opcional (en el juego va a la derecha)')));
+      // Descripción de la categoría (el editor del juego la muestra bajo el nombre)
+      caja.append(el('div', { class: 'cat-desc' },
+        el('textarea', { class: 'entrada', rows: 2, placeholder: 'Descripción de la categoría (opcional)', 'aria-label': 'Descripción de la categoría ' + nCat, oninput: (e) => { c.descripcion = e.target.value; sucio = true; } }, c.descripcion || ''),
+        el('button', { class: 'boton mini', type: 'button', title: 'Copiar la descripción para pegarla en el juego', 'aria-label': 'Copiar la descripción de la categoría ' + nCat, onclick: () => copiar(c.descripcion || '') }, 'Copiar')));
       const items = el('div', { class: 'items' });
       c.objetos.forEach((x, xi) => {
         const o = objeto(x.clase); if (!o) return;
         const r = RANURAS[o.ranura] || {};
-        items.append(el('div', { class: 'cat-item ' + (r.clase || '') }, imgO(o, { onclick: () => abrirObjeto(o) }), el('div', { style: { minWidth: 0 } }, el('div', { class: 'nombre' }, nombreO(o), el('span', { class: 'coste' }, fmt(o.coste) + ' · ' + (r.nombre || '') + ' T' + o.tier)), el('textarea', { placeholder: '¿Por qué este objeto?', rows: 1, oninput: (e) => { x.nota = e.target.value; sucio = true; } }, x.nota || '')),
-          el('div', { class: 'acciones' }, el('button', { type: 'button', title: 'Subir', disabled: xi === 0, onclick: () => { [c.objetos[xi - 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi - 1]]; sucio = true; pintarObj(); } }, '▲'), el('button', { type: 'button', title: 'Bajar', disabled: xi === c.objetos.length - 1, onclick: () => { [c.objetos[xi + 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi + 1]]; sucio = true; pintarObj(); } }, '▼'), el('button', { type: 'button', title: 'Quitar', onclick: () => { c.objetos.splice(xi, 1); sucio = true; pintarObj(); } }, '✕'))));
+        const d = compraDe(h, o.clase);
+        items.append(el('div', { class: 'cat-item ' + (r.clase || '') }, imgO(o, { onclick: () => abrirObjeto(o) }), el('div', { style: { minWidth: 0 } }, el('div', { class: 'nombre' }, nombreO(o), el('span', { class: 'coste' }, fmt(o.coste) + ' · ' + (r.nombre || '') + ' T' + o.tier)), d ? el('div', { class: 'cat-compra num' }, textoCompra(d)) : null, el('textarea', { placeholder: 'Cuándo y por qué comprarlo', 'aria-label': 'Nota de ' + nombreO(o), rows: 2, oninput: (e) => { x.nota = e.target.value; sucio = true; } }, x.nota || '')),
+          el('div', { class: 'acciones' },
+            el('button', { type: 'button', class: 'con-texto', title: 'Copiar la nota para pegarla en el juego', 'aria-label': 'Copiar nota de ' + nombreO(o), onclick: () => copiar(x.nota || nombreO(o)) }, 'Nota'),
+            el('button', { type: 'button', title: 'Subir', 'aria-label': 'Subir ' + nombreO(o), disabled: xi === 0, onclick: () => { [c.objetos[xi - 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi - 1]]; sucio = true; pintarObj(); } }, '▲'),
+            el('button', { type: 'button', title: 'Bajar', 'aria-label': 'Bajar ' + nombreO(o), disabled: xi === c.objetos.length - 1, onclick: () => { [c.objetos[xi + 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi + 1]]; sucio = true; pintarObj(); } }, '▼'),
+            el('button', { type: 'button', title: 'Quitar', 'aria-label': 'Quitar ' + nombreO(o), onclick: () => {
+              // «Deshacer» devuelve la categoría tal como estaba (así varios deshacer seguidos respetan el orden)
+              const antes = c.objetos.slice(); c.objetos.splice(xi, 1); sucio = true; pintarObj();
+              $$('#toasts .toast.con-accion').forEach((t) => t.remove());
+              toastDeshacer('Quitado ' + nombreO(o), () => { c.objetos.splice(0, c.objetos.length, ...antes); pintarObj(); });
+            } }, '✕'))));
       });
       caja.append(items);
       caja.append(el('div', { class: 'fila', style: { marginTop: '8px' } }, el('button', { class: 'boton mini', type: 'button', onclick: () => abrirCatalogo((o) => { c.objetos.push({ clase: o.clase, nota: '' }); sucio = true; pintarObj(); }) }, '＋ Añadir objeto')));

@@ -37,6 +37,8 @@
   --mal: #d1604e;
   --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
   --icono-bg: #1b221e;
+  --movil: #6f9cf2;
+  --movil-bg: rgba(111, 156, 242, 0.16);
   --radio: 10px;
   --radio-s: 6px;
   --f-display: 'Big Shoulders Display', 'Oswald', 'Arial Narrow', Impact, sans-serif;
@@ -57,6 +59,7 @@
     --arma-bg: rgba(184, 90, 10, 0.12); --vit-bg: rgba(10, 138, 92, 0.12); --esp-bg: rgba(106, 63, 196, 0.12);
     --tier-s: #c99a1f; --tier-a: #a87b12; --tier-b: #866010; --tier-c: #64470f; --tier-d: #43300b;
     --tier-fg-claro: #1a1409; --tier-fg-oscuro: #fbf3dc;
+    --movil: #2d5fc4; --movil-bg: rgba(45, 95, 196, 0.12);
     --ok: #2f8a4f; --aviso: #a8741a; --mal: #b7432f;
     --sombra: 0 10px 30px rgba(60, 40, 10, 0.12);
   }
@@ -72,6 +75,7 @@
   --arma-bg: rgba(184, 90, 10, 0.12); --vit-bg: rgba(10, 138, 92, 0.12); --esp-bg: rgba(106, 63, 196, 0.12);
   --tier-s: #c99a1f; --tier-a: #a87b12; --tier-b: #866010; --tier-c: #64470f; --tier-d: #43300b;
   --tier-fg-claro: #1a1409; --tier-fg-oscuro: #fbf3dc;
+  --movil: #2d5fc4; --movil-bg: rgba(45, 95, 196, 0.12);
   --ok: #2f8a4f; --aviso: #a8741a; --mal: #b7432f;
   --sombra: 0 10px 30px rgba(60, 40, 10, 0.12);
 }
@@ -82,7 +86,8 @@ body {
   margin: 0; min-height: 100%;
   background: var(--bg); color: var(--fg);
   font-family: var(--f-body); font-size: 15px; line-height: 1.5;
-  overflow-x: hidden;
+  /* clip (no hidden): hidden convierte el body en contenedor de scroll y anula la cabecera fija (sticky) */
+  overflow-x: clip;
 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 50; background: var(--bg-2); }
 h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.01em; line-height: 1.05; margin: 0; text-wrap: balance; }
@@ -145,11 +150,6 @@ button { cursor: pointer; }
 @media (max-width: 520px) {
   .buscador input { width: 84px; }
   .marca-nombre { font-size: 1.1rem; }
-}
-@media (pointer: coarse) {
-  .boton.mini { padding: 6px 10px; min-height: 32px; }
-  .slot button.quitar { width: 26px; height: 26px; font-size: 0.8rem; }
-  .cat-item .acciones button { width: 32px; height: 30px; }
 }
 
 /* ---------- Estructura ---------- */
@@ -404,7 +404,7 @@ details.plegable > .contenido { padding: 0 14px 14px; }
 .obj-detalle h2 { font-size: 1.8rem; }
 .obj-detalle .stats-lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 6px; margin: 10px 0; }
 .obj-detalle .desc { white-space: pre-line; color: var(--fg-2); font-size: 0.92rem; }
-.obj-detalle h4 { margin: 14px 0 6px; color: var(--laton); }
+.obj-detalle h4, .obj-detalle h3.sub { margin: 14px 0 6px; color: var(--laton); font-size: 1.05rem; font-family: var(--f-body); font-weight: 600; }
 .etiquetas-obj { display: flex; flex-wrap: wrap; gap: 4px; }
 .etiquetas-obj .chip { font-size: 0.72rem; }
 
@@ -416,8 +416,8 @@ details.plegable > .contenido { padding: 0 14px 14px; }
 .build-tarjeta .info { min-width: 0; flex: 1; }
 .build-tarjeta .info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .build-tarjeta .info small { color: var(--fg-3); }
-.builder { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; }
-@media (max-width: 960px) { .builder { grid-template-columns: minmax(0, 1fr); } }
+.builder { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.builder .pa-tablero { max-width: 900px; }
 .builder-cab { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; margin-bottom: 16px; }
 .builder-cab img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
 .builder-cab input.titulo { font-family: var(--f-display); font-size: 1.6rem; font-weight: 700; width: 100%; background: transparent; border: 0; border-bottom: 1px dashed var(--linea-2); padding: 2px 0; }
@@ -462,6 +462,7 @@ details.plegable > .contenido { padding: 0 14px 14px; }
 .modal .caja > .contenido { padding: 14px 16px; overflow: auto; min-height: 0; }
 .toasts { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 90; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
 .toast { background: var(--bg-3); border: 1px solid var(--laton); color: var(--fg); padding: 8px 14px; border-radius: 999px; font-size: 0.88rem; box-shadow: var(--sombra); }
+.toast.con-accion { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 14px; }
 .codigo { font-family: var(--f-mono); font-size: 0.78rem; background: var(--bg); border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 10px; word-break: break-all; max-height: 160px; overflow: auto; }
 
 /* ---------- Equipos ---------- */
@@ -505,3 +506,235 @@ details.plegable > .contenido { padding: 0 14px 14px; }
 .parche { border-left: 3px solid var(--laton); padding: 8px 14px; margin-bottom: 12px; background: var(--bg-2); border-radius: 0 var(--radio-s) var(--radio-s) 0; }
 .parche .fecha { font-family: var(--f-mono); font-size: 0.78rem; color: var(--laton); }
 .parche ul { margin: 6px 0 0; padding-left: 1.2em; color: var(--fg-2); font-size: 0.9rem; }
+
+/* ---------- Build por fases (como en el juego: núcleo a la izquierda, situacionales a la derecha) ---------- */
+.build-por-fases { display: flex; flex-direction: column; gap: 12px; }
+.acciones-build { gap: 8px; }
+.linea-juego { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; padding: 6px 10px; background: var(--bg); border: 1px dashed var(--linea-2); border-radius: var(--radio-s); }
+.linea-juego .etiqueta { margin: 0; grid-column: 1 / -1; }
+.linea-juego .texto { font-size: 0.82rem; color: var(--fg); overflow-wrap: anywhere; }
+.lineas-categoria { display: grid; gap: 6px; }
+.ayuda-juego ol { margin: 0; padding-left: 1.2em; }
+.ayuda-juego li { margin-bottom: 4px; }
+.fase-fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.fase-fila.sin-opcional { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 960px) { .fase-fila { grid-template-columns: minmax(0, 1fr); } }
+.panel-fase { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.panel-fase-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin: 0 -12px; padding: 10px 12px; background: var(--bg-3); border-bottom: 2px solid var(--laton); border-radius: var(--radio) var(--radio) 0 0; }
+.panel-fase-cab h3 { margin: 0; }
+.panel-fase-cab p { margin: 4px 0 0; }
+.panel-fase.opcional { border-style: dashed; }
+.panel-fase.opcional .panel-fase-cab { border-bottom-color: var(--fg-3); }
+.opcional-chip { font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--laton); background: var(--laton-bg); border-color: transparent; vertical-align: middle; }
+.compras { display: flex; flex-direction: column; gap: 8px; }
+.compra { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; padding: 8px; background: var(--bg); border: 1px solid var(--linea); border-left: 3px solid var(--c, var(--linea-2)); border-radius: var(--radio-s); }
+.compra.situacional { background: transparent; }
+.tile-obj { position: relative; width: 56px; height: 56px; padding: 0; border: 2px solid var(--c, var(--linea-2)); border-radius: 8px; background: var(--c-bg, var(--bg-4)); overflow: hidden; }
+.tile-obj img { width: 100%; height: 100%; object-fit: cover; }
+.tile-obj .tier { position: absolute; top: 0; right: 0; min-width: 18px; padding: 1px 4px; font-family: var(--f-display); font-weight: 800; font-size: 0.72rem; line-height: 1.2; color: #fff; background: var(--c, var(--fg-3)); border-bottom-left-radius: 6px; }
+.tile-obj:hover { border-color: var(--laton); }
+.compra-cuerpo { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.compra-cab { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.compra-nombre { border: 0; background: none; padding: 0; color: var(--fg); font-weight: 700; font-size: 0.95rem; text-align: left; }
+.compra-nombre:hover { color: var(--laton-2); text-decoration: underline; }
+.compra-chip { font-size: 0.72rem; color: var(--laton); background: var(--laton-bg); border-color: transparent; white-space: normal; max-width: 100%; }
+.compra p { margin: 0; font-size: 0.86rem; color: var(--fg-2); }
+.compra p b { color: var(--fg); font-weight: 600; }
+.compra-cuando { color: var(--fg) !important; }
+.compra-nota { display: flex; align-items: center; gap: 8px; margin-top: 2px; padding: 4px 6px; border-radius: var(--radio-s); background: var(--bg-2); }
+.compra-nota .mono { flex: 1; min-width: 0; font-size: 0.76rem; color: var(--fg-3); overflow-wrap: anywhere; }
+.vender .col { gap: 6px; }
+.vender-fila { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; }
+@media (max-width: 520px) { .vender-fila { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Plan de mapa ---------- */
+.puentes { display: flex; flex-direction: column; gap: 8px; }
+.puente { padding: 8px 10px; border-radius: var(--radio-s); background: var(--bg); border: 1px solid var(--linea); border-left: 4px solid var(--c); }
+.puente-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.puente-prio { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c); color: #fff; font-weight: 700; font-size: 0.8rem; }
+.puente p { margin: 4px 0 0; }
+.cronologia { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.cronologia li { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 10px; padding: 7px 0; border-top: 1px solid var(--linea); font-size: 0.9rem; color: var(--fg-2); }
+.cronologia li:first-child { border-top: 0; }
+.cron-min { font-weight: 600; color: var(--laton); }
+.ruta-grid { display: grid; grid-template-columns: minmax(0, 520px) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 800px) { .ruta-grid { grid-template-columns: minmax(0, 1fr); } }
+.pasos-ruta { margin: 6px 0 10px; padding-left: 1.3em; }
+.pasos-ruta li { margin-bottom: 6px; }
+.minimapa { margin: 0; max-width: 520px; width: 100%; position: relative; }
+.minimapa svg { display: block; width: 100%; height: auto; aspect-ratio: 1; background: #1f2421; border-radius: var(--radio); border: 1px solid var(--linea-2); }
+.boton-mapa { position: absolute; top: 8px; right: 8px; font: inherit; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--linea-2); background: rgba(13,17,16,.82); color: #f3eee2; cursor: pointer; }
+.boton-mapa:hover, .boton-mapa:focus-visible { border-color: var(--laton); }
+.mapa-grande .minimapa { max-width: 760px; }
+.leyenda-mapa { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 0.76rem; color: var(--fg-3); }
+.leyenda-mapa span { display: inline-flex; align-items: center; gap: 5px; }
+.leyenda-mapa i { display: inline-block; width: 11px; height: 11px; box-sizing: border-box; }
+
+/* ---------- Objetos: cuándo comprar y quién lo compra ---------- */
+.cuando-caja { margin-top: 12px; padding: 10px 12px; border-radius: var(--radio-s); background: var(--bg-3); border-left: 3px solid var(--laton); }
+.cuando-caja h4, .cuando-caja h3.sub { margin-top: 0 !important; }
+.cuando-caja ul { margin: 4px 0 8px; padding-left: 1.2em; }
+.lista-compradores { display: flex; flex-direction: column; gap: 4px; }
+.comprador { display: grid; grid-template-columns: 10.5rem minmax(0, 1fr); gap: 8px; align-items: center; }
+
+/* ---------- Creador: categorías opcionales ---------- */
+.categoria.opcional { border-style: dashed; }
+/* Como en el editor del juego: núcleo a la izquierda y su categoría opcional a la derecha */
+@media (min-width: 961px) {
+  .categorias { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .categoria { grid-column: 1; }
+  .categoria.opcional { grid-column: 2; }
+}
+@media (max-width: 960px) { .categoria.opcional { margin-left: 14px; } }
+.cat-desc { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: start; margin: 0 0 8px; }
+.cat-desc textarea { min-height: 2.6em; font-size: 0.84rem; }
+.cat-opciones { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin: -2px 0 8px; }
+.cat-opciones label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: var(--fg-2); }
+.cat-compra { font-size: 0.72rem; color: var(--laton); margin: 2px 0; }
+.ficha-dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; margin: 0 0 12px; max-width: 80ch; }
+.ficha-dl dt { font-weight: 600; color: var(--fg); }
+.ficha-dl dd { margin: 0; color: var(--fg-2); }
+@media (max-width: 640px) { .ficha-dl { grid-template-columns: minmax(0, 1fr); } .ficha-dl dd { margin-bottom: 6px; } }
+
+.lista-aclaracion { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.panel-fase-cab > .num { white-space: nowrap; }
+
+/* ---------- Build por fases: compacto y fácil de calcar ---------- */
+.saltos-fase { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.saltos-fase .etiqueta { margin: 0 4px 0 0; }
+.saltos-fase a { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--linea-2); color: var(--fg-2); font-size: 0.86rem; }
+.saltos-fase a:hover { color: var(--fg); border-color: var(--laton); text-decoration: none; }
+.panel-fase, .vender { scroll-margin-top: 130px; }
+.orden-compra { display: flex; flex-wrap: wrap; gap: 6px; }
+.orden-compra .tile-obj { width: 38px; height: 38px; }
+.orden-compra .tile-obj .tier { display: none; }
+.panel-fase-cab .muted { color: var(--fg-2); }
+.compra-mas summary { cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--fg-2); list-style: none; display: inline-flex; align-items: center; gap: 4px; }
+.compra-mas summary::-webkit-details-marker { display: none; }
+.compra-mas summary::before { content: "▸"; font-size: 0.7rem; transition: transform .15s; }
+.compra-mas[open] summary::before { transform: rotate(90deg); }
+.compra-mas[open] summary { margin-bottom: 2px; }
+.opcional-plegable > summary { list-style: none; cursor: pointer; }
+.opcional-plegable > summary::-webkit-details-marker { display: none; }
+.opcional-plegable > summary h3::after { content: " ▾"; font-size: 0.8rem; color: var(--fg-3); }
+.opcional-plegable:not([open]) > summary h3::after { content: " ▸"; }
+.opcional-plegable > summary { margin-bottom: 10px; }
+.opcional-plegable:not([open]) > summary { margin-bottom: -12px; border-radius: var(--radio); }
+.opcional-plegable > .lineas-categoria, .opcional-plegable > .compras { margin-bottom: 10px; }
+.plan-mapa .grid-2 { align-items: start; }
+.chip.mal { color: color-mix(in srgb, var(--mal) 78%, var(--fg)); }
+.tile-obj .tier { color: #1a1409; }
+@media (max-width: 520px) {
+  .compra-nota { flex-wrap: wrap; }
+  .compra-nota .mono { flex: 1 1 100%; }
+  .categoria .cab { flex-wrap: wrap; }
+  .categoria .cab input { flex: 1 1 100%; width: auto; font-size: 1rem; }
+  .vender-fila { gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--linea); }
+}
+
+/* ---------- Pantallas táctiles (al final para que no lo pisen las reglas base) ---------- */
+@media (pointer: coarse) {
+  .boton, .boton.mini, .segmento button, .boton-mapa, .chip.boton-chip, .subnav a, .saltos-fase a { min-height: 40px; }
+  .boton.mini { padding: 8px 12px; }
+  .segmento button { padding: 8px 14px; }
+  .slot button.quitar { width: 32px; height: 32px; font-size: 0.85rem; }
+  .cat-item .acciones { gap: 6px; }
+  .cat-item .acciones button { width: 38px; height: 36px; }
+  .cat-opciones input[type=checkbox] { width: 20px; height: 20px; }
+  .cat-opciones label { padding: 6px 0; display: inline-flex; align-items: center; gap: 6px; }
+  .compra-mas summary { padding: 6px 0; }
+}
+.ruta-titulo { font-size: 1.05rem; margin: 0 0 4px; }
+.info-mapa { margin: 6px 0 0; min-height: 1.4em; }
+
+/* ---------- Guía del mapa ---------- */
+.indice-mapa { margin-bottom: 18px; }
+.guia-mapa .seccion { scroll-margin-top: 130px; }
+.ficha-dl.compacta { grid-template-columns: 96px minmax(0, 1fr); gap: 4px 10px; }
+.lista-ventanas { margin: 6px 0 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.tabla td.nowrap { white-space: nowrap; }
+.tabla-campamentos td { vertical-align: top; }
+.tabla .col-ancha { min-width: 240px; }
+/* En móvil, las tablas anchas se leen como tarjetas: cada celda con su etiqueta delante */
+@media (max-width: 640px) {
+  .tabla-tarjetas, .tabla-tarjetas tbody, .tabla-tarjetas tr, .tabla-tarjetas td { display: block; width: 100%; }
+  .tabla-tarjetas thead { display: none; }
+  .tabla-tarjetas tr { border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 8px 10px; margin-bottom: 8px; background: var(--bg-2); }
+  .tabla-tarjetas td { border: 0; padding: 3px 0; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 8px; text-align: left !important; white-space: normal !important; }
+  .tabla-tarjetas td::before { content: attr(data-label); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fg-3); font-weight: 600; padding-top: 2px; }
+  .tabla-tarjetas td:first-child { grid-template-columns: minmax(0, 1fr); }
+  .tabla-tarjetas td:first-child::before { display: none; }
+  .tabla-tarjetas tr:hover td { background: transparent; }
+  .tabla .col-ancha { min-width: 0; }
+}
+
+/* ---------- Velocidad: los bloques de la ficha no se maquetan hasta que se acercan a la pantalla ---------- */
+.vista .bloque { content-visibility: auto; contain-intrinsic-size: auto 1500px; }
+#vista.sin-cv .bloque { content-visibility: visible; }
+@media print { .vista .bloque { content-visibility: visible; } }
+.subnav a.activo { background: var(--bg-3); color: var(--fg); }
+.vacio.cargando { padding: 40px 0; text-align: center; color: var(--fg-3); }
+/* Pantallas muy anchas: más sitio para las dos columnas de cada fase */
+@media (min-width: 1600px) { :root { --ancho: 1440px; } }
+
+/* ---------- Ajustes de la 2.ª revisión ---------- */
+/* Saltos: dejar el título por debajo de las barras fijas (en móvil, cabecera de 2 filas + índice) */
+@media (max-width: 900px) {
+  .bloque, .panel-fase, .vender { scroll-margin-top: 176px; }
+  .prosa h2, .guia-mapa .seccion { scroll-margin-top: 124px; }
+}
+/* Escritorio: la tira «Ir a» de la build se queda fija bajo el índice de la ficha */
+@media (min-width: 901px) {
+  .build-por-fases .saltos-fase { position: sticky; top: calc(var(--barra-alto) + 46px + env(safe-area-inset-top, 0px)); z-index: 29; background: var(--bg); padding: 6px 0; }
+  .panel-fase, .vender { scroll-margin-top: 176px; }
+}
+/* Selectores: en pantallas estrechas las opciones bajan de fila en lugar de esconderse */
+@media (max-width: 640px) {
+  .segmento { flex-wrap: wrap; overflow: visible; border-radius: 16px; }
+}
+/* Creador */
+.cat-item .acciones button.con-texto { width: auto; min-width: 28px; padding: 0 6px; font-size: 0.72rem; }
+@media (max-width: 400px) { .categoria.opcional { margin-left: 6px; } .categoria .cab { gap: 6px; } }
+/* Panel de objeto: filas alineadas */
+.comprador .num { font-family: var(--f-body); }
+@media (max-width: 520px) {
+  .comprador { grid-template-columns: minmax(0, 1fr); gap: 2px; padding-bottom: 6px; border-bottom: 1px solid var(--linea); }
+  .linea-juego { grid-template-columns: minmax(0, 1fr); }
+  .linea-juego .copiar { justify-self: start; }
+}
+/* Guía del mapa */
+.guia-mapa .seccion > h2 { margin: 28px 0 10px; }
+#gm-otros .grid-3 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+#gm-otros .ficha-dl.compacta { grid-template-columns: minmax(0, 1fr); gap: 0; }
+#gm-otros .ficha-dl.compacta dt { margin-top: 6px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-3); }
+@media (max-width: 400px) { #gm-otros .grid-3 { grid-template-columns: minmax(0, 1fr); } }
+/* Pantallas táctiles: más objetivos de toque */
+@media (pointer: coarse) {
+  .compra-nombre { padding: 9px 0; }
+  .guia .indice a { min-height: 40px; display: inline-flex; align-items: center; }
+  .comprador .heroe-chip { min-height: 36px; }
+  .builder-cab .pretitulo a { display: inline-block; padding: 8px 0; }
+}
+.vacio.cargando { min-height: 60vh; }
+
+/* ---------- Ajustes de la 3.ª revisión ---------- */
+@media (max-width: 520px) {
+  /* Cabecera de fase: la cifra en su línea y el objetivo a todo el ancho */
+  .panel-fase-cab { flex-wrap: wrap; }
+  .panel-fase-cab > :first-child { flex: 1 1 100%; }
+  .panel-fase-cab > .num { order: -1; font-size: 0.8rem; }
+  /* Cronología: el minuto encima del texto */
+  .cronologia li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+@media (pointer: coarse) { .compra-mas summary { min-height: 40px; padding: 0; } }
+/* Guía del mapa: índice fijo en escritorio */
+@media (min-width: 901px) {
+  .indice-mapa { position: sticky; top: calc(var(--barra-alto) + env(safe-area-inset-top, 0px)); z-index: 29; background: var(--bg); padding: 6px 0; }
+  .guia-mapa .seccion { scroll-margin-top: 176px; }
+}
+/* Pantallas estrechas: la fila del menú avisa de que se desplaza */
+@media (max-width: 900px) {
+  .nav { mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); scroll-padding-inline: 24px; }
+}
+/* Velocidad: las secciones largas de la guía del mapa no se maquetan hasta acercarse */
+.guia-mapa .seccion { content-visibility: auto; contain-intrinsic-size: auto 900px; }

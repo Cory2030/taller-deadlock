@@ -1,0 +1,44 @@
+{
+  "_nota": "Correcciones a mano que integrar.js aplica al final, para que no se pierdan al regenerar. Clave: archivo de data/; dentro, ruta con puntos hasta el campo (en las listas se puede usar el id, la clase o la fase del elemento en vez de su posición) y el texto nuevo, o {\"de\": trozo, \"a\": trozo nuevo} para cambiar solo una parte.",
+  "objetos_guia.json": {
+    "objetos.upgrade_goose_egg.para_que": "Para líneas tranquilas o héroes que escalan tarde y quieren un salto de almas (Rem, Ivy, Victor, Graves): lo guardas mientras farmeas y lo rompes antes de una compra grande, normalmente entre el min 20 y el 24 (si aguantas vivo hasta el 30, rinde aún más). Desactivado en Street Brawl.",
+    "objetos.upgrade_goose_egg.cuando": {
+      "de": "(Ivy 3,1 min, Rem 3,6, Victor 4,4)",
+      "a": "(Ivy 3,1 min y Rem 3,6)"
+    }
+  },
+  "fases.json": {
+    "heroes.2.fases.inicial.situacionales.upgrade_goose_egg.cuando": {
+      "de": "Rómpelo entre el min 10 y 16, antes de una compra grande (Cultist Sacrifice).",
+      "a": "Rómpelo hacia el min 20-24 (sus jugadores lo hacen hacia el 24), o antes si te faltan almas para una compra grande como Cultist Sacrifice."
+    },
+    "heroes.2.fases.inicial.situacionales.upgrade_goose_egg.nota_juego": {
+      "de": "Rómpelo antes de Cultist (min 10-16).",
+      "a": "Rómpelo hacia el min 20-24."
+    },
+    "heroes.60.fases.inicial.situacionales.upgrade_goose_egg.cuando": {
+      "de": "Eclosiónalo hacia el min 10-12, antes de pelear la Urna.",
+      "a": "Eclosiónalo hacia el min 20-23 (sus jugadores lo hacen hacia el 22,7), o antes si necesitas las almas para pelear la Urna."
+    },
+    "heroes.60.fases.inicial.situacionales.upgrade_goose_egg.nota_juego": {
+      "de": "eclosiona hacia el min 10-12",
+      "a": "eclosiona hacia el min 20-23"
+    },
+    "heroes.4.fases.avanzada.nucleo.upgrade_damage_recycler.cuando": "Con 6.400 en mano hacia el min 28: Leech se construye sobre Bullet Lifesteal, que esta build no lleva, así que pagas los 6.400 completos en una sola visita a la tienda.",
+    "heroes.4.fases.avanzada.nucleo.upgrade_damage_recycler.nota_juego": "Min 28: 6.400 en una visita. Casi inmortal mientras drenas.",
+    "heroes.18.fases.media.nucleo.upgrade_soaring_spirit.cuando": {
+      "de": "Mejora de Extra Spirit por 800 más",
+      "a": "Compra Extra Spirit y súbelo (1.600 en total)"
+    },
+    "heroes.31.fases.media.nucleo.upgrade_superior_stamina.cuando": {
+      "de": "Mejora de Extra Stamina",
+      "a": "Compra Extra Stamina y súbelo (3.200 en total)"
+    }
+  },
+  "mapa.json": {
+    "mecanicas.cajas.zonas_densas.6.zona": "Entre Broadway y Chinatown, de los Servicios a la farmacia",
+    "mecanicas.mejoras_permanentes.fuentes.Golden Goose Egg (objeto T1).como": "Al romper el huevo (canaliza 2 s).",
+    "mecanicas.mejoras_permanentes.fuentes.Golden Goose Egg (objeto T1).cuando": "Cuando lo rompes, normalmente entre el min 20 y el 24.",
+    "mecanicas.mejoras_permanentes.fuentes.Golden Goose Egg (objeto T1).probabilidad": "1 mejora por cada 80 almas acumuladas (unas 18 si lo rompes en el min 22)."
+  }
+}

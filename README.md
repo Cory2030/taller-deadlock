@@ -6,16 +6,19 @@ creador de builds, catálogo de 173 objetos, armador de equipos con sinergias y 
 guía de sistemas y novedades de parche.
 
 No necesita servidor ni dependencias: es un único `index.html` que lee los JSON de `data/`
-y las imágenes de `assets/img/`.
+y las imágenes de `assets/img/`. Cada sección solo espera a los datos que usa (`DATOS_POR_RUTA`
+en `src/app.js`) y el resto se descarga en segundo plano.
 
 ## Estructura
 
 ```
 index.html            Web completa (documento) para abrir en local o subir a cualquier hosting
 artefacto.html        Misma web como fragmento, para publicarla como Artifact de Claude
-src/                  Código fuente: plantilla.html, estilos.css, app.js, vistas.js, builder.js
+src/                  Código fuente: plantilla.html, estilos.css, app.js, vistas.js, fases.js (build por fases y mapa), builder.js
 scripts/actualizar.js Descarga datos e imágenes del parche actual desde api.deadlock-api.com
-scripts/integrar.js   Convierte los archivos de investigación (guías, meta, objetos, comps) en data/*.json
+scripts/compras.js    Minuto medio de compra de cada objeto con cada héroe y almas que se llevan en ese minuto (data/compras.json)
+scripts/integrar.js   Convierte los archivos de investigación (guías, meta, objetos, comps, fases, mapa) en data/*.json
+scripts/correcciones.json  Correcciones a mano que integrar.js aplica al final
 scripts/md_a_json.js  Convierte un informe Markdown (p. ej. la guía de itemización) en data/itemizacion.json
 scripts/construir.js  Ensambla index.html y artefacto.html a partir de src/
 scripts/servir.js     Servidor estático para probar en local (http://localhost:8765)
@@ -36,12 +39,18 @@ node scripts/construir.js
 periodo (7 y 30 días), tier list por datos con la etiqueta «Nuevo», sinergias y counters
 (14 días), estadísticas de objetos, qué habilidad se maxea primero y el orden más jugado
 (7 días, Oracle o superior), y las builds de la comunidad más jugadas. Tarda 3–5 minutos.
-Con `--rapido` omite las builds; con `--sin-imagenes` no descarga imágenes nuevas.
+Con `--rapido` omite las builds; con `--sin-imagenes` no descarga imágenes nuevas. Si hay
+`ffmpeg` en el equipo, las imágenes nuevas de objetos se guardan a 128 px y los iconos de héroe
+a 80 px (la web nunca los muestra más grandes) y las cartas se comprimen más; sin ffmpeg se quedan como vienen.
 
 Los archivos escritos a mano o a partir de la investigación (no los toca `actualizar.js`):
 `data/sistemas.json` (guía de sistemas), `data/parche.json` (resumen de parches),
 `data/itemizacion.json` (guía de objetos, generada con `md_a_json.js`), `data/guias.json`,
 `data/meta.json`, `data/objetos_guia.json` y `data/comps.json` (generados con `integrar.js`),
+`data/fases.json` (build por fases de cada héroe: núcleo y situacionales con cuándo comprar,
+textos para el editor del juego y plan de mapa), `data/mapa.json` (mejoras de puente y
+permanentes, 51 campamentos con posición, tiempos, cronología y rutas de jungla; las posiciones
+salen de `/v1/assets/map` de la API y la imagen está en `assets/img/mapa/`),
 y `data/habilidades_extra.json` (descripciones escritas a mano para las habilidades que la API
 entrega sin texto; la web solo las usa cuando la descripción oficial viene vacía).
 
@@ -61,6 +70,10 @@ salen de una investigación por agentes que se guarda en una carpeta con estos a
 node scripts/integrar.js "<carpeta de investigación>"
 node scripts/construir.js
 ```
+
+Las correcciones hechas a mano después de revisar (un texto que contradice a otro, un dato
+desfasado) van en `scripts/correcciones.json`: `integrar.js` las aplica al final, así que no se
+pierden al volver a integrar la investigación.
 
 ## Alojarla en GitHub Pages (datos en vivo y actualización diaria)
 
