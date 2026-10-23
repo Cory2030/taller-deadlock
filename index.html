@@ -1,0 +1,1897 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Taller de Deadlock</title>
+<meta name="description" content="Tier list, builds, composiciones de equipo y guías de héroes de Deadlock en español, con datos del parche actual.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ============================================================
+   Taller de Deadlock — estilos
+   Concepto: tablero de taller noir años 30: tinta verde-negra, latón y pergamino.
+   Los tres colores de las categorías del juego (arma, vitalidad, espíritu) son
+   identidad fija y siempre van acompañados de texto o icono.
+   ============================================================ */
+:root {
+  color-scheme: dark;
+  --bg: #121715;
+  --bg-2: #181f1c;
+  --bg-3: #212a26;
+  --bg-4: #2a3530;
+  --linea: #2e3a34;
+  --linea-2: #3b4942;
+  --fg: #ece4d2;
+  --fg-2: #bdb5a4;
+  --fg-3: #8d8777;
+  --laton: #d9ad4e;
+  --laton-2: #f0c972;
+  --laton-bg: rgba(217, 173, 78, 0.12);
+  --cobre: #c4703d;
+  --arma: #c97d2d;
+  --vit: #2a9c8c;
+  --esp: #9a7de3;
+  --arma-bg: rgba(201, 125, 45, 0.16);
+  --vit-bg: rgba(42, 156, 140, 0.16);
+  --esp-bg: rgba(154, 125, 227, 0.16);
+  --tier-s: #e8bd55;
+  --tier-a: #c99a3e;
+  --tier-b: #a97f36;
+  --tier-c: #86652f;
+  --tier-d: #64502a;
+  --tier-fg-claro: #1a1409;
+  --tier-fg-oscuro: #f3e7c6;
+  --ok: #58b27a;
+  --aviso: #d9a441;
+  --mal: #d1604e;
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --icono-bg: #1b221e;
+  --radio: 10px;
+  --radio-s: 6px;
+  --f-display: 'Big Shoulders Display', 'Oswald', 'Arial Narrow', Impact, sans-serif;
+  --f-body: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --ancho: 1240px;
+  --barra-alto: 64px;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #f3ecdc; --bg-2: #faf6ec; --bg-3: #ffffff; --bg-4: #ebe3d0;
+    --linea: #d9d0bb; --linea-2: #c4b99f;
+    --fg: #1d1a16; --fg-2: #4e493f; --fg-3: #7a7364;
+    --laton: #8a5a1c; --laton-2: #6e4612; --laton-bg: rgba(138, 90, 28, 0.12);
+    --cobre: #a3542a;
+    --arma: #b85a0a; --vit: #0a8a5c; --esp: #6a3fc4;
+    --arma-bg: rgba(184, 90, 10, 0.12); --vit-bg: rgba(10, 138, 92, 0.12); --esp-bg: rgba(106, 63, 196, 0.12);
+    --tier-s: #c99a1f; --tier-a: #a87b12; --tier-b: #866010; --tier-c: #64470f; --tier-d: #43300b;
+    --tier-fg-claro: #1a1409; --tier-fg-oscuro: #fbf3dc;
+    --ok: #2f8a4f; --aviso: #a8741a; --mal: #b7432f;
+    --sombra: 0 10px 30px rgba(60, 40, 10, 0.12);
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f3ecdc; --bg-2: #faf6ec; --bg-3: #ffffff; --bg-4: #ebe3d0;
+  --linea: #d9d0bb; --linea-2: #c4b99f;
+  --fg: #1d1a16; --fg-2: #4e493f; --fg-3: #7a7364;
+  --laton: #8a5a1c; --laton-2: #6e4612; --laton-bg: rgba(138, 90, 28, 0.12);
+  --cobre: #a3542a;
+  --arma: #b85a0a; --vit: #0a8a5c; --esp: #6a3fc4;
+  --arma-bg: rgba(184, 90, 10, 0.12); --vit-bg: rgba(10, 138, 92, 0.12); --esp-bg: rgba(106, 63, 196, 0.12);
+  --tier-s: #c99a1f; --tier-a: #a87b12; --tier-b: #866010; --tier-c: #64470f; --tier-d: #43300b;
+  --tier-fg-claro: #1a1409; --tier-fg-oscuro: #fbf3dc;
+  --ok: #2f8a4f; --aviso: #a8741a; --mal: #b7432f;
+  --sombra: 0 10px 30px rgba(60, 40, 10, 0.12);
+}
+
+* { box-sizing: border-box; }
+html { height: 100%; -webkit-text-size-adjust: 100%; overflow-x: clip; }
+body {
+  margin: 0; min-height: 100%;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  overflow-x: hidden;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 50; background: var(--bg-2); }
+h1, h2, h3, h4 { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.01em; line-height: 1.05; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 4vw, 3rem); }
+h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.05rem; font-family: var(--f-body); font-weight: 600; }
+p { margin: 0 0 0.75em; }
+a { color: var(--laton); text-decoration: none; }
+a:hover { color: var(--laton-2); text-decoration: underline; }
+img { max-width: 100%; display: block; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--laton); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--f-mono); }
+.muted { color: var(--fg-3); }
+.sec { color: var(--fg-2); }
+.pequeno { font-size: 0.85rem; }
+.etiqueta { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-3); font-weight: 600; }
+
+/* ---------- Cabecera ---------- */
+.cabecera { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; background: var(--bg-2); border-bottom: 1px solid var(--linea); }
+.cabecera-interior {
+  max-width: var(--ancho); margin: 0 auto; min-height: var(--barra-alto);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px 20px;
+}
+.marca { display: flex; align-items: center; gap: 10px; color: var(--fg); }
+.marca:hover { text-decoration: none; }
+.marca-sello { display: grid; place-items: center; width: 40px; height: 40px; border: 2px solid var(--laton); border-radius: 50%; font-family: var(--f-display); font-weight: 800; font-size: 1.1rem; color: var(--laton); background: var(--laton-bg); letter-spacing: 0.02em; }
+.marca-texto { display: flex; flex-direction: column; line-height: 1.1; }
+.marca-nombre { font-family: var(--f-display); font-weight: 700; font-size: 1.35rem; letter-spacing: 0.02em; }
+.marca-sub { font-size: 0.72rem; color: var(--fg-3); }
+.nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav a { padding: 8px 12px; border-radius: var(--radio-s); color: var(--fg-2); font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent; }
+.nav a:hover { color: var(--fg); background: var(--bg-3); text-decoration: none; }
+.nav a.activo { color: var(--laton); border-bottom-color: var(--laton); background: transparent; }
+.cabecera-acciones { position: relative; }
+.buscador { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--linea-2); border-radius: 999px; background: var(--bg); color: var(--fg-3); min-width: 180px; }
+.buscador:focus-within { border-color: var(--laton); color: var(--fg); }
+.buscador input { border: 0; background: transparent; outline: 0; width: 100%; min-width: 0; color: var(--fg); }
+.buscador input::placeholder { color: var(--fg-3); }
+.buscador-resultados { position: absolute; right: 0; top: calc(100% + 6px); width: min(360px, 92vw); max-height: 60vh; overflow: auto; background: var(--bg-3); border: 1px solid var(--linea-2); border-radius: var(--radio); box-shadow: var(--sombra); padding: 6px; z-index: 60; }
+.buscador-resultados a { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--radio-s); color: var(--fg); }
+.buscador-resultados a:hover, .buscador-resultados a.sel { background: var(--bg-4); text-decoration: none; }
+.buscador-resultados img { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; }
+.buscador-resultados .tipo { margin-left: auto; font-size: 0.72rem; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.06em; }
+@media (max-width: 900px) {
+  .cabecera-interior { grid-template-columns: 1fr auto; padding-block: 8px; }
+  .cabecera-acciones { grid-row: 1; grid-column: 2; }
+  .nav { grid-row: 2; grid-column: 1 / -1; margin: 0 -4px; }
+  .marca-sub { display: none; }
+  .buscador { min-width: 44px; }
+  .buscador input { width: 120px; }
+}
+@media (max-width: 520px) {
+  .buscador input { width: 84px; }
+  .marca-nombre { font-size: 1.1rem; }
+}
+@media (pointer: coarse) {
+  .boton.mini { padding: 6px 10px; min-height: 32px; }
+  .slot button.quitar { width: 26px; height: 26px; font-size: 0.8rem; }
+  .cat-item .acciones button { width: 32px; height: 30px; }
+}
+
+/* ---------- Estructura ---------- */
+.vista { max-width: var(--ancho); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 48px; min-height: 60vh; }
+.pie { border-top: 1px solid var(--linea); background: var(--bg-2); color: var(--fg-3); font-size: 0.82rem; }
+.pie-interior { max-width: var(--ancho); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px; }
+.pie p { margin-bottom: 0.4em; }
+.cargando { display: grid; place-items: center; gap: 12px; padding: 80px 0; color: var(--fg-3); }
+.cargando-sello { width: 64px; height: 64px; border: 3px solid var(--laton); border-radius: 50%; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 1.6rem; color: var(--laton); animation: latir 1.4s ease-in-out infinite; }
+@keyframes latir { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.94); opacity: 0.7; } }
+@media (prefers-reduced-motion: reduce) { .cargando-sello { animation: none; } * { transition: none !important; } }
+
+.seccion { margin-bottom: 36px; }
+.seccion-cab { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 16px; margin-bottom: 14px; }
+.seccion-cab p { margin: 4px 0 0; color: var(--fg-2); max-width: 70ch; }
+.pretitulo { font-family: var(--f-mono); font-size: 0.75rem; color: var(--laton); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+.intro { max-width: 72ch; color: var(--fg-2); }
+.fila { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fila.entre { justify-content: space-between; }
+.col { display: flex; flex-direction: column; gap: 8px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.grid-2 > *, .grid-3 > * { min-width: 0; }
+
+/* ---------- Controles ---------- */
+.controles { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-bottom: 16px; }
+.control { display: flex; flex-direction: column; gap: 4px; min-width: 0; max-width: 100%; }
+.segmento { display: inline-flex; border: 1px solid var(--linea-2); border-radius: 999px; padding: 2px; background: var(--bg-2); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.segmento button { border: 0; background: transparent; padding: 5px 12px; border-radius: 999px; color: var(--fg-2); font-size: 0.88rem; white-space: nowrap; }
+.segmento button:hover { color: var(--fg); }
+.segmento button.activo { background: var(--laton); color: #1a1409; font-weight: 600; }
+.segmento button.activo.r-weapon { background: var(--arma); color: #fff; }
+.segmento button.activo.r-vitality { background: var(--vit); color: #fff; }
+.segmento button.activo.r-spirit { background: var(--esp); color: #fff; }
+.select, .entrada { border: 1px solid var(--linea-2); border-radius: var(--radio-s); background: var(--bg-2); color: var(--fg); padding: 6px 10px; min-width: 0; }
+.entrada:focus, .select:focus { border-color: var(--laton); outline: 0; }
+textarea.entrada { resize: vertical; min-height: 60px; width: 100%; }
+.boton { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--linea-2); border-radius: var(--radio-s); background: var(--bg-3); color: var(--fg); padding: 7px 14px; font-weight: 500; line-height: 1.2; }
+.boton:hover { border-color: var(--laton); color: var(--laton-2); text-decoration: none; }
+.boton.primario { background: var(--laton); border-color: var(--laton); color: #1a1409; font-weight: 600; }
+.boton.primario:hover { background: var(--laton-2); color: #1a1409; }
+.boton.peligro:hover { border-color: var(--mal); color: var(--mal); }
+.boton.mini { padding: 3px 8px; font-size: 0.8rem; }
+.boton:disabled { opacity: 0.5; cursor: not-allowed; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; border: 1px solid var(--linea-2); background: var(--bg-3); color: var(--fg-2); white-space: nowrap; }
+.chip.r-weapon { color: var(--arma); background: var(--arma-bg); border-color: transparent; }
+.chip.r-vitality { color: var(--vit); background: var(--vit-bg); border-color: transparent; }
+.chip.r-spirit { color: var(--esp); background: var(--esp-bg); border-color: transparent; }
+.chip.laton { color: var(--laton); background: var(--laton-bg); border-color: transparent; }
+.chip.ok { color: var(--ok); } .chip.mal { color: var(--mal); } .chip.aviso { color: var(--aviso); }
+.chip.boton-chip { cursor: pointer; }
+.chip.boton-chip.activo { background: var(--laton); color: #1a1409; border-color: var(--laton); }
+.r-weapon { --c: var(--arma); --c-bg: var(--arma-bg); }
+.r-vitality { --c: var(--vit); --c-bg: var(--vit-bg); }
+.r-spirit { --c: var(--esp); --c-bg: var(--esp-bg); }
+.texto-arma { color: var(--arma); } .texto-vit { color: var(--vit); } .texto-esp { color: var(--esp); }
+
+/* ---------- Tarjetas y tablas ---------- */
+.tarjeta { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 16px; min-width: 0; }
+.tarjeta.elevada { background: var(--bg-3); }
+.tarjeta h3 { margin-bottom: 8px; }
+.tarjeta .etiqueta { margin-bottom: 6px; }
+.tabla-env { overflow-x: auto; }
+.tabla { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.tabla th, .tabla td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-3); font-weight: 600; }
+.tabla td.num, .tabla th.num { text-align: right; }
+.tabla tr:hover td { background: var(--bg-3); }
+.tabla tr.clicable { cursor: pointer; }
+.barra { position: relative; height: 8px; background: var(--bg-4); border-radius: 4px; overflow: hidden; min-width: 60px; }
+.barra > i { position: absolute; inset: 0 auto 0 0; background: var(--c, var(--laton)); border-radius: 4px; }
+.barra.centro > i { left: 50%; transform-origin: left; }
+.barra.centro::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--fg-3); }
+.medidor { display: grid; grid-template-columns: 96px 1fr auto; align-items: center; gap: 10px; font-size: 0.88rem; }
+.medidor .barra { height: 10px; }
+.insignia { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 6px; font-family: var(--f-display); font-weight: 800; font-size: 1.05rem; letter-spacing: 0.04em; }
+.t-S { background: var(--tier-s); color: var(--tier-fg-claro); }
+.t-A { background: var(--tier-a); color: var(--tier-fg-claro); }
+.t-B { background: var(--tier-b); color: var(--tier-fg-oscuro); }
+.t-C { background: var(--tier-c); color: var(--tier-fg-oscuro); }
+.t-D { background: var(--tier-d); color: var(--tier-fg-oscuro); }
+.t-sin { background: var(--bg-4); color: var(--fg-3); }
+.vacio { padding: 28px; text-align: center; color: var(--fg-3); border: 1px dashed var(--linea-2); border-radius: var(--radio); }
+.aviso-caja { padding: 10px 14px; border-left: 3px solid var(--aviso); background: var(--bg-3); border-radius: 0 var(--radio-s) var(--radio-s) 0; color: var(--fg-2); font-size: 0.9rem; }
+.nota-caja { padding: 10px 14px; border-left: 3px solid var(--laton); background: var(--bg-3); border-radius: 0 var(--radio-s) var(--radio-s) 0; color: var(--fg-2); font-size: 0.9rem; }
+details.plegable { border: 1px solid var(--linea); border-radius: var(--radio-s); background: var(--bg-2); }
+details.plegable > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 8px; }
+details.plegable > summary::before { content: "▸"; color: var(--laton); font-size: 0.8rem; transition: transform 0.15s; }
+details.plegable[open] > summary::before { transform: rotate(90deg); }
+details.plegable > summary::-webkit-details-marker { display: none; }
+details.plegable > .contenido { padding: 0 14px 14px; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--linea); margin-bottom: 16px; }
+.tabs button { border: 0; background: transparent; color: var(--fg-2); padding: 8px 12px; border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; }
+.tabs button.activo { color: var(--laton); border-bottom-color: var(--laton); }
+.tabs button:hover { color: var(--fg); }
+
+/* ---------- Héroes: chips, tarjetas, grid ---------- */
+.heroe-chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--bg-3); border: 1px solid var(--linea); color: var(--fg); font-size: 0.86rem; font-weight: 500; }
+.heroe-chip:hover { border-color: var(--laton); text-decoration: none; background: var(--bg-4); }
+.heroe-chip img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; background: var(--bg-4); }
+.heroe-chip .num { color: var(--fg-3); font-size: 0.78rem; }
+.heroe-chip.mini img { width: 22px; height: 22px; }
+.heroe-chip.mini { padding: 2px 8px 2px 2px; font-size: 0.8rem; }
+.icono-heroe { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--bg-4); }
+.grid-heroes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.tarjeta-heroe { position: relative; display: block; border-radius: var(--radio); overflow: hidden; background: var(--bg-3); border: 1px solid var(--linea); color: var(--fg); aspect-ratio: 3 / 4; }
+.tarjeta-heroe img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.25s; }
+.tarjeta-heroe:hover img { transform: scale(1.04); }
+.tarjeta-heroe:hover { text-decoration: none; border-color: var(--laton); }
+.tarjeta-heroe .velo { position: absolute; inset: auto 0 0 0; padding: 36px 10px 10px; background: linear-gradient(to top, rgba(10, 12, 11, 0.95), rgba(10, 12, 11, 0.6) 55%, transparent); color: #f1ead9; }
+.tarjeta-heroe .nombre { font-family: var(--f-display); font-weight: 700; font-size: 1.25rem; line-height: 1; }
+.tarjeta-heroe .rol { font-size: 0.75rem; color: #c9c1ae; margin-top: 2px; }
+.tarjeta-heroe .esquina { position: absolute; top: 8px; left: 8px; right: 40px; display: flex; flex-wrap: wrap; gap: 4px; }
+.tarjeta-heroe .esquina-der { position: absolute; top: 8px; right: 8px; }
+.arquetipo { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 999px; background: rgba(0, 0, 0, 0.55); color: #fff; }
+.arquetipo i { width: 8px; height: 8px; border-radius: 50%; background: var(--c, #fff); display: inline-block; }
+.arq-arma { --c: var(--arma); } .arq-espiritu { --c: var(--esp); } .arq-vitalidad { --c: var(--vit); } .arq-hibrido { --c: var(--laton); }
+
+/* ---------- Tier list ---------- */
+.tier-tabla { display: flex; flex-direction: column; gap: 6px; }
+.tier-fila { display: grid; grid-template-columns: 64px 1fr; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--bg-2); overflow: hidden; }
+.tier-letra { display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 2.2rem; letter-spacing: 0.02em; }
+.tier-heroes { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; }
+.tier-heroes:empty::after { content: "Ningún héroe en este nivel"; color: var(--fg-3); font-size: 0.85rem; padding: 6px; }
+.tier-chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--bg-3); border: 1px solid var(--linea); color: var(--fg); font-size: 0.86rem; }
+.tier-chip:hover { border-color: var(--laton); text-decoration: none; }
+.tier-chip img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+.tier-chip .datos { display: flex; flex-direction: column; line-height: 1.15; }
+.tier-chip .datos .num { font-size: 0.72rem; color: var(--fg-3); }
+.tier-chip .delta { font-size: 0.7rem; margin-left: 2px; }
+.delta.sube { color: var(--ok); } .delta.baja { color: var(--mal); }
+@media (max-width: 600px) { .tier-fila { grid-template-columns: 44px 1fr; } .tier-letra { font-size: 1.7rem; } .tier-chip .datos .num { display: none; } }
+
+/* ---------- Página de héroe ---------- */
+.heroe-cab { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start; margin-bottom: 24px; }
+.heroe-cab .carta { border-radius: var(--radio); overflow: hidden; border: 1px solid var(--linea); background: var(--bg-3); aspect-ratio: 3 / 4; }
+.heroe-cab .carta img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.heroe-cab h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); }
+.heroe-cab .alias { color: var(--fg-3); font-family: var(--f-display); font-size: 1.3rem; font-weight: 500; }
+.heroe-cab .rol-linea { color: var(--laton); font-weight: 600; margin: 4px 0 8px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-top: 12px; }
+.kpi { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 8px 10px; }
+.kpi .etiqueta { margin-bottom: 2px; }
+.kpi .valor { font-family: var(--f-display); font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.kpi .valor small { font-size: 0.8rem; font-family: var(--f-body); color: var(--fg-3); font-weight: 400; }
+@media (max-width: 700px) { .heroe-cab { grid-template-columns: 1fr; } .heroe-cab .carta { max-width: 220px; } }
+.subnav { position: sticky; top: calc(var(--barra-alto) + env(safe-area-inset-top, 0px)); z-index: 30; background: var(--bg); padding: 6px 0; margin-bottom: 16px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--linea); }
+.subnav::-webkit-scrollbar { display: none; }
+.subnav a { padding: 6px 10px; border-radius: 999px; white-space: nowrap; color: var(--fg-2); font-size: 0.88rem; }
+.subnav a:hover { background: var(--bg-3); text-decoration: none; color: var(--fg); }
+@media (max-width: 900px) { .subnav { top: calc(var(--barra-alto) + 44px + env(safe-area-inset-top, 0px)); } }
+.bloque { scroll-margin-top: 130px; margin-bottom: 32px; }
+.bloque > h2 { margin-bottom: 12px; display: flex; align-items: baseline; gap: 10px; }
+.bloque > h2 .sub { font-family: var(--f-body); font-size: 0.85rem; color: var(--fg-3); font-weight: 400; }
+.arquetipo-panel { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; }
+@media (max-width: 800px) { .arquetipo-panel { grid-template-columns: 1fr; } }
+.arquetipo-grande { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.arquetipo-grande .sello { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; border: 3px solid var(--c, var(--laton)); color: var(--c, var(--laton)); font-family: var(--f-display); font-weight: 800; font-size: 1.6rem; background: var(--c-bg, var(--laton-bg)); }
+.arquetipo-grande .titulo { font-family: var(--f-display); font-size: 1.7rem; font-weight: 700; line-height: 1; }
+.arquetipo-grande .titulo small { display: block; font-family: var(--f-body); font-size: 0.8rem; color: var(--fg-3); font-weight: 400; margin-top: 4px; }
+.escalado { display: flex; flex-direction: column; gap: 8px; }
+.fases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.fase { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px; border-top: 3px solid var(--laton); }
+.fase .etiqueta { color: var(--laton); margin-bottom: 6px; }
+.fase p { font-size: 0.92rem; color: var(--fg-2); margin: 0; }
+@media (max-width: 800px) { .fases { grid-template-columns: 1fr; } }
+.habilidades { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.habilidad { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.habilidad .cab { display: flex; gap: 10px; align-items: center; }
+.habilidad .cab img { width: 48px; height: 48px; border-radius: 8px; background: var(--icono-bg); border: 1px solid var(--linea-2); }
+/* Los iconos de habilidad son glifos blancos sobre transparente: siempre sobre fondo oscuro, también en tema claro */
+.orden-paso img, .pa-boton img, .popular img[src*="abilities"], .secuencia img { background: var(--icono-bg) !important; }
+.habilidad .cab .tecla { font-family: var(--f-mono); font-size: 0.72rem; color: var(--fg-3); }
+.habilidad .cab .nombre { font-family: var(--f-display); font-size: 1.25rem; font-weight: 700; line-height: 1; }
+.habilidad .cab .nombre small { display: block; font-family: var(--f-body); font-size: 0.75rem; color: var(--fg-3); font-weight: 400; margin-top: 3px; }
+.habilidad .metas { display: flex; flex-wrap: wrap; gap: 6px; }
+.habilidad .desc { font-size: 0.9rem; color: var(--fg-2); white-space: pre-line; }
+.habilidad .mejoras { display: grid; gap: 4px; font-size: 0.84rem; }
+.habilidad .mejora { display: grid; grid-template-columns: 44px 1fr; gap: 8px; padding: 5px 8px; background: var(--bg); border-radius: var(--radio-s); border: 1px solid var(--linea); }
+.habilidad .mejora .pa { font-family: var(--f-mono); color: var(--laton); font-size: 0.78rem; white-space: nowrap; }
+.habilidad .importantes { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.82rem; color: var(--fg-2); }
+.habilidad .importantes b { color: var(--fg); font-weight: 600; }
+.atr { padding: 0 4px; border-radius: 4px; font-weight: 600; white-space: nowrap; }
+.atr-SpiritDamage, .atr-TechPower, .atr-SpiritPower, .atr-Spirit { color: var(--esp); }
+.atr-WeaponDamage, .atr-BulletDamage, .atr-Weapon, .atr-FireRate, .atr-BulletResist { color: var(--arma); }
+.atr-Healing, .atr-Health, .atr-Heal, .atr-Lifesteal, .atr-BonusHealth, .atr-Vitality, .atr-HealthRegen, .atr-SpiritResist { color: var(--vit); }
+.atr-Stun, .atr-Slow, .atr-Silence, .atr-Disarm, .atr-Root, .atr-Immobilize, .atr-Knockdown, .atr-Sleep, .atr-Knockup { color: var(--cobre); }
+.orden-hab { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.orden-paso { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; width: 56px; }
+.orden-paso img { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--linea-2); background: var(--bg-4); }
+.orden-paso .n { font-family: var(--f-mono); font-size: 0.68rem; color: var(--fg-3); }
+.orden-paso .nivel { font-size: 0.68rem; color: var(--laton); font-weight: 600; }
+.orden-paso.desbloqueo img { border-color: var(--laton); }
+.build-fases { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.build-fase { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 12px 14px; min-width: 0; }
+.build-fase .cab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; gap: 8px; }
+.build-fase .cab .etiqueta { color: var(--laton); }
+.item-fila { display: grid; grid-template-columns: 44px 1fr; gap: 10px; padding: 7px 0; border-top: 1px solid var(--linea); align-items: start; }
+.item-fila:first-of-type { border-top: 0; }
+.item-fila img { width: 44px; height: 44px; border-radius: 8px; border: 2px solid var(--c, var(--linea-2)); background: var(--bg-4); cursor: pointer; }
+.item-fila .nombre { font-weight: 600; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; cursor: pointer; }
+.item-fila .nombre .coste { font-family: var(--f-mono); font-size: 0.75rem; color: var(--fg-3); font-weight: 400; }
+.item-fila .porque { font-size: 0.86rem; color: var(--fg-2); margin-top: 2px; }
+.obj-mini { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px 3px 3px; border-radius: 999px; background: var(--bg-3); border: 1px solid var(--linea); font-size: 0.82rem; cursor: pointer; color: var(--fg); }
+.obj-mini img { width: 26px; height: 26px; border-radius: 6px; border: 1.5px solid var(--c, var(--linea-2)); }
+.obj-mini:hover { border-color: var(--laton); }
+.populares { display: grid; gap: 6px; }
+.popular { display: grid; grid-template-columns: 36px 1fr 64px 64px; gap: 10px; align-items: center; font-size: 0.86rem; }
+.popular img { width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid var(--c, var(--linea-2)); cursor: pointer; }
+.popular .nombre { cursor: pointer; }
+.popular .barra { height: 6px; margin-top: 4px; }
+.lista-heroes-mini { display: grid; gap: 6px; }
+.vs { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; font-size: 0.88rem; padding: 4px 0; }
+.vs .porque { color: var(--fg-2); font-size: 0.84rem; }
+.fuentes { font-size: 0.85rem; }
+.fuentes li { margin-bottom: 4px; }
+.videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.video { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 10px 12px; font-size: 0.88rem; }
+.video a { font-weight: 600; }
+.video .meta { color: var(--fg-3); font-size: 0.78rem; }
+.stats-base { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.stat { display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio-s); font-size: 0.88rem; }
+.stat b { font-family: var(--f-mono); font-weight: 500; }
+.build-com { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 12px 14px; }
+.build-com .cab { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; align-items: baseline; margin-bottom: 8px; }
+.build-com .cab b { font-size: 1.02rem; }
+.build-com .cat { margin: 6px 0; }
+.build-com .cat .etiqueta { margin-bottom: 4px; }
+.build-com .objs { display: flex; flex-wrap: wrap; gap: 4px; }
+.build-com .objs img { width: 34px; height: 34px; border-radius: 7px; border: 1.5px solid var(--c, var(--linea-2)); cursor: pointer; background: var(--bg-4); }
+
+/* ---------- Objetos ---------- */
+.grid-objetos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.obj-tile { display: flex; gap: 10px; align-items: center; padding: 8px; border-radius: var(--radio-s); background: var(--bg-2); border: 1px solid var(--linea); border-left: 3px solid var(--c, var(--linea-2)); cursor: pointer; text-align: left; min-width: 0; color: var(--fg); }
+.obj-tile:hover { border-color: var(--laton); border-left-color: var(--c, var(--laton)); }
+.obj-tile img { width: 44px; height: 44px; border-radius: 8px; background: var(--bg-4); flex-shrink: 0; }
+.obj-tile .nombre { font-weight: 600; font-size: 0.88rem; line-height: 1.2; }
+.obj-tile .sub { font-size: 0.75rem; color: var(--fg-3); font-family: var(--f-mono); }
+.obj-tile .nombre-es { font-size: 0.74rem; color: var(--fg-3); }
+.tienda { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.tienda-col { min-width: 0; padding: 10px; border-radius: var(--radio); background: var(--bg-2); border: 1px solid var(--linea); border-top: 3px solid var(--c, var(--linea-2)); }
+.tienda-col .etiqueta { margin-bottom: 8px; }
+@media (max-width: 760px) { .tienda { grid-template-columns: 1fr; } }
+.panel { position: fixed; inset: 0; z-index: 70; display: grid; grid-template-columns: 1fr min(520px, 100%); }
+.panel .fondo { background: rgba(0, 0, 0, 0.5); }
+.panel .cuerpo { background: var(--bg-2); border-left: 1px solid var(--linea-2); overflow: auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 40px 20px; padding-top: calc(20px + env(safe-area-inset-top, 0px)); box-shadow: var(--sombra); }
+@media (max-width: 640px) { .panel { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } .panel .fondo { min-height: 10vh; } .panel .cuerpo { max-height: 90vh; border-left: 0; border-top: 1px solid var(--linea-2); border-radius: 16px 16px 0 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); } }
+.panel .cerrar { float: right; border: 0; background: var(--bg-3); border-radius: 50%; width: 36px; height: 36px; font-size: 1.2rem; color: var(--fg-2); }
+.panel .cerrar:hover { color: var(--fg); background: var(--bg-4); }
+.obj-detalle .cab { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+.obj-detalle .cab img { width: 72px; height: 72px; border-radius: 12px; border: 2px solid var(--c, var(--linea-2)); background: var(--bg-4); }
+.obj-detalle h2 { font-size: 1.8rem; }
+.obj-detalle .stats-lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 6px; margin: 10px 0; }
+.obj-detalle .desc { white-space: pre-line; color: var(--fg-2); font-size: 0.92rem; }
+.obj-detalle h4 { margin: 14px 0 6px; color: var(--laton); }
+.etiquetas-obj { display: flex; flex-wrap: wrap; gap: 4px; }
+.etiquetas-obj .chip { font-size: 0.72rem; }
+
+/* ---------- Builds (creador) ---------- */
+.builds-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.build-tarjeta { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 12px 14px; display: flex; gap: 12px; align-items: center; cursor: pointer; min-width: 0; }
+.build-tarjeta:hover { border-color: var(--laton); }
+.build-tarjeta img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.build-tarjeta .info { min-width: 0; flex: 1; }
+.build-tarjeta .info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.build-tarjeta .info small { color: var(--fg-3); }
+.builder { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; }
+@media (max-width: 960px) { .builder { grid-template-columns: minmax(0, 1fr); } }
+.builder-cab { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; margin-bottom: 16px; }
+.builder-cab img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+.builder-cab input.titulo { font-family: var(--f-display); font-size: 1.6rem; font-weight: 700; width: 100%; background: transparent; border: 0; border-bottom: 1px dashed var(--linea-2); padding: 2px 0; }
+.builder-cab input.titulo:focus { outline: 0; border-bottom-color: var(--laton); }
+.pa-tablero { display: grid; gap: 10px; }
+.pa-botones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.pa-boton { border: 1px solid var(--linea-2); background: var(--bg-2); border-radius: var(--radio-s); padding: 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--fg); min-width: 0; }
+.pa-boton img { width: 44px; height: 44px; border-radius: 8px; background: var(--bg-4); }
+.pa-boton .nombre { font-size: 0.74rem; text-align: center; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.pa-boton .nivel { font-family: var(--f-mono); font-size: 0.72rem; color: var(--laton); }
+.pa-boton:hover { border-color: var(--laton); }
+.pa-boton:disabled { opacity: 0.45; cursor: not-allowed; }
+.pa-boton.pendiente { border-style: dashed; }
+.secuencia { display: flex; flex-wrap: wrap; gap: 6px; min-height: 60px; padding: 8px; background: var(--bg); border: 1px dashed var(--linea-2); border-radius: var(--radio-s); }
+.secuencia .orden-paso { cursor: pointer; }
+.secuencia .orden-paso:hover img { border-color: var(--mal); }
+.resumen-pa { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; color: var(--fg-2); }
+.categorias { display: grid; gap: 12px; }
+.categoria { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 12px 14px; }
+.categoria .cab { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.categoria .cab input { flex: 1; width: 0; background: transparent; border: 0; border-bottom: 1px dashed var(--linea-2); font-weight: 600; padding: 2px 0; min-width: 0; }
+.categoria .cab input:focus { outline: 0; border-bottom-color: var(--laton); }
+.categoria .total { font-family: var(--f-mono); font-size: 0.78rem; color: var(--fg-3); white-space: nowrap; }
+.categoria .items { display: grid; gap: 6px; }
+.cat-item { display: grid; grid-template-columns: 40px 1fr auto; gap: 8px; align-items: start; padding: 6px; background: var(--bg); border: 1px solid var(--linea); border-radius: var(--radio-s); }
+.cat-item img { width: 40px; height: 40px; border-radius: 8px; border: 2px solid var(--c, var(--linea-2)); cursor: pointer; }
+.cat-item .nombre { font-weight: 600; font-size: 0.9rem; }
+.cat-item .nombre .coste { font-family: var(--f-mono); font-size: 0.72rem; color: var(--fg-3); font-weight: 400; margin-left: 6px; }
+.cat-item textarea { width: 100%; border: 0; background: transparent; border-bottom: 1px dashed var(--linea); font-size: 0.84rem; color: var(--fg-2); resize: vertical; min-height: 24px; padding: 2px 0; }
+.cat-item textarea:focus { outline: 0; border-bottom-color: var(--laton); }
+.cat-item .acciones { display: flex; flex-direction: column; gap: 4px; }
+.cat-item .acciones button { border: 0; background: var(--bg-3); border-radius: 6px; width: 28px; height: 26px; color: var(--fg-2); font-size: 0.85rem; }
+.cat-item .acciones button:hover { color: var(--fg); background: var(--bg-4); }
+.ranuras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ranura { padding: 8px 10px; border-radius: var(--radio-s); background: var(--c-bg); border: 1px solid transparent; font-size: 0.82rem; }
+.ranura b { color: var(--c); font-family: var(--f-display); font-size: 1.3rem; display: block; line-height: 1; }
+.catalogo { display: grid; grid-template-rows: auto auto 1fr; gap: 10px; height: 100%; min-height: 0; }
+.catalogo .lista { overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; align-content: start; }
+.modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-left, 0px)); background: rgba(0, 0, 0, 0.55); }
+.modal .caja { background: var(--bg-2); border: 1px solid var(--linea-2); border-radius: var(--radio); width: min(900px, 100%); max-height: min(85vh, 900px); display: flex; flex-direction: column; box-shadow: var(--sombra); overflow: hidden; }
+.modal .caja > .cab { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--linea); }
+.modal .caja > .contenido { padding: 14px 16px; overflow: auto; min-height: 0; }
+.toasts { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 90; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+.toast { background: var(--bg-3); border: 1px solid var(--laton); color: var(--fg); padding: 8px 14px; border-radius: 999px; font-size: 0.88rem; box-shadow: var(--sombra); }
+.codigo { font-family: var(--f-mono); font-size: 0.78rem; background: var(--bg); border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 10px; word-break: break-all; max-height: 160px; overflow: auto; }
+
+/* ---------- Equipos ---------- */
+.armador { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 800px) { .armador { grid-template-columns: 1fr; } }
+.equipo { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px; }
+.equipo.nuestro { border-top: 3px solid var(--laton); }
+.equipo.rival { border-top: 3px solid var(--mal); }
+.slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 10px 0; }
+.slot { aspect-ratio: 1; border-radius: 10px; border: 1px dashed var(--linea-2); background: var(--bg); display: grid; place-items: center; position: relative; overflow: hidden; }
+.slot img { width: 100%; height: 100%; object-fit: cover; }
+.slot button.quitar { position: absolute; top: 2px; right: 2px; border: 0; background: rgba(0, 0, 0, 0.6); color: #fff; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; line-height: 1; }
+.slot .mas { color: var(--fg-3); font-size: 1.4rem; }
+.lista-sinergia { display: grid; gap: 4px; font-size: 0.88rem; }
+.lista-sinergia .fila-s { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 4px 8px; border-radius: var(--radio-s); background: var(--bg); }
+.chequeo { display: grid; gap: 4px; font-size: 0.88rem; }
+.chequeo div { display: flex; gap: 8px; align-items: center; }
+.chequeo .ok { color: var(--ok); } .chequeo .falta { color: var(--aviso); }
+.comp-tarjeta { background: var(--bg-2); border: 1px solid var(--linea); border-radius: var(--radio); padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.comp-tarjeta .heroes { display: flex; flex-wrap: wrap; gap: 4px; }
+.comp-tarjeta .heroes img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--linea-2); }
+.comp-tarjeta p { font-size: 0.9rem; color: var(--fg-2); margin: 0; }
+
+/* ---------- Guía ---------- */
+.guia { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; }
+.guia .indice { position: sticky; top: calc(var(--barra-alto) + 16px + env(safe-area-inset-top, 0px)); align-self: start; display: flex; flex-direction: column; gap: 2px; font-size: 0.9rem; }
+@media (max-width: 800px) { .guia { grid-template-columns: minmax(0, 1fr); } .guia .indice { position: static; flex-direction: row; flex-wrap: wrap; gap: 4px; } }
+.prosa { min-width: 0; }
+.guia .indice a { padding: 4px 8px; border-radius: var(--radio-s); color: var(--fg-2); }
+.guia .indice a:hover { background: var(--bg-3); text-decoration: none; }
+.prosa { max-width: 72ch; }
+.prosa h2 { margin: 28px 0 10px; scroll-margin-top: 90px; }
+.prosa h3 { margin: 18px 0 8px; }
+.prosa p, .prosa li { color: var(--fg-2); }
+.prosa ul { padding-left: 1.2em; }
+.prosa li { margin-bottom: 4px; }
+.prosa strong { color: var(--fg); }
+.prosa table { font-size: 0.9rem; }
+.glosario dt { font-weight: 600; margin-top: 8px; }
+.glosario dd { margin: 0; color: var(--fg-2); }
+.parche { border-left: 3px solid var(--laton); padding: 8px 14px; margin-bottom: 12px; background: var(--bg-2); border-radius: 0 var(--radio-s) var(--radio-s) 0; }
+.parche .fecha { font-family: var(--f-mono); font-size: 0.78rem; color: var(--laton); }
+.parche ul { margin: 6px 0 0; padding-left: 1.2em; color: var(--fg-2); font-size: 0.9rem; }
+
+</style>
+
+<header class="cabecera" id="cabecera">
+  <div class="cabecera-interior">
+    <a class="marca" href="#tier" data-ruta="tier" aria-label="Taller de Deadlock, inicio">
+      <span class="marca-sello" aria-hidden="true">TD</span>
+      <span class="marca-texto"><span class="marca-nombre">Taller de Deadlock</span><span class="marca-sub">Guía en español · parche <span id="marca-parche">2026-10-23</span></span></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Secciones">
+      <a href="#tier" data-ruta="tier">Tier list</a>
+      <a href="#heroes" data-ruta="heroes">Héroes</a>
+      <a href="#builds" data-ruta="builds">Builds</a>
+      <a href="#objetos" data-ruta="objetos">Objetos</a>
+      <a href="#equipos" data-ruta="equipos">Equipos</a>
+      <a href="#guia" data-ruta="guia">Guía</a>
+      <a href="#novedades" data-ruta="novedades">Novedades</a>
+    </nav>
+    <div class="cabecera-acciones">
+      <label class="buscador" for="buscar-global">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="buscar-global" type="search" placeholder="Buscar héroe u objeto" autocomplete="off" aria-label="Buscar héroe u objeto">
+      </label>
+      <div class="buscador-resultados" id="buscar-resultados" hidden></div>
+    </div>
+  </div>
+</header>
+
+<main id="vista" class="vista" aria-live="polite">
+  <div class="cargando" id="cargando"><div class="cargando-sello">TD</div><p>Cargando datos del parche…</p></div>
+</main>
+
+<footer class="pie">
+  <div class="pie-interior">
+    <p><strong>Taller de Deadlock</strong> es una guía no oficial hecha por aficionados. Deadlock es una marca de Valve Corporation.</p>
+    <p>Datos del juego y estadísticas: <a href="https://api.deadlock-api.com" target="_blank" rel="noopener">deadlock-api.com</a> (parche <span id="pie-parche">2026-10-23</span>). Guías elaboradas a partir de deadlock.wiki, Steam, Reddit, YouTube y sitios de estadísticas; las fuentes aparecen en cada ficha.</p>
+  </div>
+</footer>
+
+<div id="capa-modal" class="capa-modal" hidden></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ============================================================
+   Taller de Deadlock — núcleo: datos, utilidades, router, almacén
+   ============================================================ */
+
+const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null };
+const IDX = { heroPorId: {}, heroPorClase: {}, heroPorNombre: {}, objPorClase: {}, objPorId: {}, objPorNombre: {} };
+const PREF = (() => {
+  let p = { nombres: 'en', ventana: '7d', bracket: 'todos', fuenteTier: 'datos' };
+  try { p = Object.assign(p, JSON.parse(localStorage.getItem('td_pref') || '{}')); } catch (e) { /* sin almacenamiento */ }
+  return p;
+})();
+function guardarPref() { try { localStorage.setItem('td_pref', JSON.stringify(PREF)); } catch (e) { /* sin almacenamiento */ } }
+
+const RANURAS = { weapon: { nombre: 'Arma', clase: 'r-weapon', arq: 'arma' }, vitality: { nombre: 'Vitalidad', clase: 'r-vitality', arq: 'vitalidad' }, spirit: { nombre: 'Espíritu', clase: 'r-spirit', arq: 'espiritu' } };
+const ARQUETIPOS = { arma: { nombre: 'Arma', corto: 'AR', clase: 'arq-arma', desc: 'Daño de disparos y cadencia: objetos de arma (naranja).' }, espiritu: { nombre: 'Espíritu', corto: 'ES', clase: 'arq-espiritu', desc: 'Poder de habilidades: objetos de espíritu (morado).' }, vitalidad: { nombre: 'Vitalidad', corto: 'VI', clase: 'arq-vitalidad', desc: 'Vida, resistencias y sostén: objetos de vitalidad (verde).' }, hibrido: { nombre: 'Híbrido', corto: 'HB', clase: 'arq-hibrido', desc: 'Mezcla equilibrada de arma y espíritu según la partida.' } };
+const TIPOS_HEROE = { marksman: 'Tirador', mystic: 'Místico', brawler: 'Luchador', assassin: 'Asesino', support: 'Soporte', tank: 'Tanque' };
+const TIERS = ['S', 'A', 'B', 'C', 'D'];
+
+/* ---------- Utilidades DOM y formato ---------- */
+const $ = (sel, raiz = document) => raiz.querySelector(sel);
+const $$ = (sel, raiz = document) => Array.from(raiz.querySelectorAll(sel));
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function el(tag, attrs, ...hijos) {
+  const e = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'html') e.innerHTML = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+    else if (k === 'dataset') Object.assign(e.dataset, v);
+    else if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const h of hijos.flat(Infinity)) { if (h == null || h === false) continue; e.append(h instanceof Node ? h : document.createTextNode(String(h))); }
+  return e;
+}
+const fmtNum = new Intl.NumberFormat('es-ES');
+function fmt(n, dec = 0) { if (n == null || Number.isNaN(n)) return '—'; return new Intl.NumberFormat('es-ES', { maximumFractionDigits: dec, minimumFractionDigits: 0 }).format(n); }
+function fmtPct(n, dec = 1) { if (n == null) return '—'; return fmt(n, dec) + ' %'; }
+function fmtSouls(n) { if (n == null) return '—'; return fmt(n) + ' almas'; }
+function fmtFecha(ts) {
+  if (!ts) return '—';
+  let d;
+  if (typeof ts === 'number') d = new Date(ts < 1e12 ? ts * 1000 : ts); // segundos Unix (API) o milisegundos (Date.now)
+  else if (/^\d{4}-\d{2}-\d{2}$/.test(ts)) { const [y, m, dd] = ts.split('-').map(Number); d = new Date(y, m - 1, dd); } // fecha de solo día: en hora local
+  else d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return String(ts);
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+const ETIQUETAS_OBJ = { dano_arma: 'Daño de arma', dano_espiritu: 'Daño de espíritu', tanque: 'Tanque', curacion: 'Curación', anti_curacion: 'Anticuración', movilidad: 'Movilidad', escape: 'Escape', control: 'Control', anti_control: 'Anticontrol', burst: 'Burst', sostenido: 'Daño sostenido', farmeo: 'Farmeo', linea: 'Línea', soporte: 'Soporte', vision: 'Visión', resistencia_bala: 'Resistencia a balas', resistencia_espiritu: 'Resistencia a espíritu', activo: 'Activo', imbuir: 'Imbuir', late_game: 'Final de partida', early_game: 'Inicio de partida', mid_game: 'Medio de partida' };
+function etiquetaObj(t) { return ETIQUETAS_OBJ[t] || String(t).replace(/_/g, ' '); }
+function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+function sinAcentos(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+/** Texto de la API con marcas {{Clase|texto}} y **negrita** → HTML seguro */
+function rico(texto) {
+  if (!texto) return '';
+  let s = esc(texto);
+  s = s.replace(/\{\{([A-Za-z_]+)\|([^}]*)\}\}/g, (m, c, t) => `<span class="atr atr-${esc(c)}">${t}</span>`);
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  s = s.replace(/\n/g, '<br>');
+  return s;
+}
+
+/* ---------- Héroes y objetos ---------- */
+function nombreH(h) { if (!h) return '—'; return PREF.nombres === 'es' ? h.nombre : h.nombre_en; }
+function nombreAlt(h) { if (!h || h.nombre === h.nombre_en) return ''; return PREF.nombres === 'es' ? h.nombre_en : h.nombre; }
+function nombreO(o) { if (!o) return '—'; return PREF.nombres === 'es' ? o.nombre_es : o.nombre; }
+function nombreOAlt(o) { if (!o || o.nombre === o.nombre_es) return ''; return PREF.nombres === 'es' ? o.nombre : o.nombre_es; }
+function heroe(idOClase) { return IDX.heroPorId[idOClase] || IDX.heroPorClase[idOClase] || IDX.heroPorNombre[sinAcentos(idOClase)] || null; }
+function objeto(x) { if (!x) return null; return IDX.objPorClase[x] || IDX.objPorId[x] || IDX.objPorNombre[sinAcentos(x)] || null; }
+function imgH(h, clase = 'icono-heroe') { return el('img', { src: h.imagen.icono, alt: nombreH(h), class: clase, loading: 'lazy', width: 36, height: 36 }); }
+function imgO(o, attrs = {}) { return el('img', Object.assign({ src: o.imagen, alt: nombreO(o), loading: 'lazy', class: RANURAS[o.ranura] ? RANURAS[o.ranura].clase : '', title: nombreO(o) + ' · ' + fmtSouls(o.coste) }, attrs)); }
+function chipH(h, extra, mini) {
+  const a = el('a', { class: 'heroe-chip' + (mini ? ' mini' : ''), href: '#heroe-' + h.clase }, imgH(h, ''), el('span', null, nombreH(h)));
+  if (extra != null) a.append(el('span', { class: 'num' }, extra));
+  return a;
+}
+function chipO(o, attrs) {
+  const b = el('button', Object.assign({ class: 'obj-mini ' + (RANURAS[o.ranura] ? RANURAS[o.ranura].clase : ''), type: 'button', onclick: () => abrirObjeto(o) }, attrs || {}), imgO(o), el('span', null, nombreO(o)));
+  return b;
+}
+function insigniaTier(t) { return el('span', { class: 'insignia t-' + (t || 'sin'), title: t ? 'Tier ' + t : 'Sin datos suficientes' }, t || '–'); }
+function pillArq(arq) { const a = ARQUETIPOS[arq] || ARQUETIPOS.hibrido; return el('span', { class: 'arquetipo ' + a.clase }, el('i'), a.nombre); }
+function tipoHeroe(h) { return TIPOS_HEROE[h.tipo] || h.tipo || ''; }
+
+/** Guía de investigación de un héroe (puede no existir) */
+function guia(h) { return (h && D.guias && D.guias[h.id]) || null; }
+/** Arquetipo principal: de la guía, o deducido de los objetos populares de fase final */
+function arquetipoDe(h) {
+  const g = guia(h); if (g && g.arquetipo_principal) return g.arquetipo_principal;
+  if (!h.populares) return 'hibrido';
+  const peso = { weapon: 0, vitality: 0, spirit: 0 };
+  for (const p of h.populares.final) { const o = objeto(p.clase); if (o) peso[o.ranura] += p.pick; }
+  const total = peso.weapon + peso.vitality + peso.spirit || 1;
+  const w = peso.weapon / total, s = peso.spirit / total;
+  if (w > 0.5) return 'arma'; if (s > 0.5) return 'espiritu';
+  if (Math.abs(w - s) < 0.12) return 'hibrido';
+  return w > s ? 'arma' : 'espiritu';
+}
+/** Estadísticas de un héroe en ventana/bracket */
+function statsDe(h, ventana = PREF.ventana, bracket = PREF.bracket) {
+  const v = D.stats && D.stats.datos[ventana]; const b = v && v[bracket]; if (!b) return null;
+  return b.heroes.find((x) => x.id === h.id) || null;
+}
+function tierDe(h, ventana, bracket) { const s = statsDe(h, ventana, bracket); return s ? s.tier : null; }
+function tierComunidad(h) {
+  if (!D.meta || !D.meta.consenso) return null;
+  const c = D.meta.consenso.find((x) => x.id === h.id || sinAcentos(x.heroe) === sinAcentos(h.nombre_en) || sinAcentos(x.heroe) === sinAcentos(h.nombre));
+  return c ? c.tier : null;
+}
+function guiaObjeto(o) { return (o && D.objGuia && (D.objGuia[o.clase] || D.objGuia[sinAcentos(o.nombre)])) || null; }
+
+/* ---------- Toasts y modales ---------- */
+function toast(msg, ms = 2600) {
+  const t = el('div', { class: 'toast' }, msg); $('#toasts').append(t);
+  setTimeout(() => t.remove(), ms);
+}
+let modalActual = null;
+function abrirModal(titulo, contenido, opciones = {}) {
+  cerrarModal();
+  const caja = el('div', { class: 'caja', role: 'dialog', 'aria-modal': 'true', 'aria-label': titulo });
+  const cab = el('div', { class: 'cab' }, el('h3', null, titulo), el('button', { class: 'cerrar boton mini', type: 'button', onclick: cerrarModal, 'aria-label': 'Cerrar' }, '✕'));
+  const cont = el('div', { class: 'contenido' }, contenido);
+  if (opciones.alto) cont.style.height = opciones.alto;
+  caja.append(cab, cont);
+  const m = el('div', { class: 'modal', onclick: (e) => { if (e.target === m) cerrarModal(); } }, caja);
+  const capa = $('#capa-modal'); capa.innerHTML = ''; capa.append(m); capa.hidden = false; modalActual = m;
+  document.body.style.overflow = 'hidden';
+  return cont;
+}
+function cerrarModal() { const capa = $('#capa-modal'); capa.hidden = true; capa.innerHTML = ''; modalActual = null; document.body.style.overflow = ''; }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { cerrarModal(); cerrarPanel(); } });
+
+/* ---------- Panel lateral de objeto ---------- */
+let panelActual = null;
+function cerrarPanel() { if (panelActual) { panelActual.remove(); panelActual = null; document.body.style.overflow = ''; } }
+function abrirPanel(contenido, titulo) {
+  cerrarPanel();
+  const cuerpo = el('div', { class: 'cuerpo', role: 'dialog', 'aria-modal': 'true', tabindex: '-1', 'aria-label': titulo || 'Detalle' }, el('button', { class: 'cerrar', type: 'button', onclick: cerrarPanel, 'aria-label': 'Cerrar' }, '✕'), contenido);
+  panelActual = el('div', { class: 'panel' }, el('div', { class: 'fondo', onclick: cerrarPanel }), cuerpo);
+  document.body.append(panelActual); document.body.style.overflow = 'hidden';
+  cuerpo.focus();
+}
+function abrirObjeto(o) {
+  if (typeof o === 'string') o = objeto(o);
+  if (!o) return;
+  const r = RANURAS[o.ranura] || {};
+  const g = guiaObjeto(o);
+  const st = D.objStats && D.objStats.objetos[o.id];
+  const cont = el('div', { class: 'obj-detalle ' + (r.clase || '') });
+  cont.append(el('div', { class: 'cab' }, imgO(o), el('div', null,
+    el('h2', null, nombreO(o)), nombreOAlt(o) ? el('div', { class: 'muted' }, nombreOAlt(o)) : null,
+    el('div', { class: 'fila', style: { marginTop: '6px' } }, el('span', { class: 'chip ' + r.clase }, r.nombre || o.ranura), el('span', { class: 'chip' }, o.tier >= 5 ? 'Solo Street Brawl' : 'Tier ' + o.tier), el('span', { class: 'chip num' }, o.tier >= 5 ? 'no está en partida normal' : fmtSouls(o.coste)), o.activo ? el('span', { class: 'chip laton' }, 'Activo' + (o.enfriamiento ? ' · ' + o.enfriamiento + ' s' : '')) : null, o.imbuir ? el('span', { class: 'chip laton' }, 'Imbuir') : null))));
+  if (g && g.resumen) cont.append(el('p', { class: 'sec', style: { fontSize: '1.02rem' } }, g.resumen));
+  const stats = o.stats.filter((s) => s.etiqueta !== s.clave);
+  if (stats.length) cont.append(el('div', { class: 'stats-lista' }, stats.map((s) => el('div', { class: 'stat' }, el('span', null, s.etiqueta), el('b', null, (s.valor > 0 && !/Penal|Reducci|Penalty/.test(s.etiqueta) ? '+' : '') + fmt(s.valor, 2) + s.sufijo)))));
+  const bloques = [['Pasiva', o.pasiva || o.descripcion], ['Activa', o.activa]].filter((b) => b[1]);
+  for (const [t, txt] of bloques) cont.append(el('h4', null, t), el('div', { class: 'desc', html: rico(txt) }));
+  if (g) {
+    if (g.para_que) cont.append(el('h4', null, '¿Cuándo comprarlo?'), el('p', { class: 'sec' }, g.para_que));
+    if (g.contra) cont.append(el('h4', null, 'Especialmente bueno contra'), el('p', { class: 'sec' }, g.contra));
+    if (g.etiquetas && g.etiquetas.length) cont.append(el('div', { class: 'etiquetas-obj', style: { marginTop: '8px' } }, g.etiquetas.map((t) => el('span', { class: 'chip' }, etiquetaObj(t)))));
+  }
+  if (o.componente) { const c = objeto(o.componente); if (c) cont.append(el('h4', null, 'Se mejora desde'), el('div', null, chipO(c))); }
+  const mejoras = D.objetos.filter((x) => x.componente === o.clase);
+  if (mejoras.length) cont.append(el('h4', null, 'Se puede mejorar a'), el('div', { class: 'fila' }, mejoras.map((m) => chipO(m))));
+  if (st) cont.append(el('h4', null, 'Uso en los últimos 14 días'), el('div', { class: 'fila', style: { gap: '14px' } }, el('span', null, 'Winrate ', el('b', { class: 'num' }, fmtPct(st.wr))), el('span', null, 'Compra media al min ', el('b', { class: 'num' }, st.compra_min || '—')), el('span', null, 'Partidas ', el('b', { class: 'num' }, fmt(st.partidas)))));
+  // Héroes que más lo compran (según objetos populares por fase)
+  const compradores = [];
+  for (const h of D.heroes) { if (!h.populares) continue; let mejor = 0, fase = ''; for (const f of ['inicio', 'medio', 'final']) for (const p of h.populares[f]) if (p.clase === o.clase && p.pick > mejor) { mejor = p.pick; fase = f; } if (mejor >= 15) compradores.push({ h, pick: mejor, fase }); }
+  compradores.sort((a, b) => b.pick - a.pick);
+  if (compradores.length) cont.append(el('h4', null, 'Quién lo compra más'), el('div', { class: 'fila' }, compradores.slice(0, 10).map((c) => chipH(c.h, fmtPct(c.pick, 0), true))));
+  cont.append(el('div', { style: { marginTop: '16px' } }, el('a', { class: 'boton mini', href: '#objetos', onclick: cerrarPanel }, 'Ver todos los objetos')));
+  abrirPanel(cont, nombreO(o));
+}
+
+/* ---------- Almacén de builds del usuario ---------- */
+const ALMACEN = {
+  clave: 'td_builds', lista: [], db: null, uid: null, coleccion: null, listo: false,
+  cargarLocal() { try { this.lista = JSON.parse(localStorage.getItem(this.clave) || '[]'); } catch (e) { this.lista = []; } },
+  guardarLocal() { try { localStorage.setItem(this.clave, JSON.stringify(this.lista)); } catch (e) { /* sin almacenamiento */ } },
+  async conectar() {
+    if (!window.claude || typeof window.claude.use !== 'function') return;
+    try {
+      const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+      if (!db || !user) return;
+      const id = await user.id(); if (!id) return;
+      this.db = db; this.uid = id; this.coleccion = db.doc('data/users/' + id + '/perfil').collection('builds');
+      const snap = await this.coleccion.get();
+      const remotas = snap.docs.filter((d) => d.exists).map((d) => d.data());
+      // Fusión: la copia más reciente de cada build gana; las locales sin copia remota se suben
+      const porId = {}; for (const b of this.lista) porId[b.id] = b;
+      for (const r of remotas) { if (!porId[r.id] || (r.actualizado || 0) >= (porId[r.id].actualizado || 0)) porId[r.id] = r; }
+      this.lista = Object.values(porId); this.guardarLocal();
+      for (const b of this.lista) if (!remotas.find((r) => r.id === b.id)) await this.coleccion.doc(b.id).set(b).catch(() => {});
+      this.listo = true;
+      document.dispatchEvent(new CustomEvent('builds-cambiadas'));
+    } catch (e) { /* sin db: seguimos en local */ }
+  },
+  obtener(id) { return this.lista.find((b) => b.id === id) || null; },
+  async guardar(b) {
+    b.actualizado = Date.now();
+    const i = this.lista.findIndex((x) => x.id === b.id); if (i >= 0) this.lista[i] = b; else this.lista.unshift(b);
+    this.guardarLocal();
+    if (this.coleccion) await this.coleccion.doc(b.id).set(JSON.parse(JSON.stringify(b))).catch(() => {});
+    document.dispatchEvent(new CustomEvent('builds-cambiadas'));
+  },
+  async borrar(id) {
+    this.lista = this.lista.filter((b) => b.id !== id); this.guardarLocal();
+    if (this.coleccion) await this.coleccion.doc(id).delete().catch(() => {});
+    document.dispatchEvent(new CustomEvent('builds-cambiadas'));
+  },
+};
+function codificarBuild(b) { return btoa(unescape(encodeURIComponent(JSON.stringify(b)))); }
+function decodificarBuild(c) {
+  try {
+    const b = JSON.parse(decodeURIComponent(escape(atob(c.trim()))));
+    if (!b || !b.heroe || !Array.isArray(b.categorias)) return null;
+    b.categorias = b.categorias.map((cat) => ({ nombre: String((cat && cat.nombre) || 'Objetos'), objetos: Array.isArray(cat && cat.objetos) ? cat.objetos.filter((x) => x && objeto(x.clase)).map((x) => ({ clase: x.clase, nota: String(x.nota || '') })) : [] }));
+    b.desbloqueo = Array.isArray(b.desbloqueo) ? b.desbloqueo.filter((x) => [1, 2, 3, 4].includes(x)) : [];
+    b.orden = Array.isArray(b.orden) ? b.orden.filter((x) => x && [1, 2, 3, 4].includes(x.h)).map((x) => ({ h: x.h, pa: [1, 2, 5].includes(x.pa) ? x.pa : 1 })) : [];
+    b.nombre = String(b.nombre || 'Build importada'); b.notas = String(b.notas || '');
+    return b;
+  } catch (e) { /* código inválido */ }
+  return null;
+}
+async function copiar(texto) {
+  try { await navigator.clipboard.writeText(texto); toast('Copiado al portapapeles'); return true; } catch (e) {
+    const ta = el('textarea', { class: 'entrada', style: { width: '100%', height: '120px' } }, texto);
+    abrirModal('Copia el texto', el('div', null, el('p', { class: 'sec' }, 'Tu navegador no permite copiar automáticamente. Selecciónalo y cópialo:'), ta)); ta.select(); return false;
+  }
+}
+
+/* ---------- Sinergias ---------- */
+function sinergiaPar(a, b, linea) {
+  if (!D.sinergias) return null;
+  const lista = linea ? D.sinergias.parejas_linea : D.sinergias.parejas;
+  return lista.find((p) => (p.a === a && p.b === b) || (p.a === b && p.b === a)) || null;
+}
+function counterPar(h, e, linea) {
+  if (!D.sinergias) return null;
+  const lista = linea ? D.sinergias.counters_linea : D.sinergias.counters;
+  return lista.find((p) => p.h === h && p.e === e) || null;
+}
+function mejoresSinergias(h, n = 8, linea = false) {
+  if (!D.sinergias) return [];
+  const lista = linea ? D.sinergias.parejas_linea : D.sinergias.parejas;
+  return lista.filter((p) => (p.a === h.id || p.b === h.id) && p.n >= 100).map((p) => ({ otro: heroe(p.a === h.id ? p.b : p.a), wr: p.wr, n: p.n })).filter((x) => x.otro).sort((a, b) => b.wr - a.wr).slice(0, n);
+}
+function mejoresCounters(h, n = 8, linea = false) {
+  if (!D.sinergias) return { gana: [], pierde: [] };
+  const lista = linea ? D.sinergias.counters_linea : D.sinergias.counters;
+  const filas = lista.filter((p) => p.h === h.id && p.n >= 100).map((p) => ({ otro: heroe(p.e), wr: p.wr, n: p.n })).filter((x) => x.otro).sort((a, b) => b.wr - a.wr);
+  return { gana: filas.slice(0, n), pierde: filas.slice(-n).reverse() };
+}
+
+/* ---------- Router ---------- */
+const RUTAS = {};
+let rutaActual = '';
+function tokenRuta() { const h = (location.hash || '#tier').slice(1); try { return decodeURIComponent(h) || 'tier'; } catch (e) { return 'tier'; } }
+function ir(token) { if (location.hash !== '#' + token) location.hash = token; else render(); }
+function render() {
+  const token = tokenRuta();
+  const [base, ...resto] = token.split('-');
+  const param = resto.join('-');
+  const vista = RUTAS[base] || RUTAS.tier;
+  rutaActual = token;
+  const raiz = $('#vista'); raiz.innerHTML = '';
+  cerrarPanel(); cerrarModal();
+  try { const out = vista(param, token); if (out) raiz.append(out); } catch (e) { console.error(e); raiz.append(el('div', { class: 'vacio' }, 'No se pudo mostrar esta sección. ', el('a', { href: '#tier' }, 'Volver al inicio'))); }
+  const activa = { heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base;
+  $$('#nav a').forEach((a) => a.classList.toggle('activo', a.dataset.ruta === activa));
+  const navActivo = $('#nav a.activo'); if (navActivo && navActivo.scrollIntoView) { try { navActivo.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) { /* nada */ } }
+  if (!resto.length || base !== 'heroe') window.scrollTo({ top: 0 });
+  else window.scrollTo({ top: 0 });
+}
+window.addEventListener('hashchange', render);
+
+/* ---------- Búsqueda global ---------- */
+function montarBusqueda() {
+  const input = $('#buscar-global'); const caja = $('#buscar-resultados');
+  let sel = -1;
+  const cerrar = () => { caja.hidden = true; caja.innerHTML = ''; sel = -1; };
+  const buscar = () => {
+    const q = sinAcentos(input.value.trim()); if (q.length < 2) return cerrar();
+    const hs = D.heroes.filter((h) => sinAcentos(h.nombre).includes(q) || sinAcentos(h.nombre_en).includes(q)).slice(0, 6);
+    const os = D.objetos.filter((o) => sinAcentos(o.nombre).includes(q) || sinAcentos(o.nombre_es).includes(q)).slice(0, 8);
+    caja.innerHTML = '';
+    for (const h of hs) caja.append(el('a', { href: '#heroe-' + h.clase, onclick: cerrar }, imgH(h, ''), el('span', null, nombreH(h), nombreAlt(h) ? el('span', { class: 'muted' }, ' · ' + nombreAlt(h)) : null), el('span', { class: 'tipo' }, 'héroe')));
+    for (const o of os) caja.append(el('a', { href: '#objetos', onclick: (e) => { e.preventDefault(); cerrar(); abrirObjeto(o); } }, imgO(o), el('span', null, nombreO(o), nombreOAlt(o) ? el('span', { class: 'muted' }, ' · ' + nombreOAlt(o)) : null), el('span', { class: 'tipo' }, 'objeto')));
+    if (!hs.length && !os.length) caja.append(el('div', { class: 'muted', style: { padding: '8px' } }, 'Sin resultados'));
+    caja.hidden = false; sel = -1;
+  };
+  input.addEventListener('input', buscar);
+  input.addEventListener('focus', buscar);
+  const ajustarPlaceholder = () => { input.placeholder = window.innerWidth < 900 ? 'Buscar' : 'Buscar héroe u objeto'; };
+  ajustarPlaceholder(); window.addEventListener('resize', ajustarPlaceholder);
+  input.addEventListener('keydown', (e) => {
+    const items = $$('a', caja); if (!items.length) return;
+    if (e.key === 'ArrowDown') { sel = (sel + 1) % items.length; } else if (e.key === 'ArrowUp') { sel = (sel - 1 + items.length) % items.length; } else if (e.key === 'Enter') { if (sel >= 0) items[sel].click(); else items[0].click(); input.blur(); return; } else return;
+    e.preventDefault(); items.forEach((a, i) => a.classList.toggle('sel', i === sel));
+  });
+  document.addEventListener('click', (e) => { if (!e.target.closest('.cabecera-acciones')) cerrar(); });
+}
+
+/* ---------- Carga de datos ---------- */
+async function cargarJSON(ruta, opcional) {
+  try { const r = await fetch(ruta, { cache: 'no-cache' }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } catch (e) { if (opcional) return null; throw new Error(ruta + ': ' + e.message); }
+}
+async function cargarDatos() {
+  const [heroes, habilidades, objetos, stats, sinergias, builds, objStats, rangos, version, guias, meta, comps, objGuia, parche, sistemas, itemizacion, habStats] = await Promise.all([
+    cargarJSON('data/heroes.json'), cargarJSON('data/habilidades.json'), cargarJSON('data/objetos.json'), cargarJSON('data/stats.json'),
+    cargarJSON('data/sinergias.json', true), cargarJSON('data/builds.json', true), cargarJSON('data/objetos_stats.json', true), cargarJSON('data/rangos.json', true), cargarJSON('data/version.json', true),
+    cargarJSON('data/guias.json', true), cargarJSON('data/meta.json', true), cargarJSON('data/comps.json', true), cargarJSON('data/objetos_guia.json', true), cargarJSON('data/parche.json', true), cargarJSON('data/sistemas.json', true),
+    cargarJSON('data/itemizacion.json', true), cargarJSON('data/habilidades_stats.json', true), cargarJSON('data/habilidades_extra.json', true),
+  ]).then((r) => { const extra = r.pop(); if (extra && extra.habilidades) for (const lista of Object.values(r[1] || {})) for (const a of lista) { const e = extra.habilidades[a.clase]; if (!e) continue; if (!a.descripcion) a.descripcion = e.descripcion || ''; if (!a.resumen) a.resumen = e.resumen || ''; } return r; });
+  Object.assign(D, { heroes, habilidades, objetos, stats, sinergias, builds, objStats, rangos: rangos || [], version, meta, comps, parche, sistemas, itemizacion, habStats });
+  // Preferencias guardadas con claves que ya no existen (p. ej. un rango renombrado)
+  if (!stats.datos[PREF.ventana]) PREF.ventana = '7d';
+  if (!stats.datos[PREF.ventana][PREF.bracket]) PREF.bracket = 'todos';
+  D.guias = (guias && guias.heroes) || {};
+  D.objGuia = (objGuia && objGuia.objetos) || {};
+  for (const h of heroes) { IDX.heroPorId[h.id] = h; IDX.heroPorClase[h.clase] = h; IDX.heroPorNombre[sinAcentos(h.nombre)] = h; IDX.heroPorNombre[sinAcentos(h.nombre_en)] = h; }
+  for (const o of objetos) { IDX.objPorClase[o.clase] = o; IDX.objPorId[o.id] = o; IDX.objPorNombre[sinAcentos(o.nombre)] = o; IDX.objPorNombre[sinAcentos(o.nombre_es)] = o; }
+  const fecha = version && version.generado ? fmtFecha(version.generado) : '';
+  for (const id of ['marca-parche', 'pie-parche']) { const e = document.getElementById(id); if (e && fecha) e.textContent = fecha; }
+}
+
+/* ---------- Estadísticas en vivo ----------
+   Al abrir la web fuera de claude.ai (GitHub Pages, Cloudflare Pages, local), pide a la API
+   los winrates de los últimos 7 y 30 días y recalcula la tier list con la misma fórmula que
+   scripts/actualizar.js. Si la API no responde, se queda con los datos del archivo. */
+const VIVO = { estado: 'archivo', hora: null };
+const VIVO_CACHE_MIN = 30;
+function calcularBracket(filas) {
+  const pct = (a, b) => (b ? Math.round((1000 * a) / b) / 10 : null);
+  const total = filas.reduce((s, r) => s + r.matches, 0);
+  const partidas = Math.round(total / 12);
+  const lista = filas.filter((r) => IDX.heroPorId[r.hero_id]).map((r) => ({
+    id: r.hero_id, partidas: r.matches, wr: pct(r.wins, r.matches), pick: partidas ? Math.round((1000 * r.matches) / partidas) / 10 : null,
+    kda: r.total_deaths ? Math.round(((r.total_kills + r.total_assists) / r.total_deaths) * 100) / 100 : null,
+    kills: r.matches ? Math.round((10 * r.total_kills) / r.matches) / 10 : null,
+    muertes: r.matches ? Math.round((10 * r.total_deaths) / r.matches) / 10 : null,
+    asistencias: r.matches ? Math.round((10 * r.total_assists) / r.matches) / 10 : null,
+    dano: r.matches ? Math.round(r.total_player_damage / r.matches) : null,
+    souls: r.matches ? Math.round(r.total_net_worth / r.matches) : null,
+    precision: r.total_shots_hit + r.total_shots_missed ? pct(r.total_shots_hit, r.total_shots_hit + r.total_shots_missed) : null,
+    wr_ajustado: Math.round((1000 * (r.wins + 400 * 0.5)) / (r.matches + 400)) / 10,
+  }));
+  const vals = lista.map((h) => h.wr_ajustado);
+  const media = vals.reduce((a, c) => a + c, 0) / (vals.length || 1);
+  const sd = Math.sqrt(vals.reduce((a, c) => a + (c - media) ** 2, 0) / (vals.length || 1)) || 1;
+  for (const h of lista) {
+    const z = (h.wr_ajustado - media) / sd; h.z = Math.round(z * 100) / 100;
+    h.tier = z >= 1.1 ? 'S' : z >= 0.4 ? 'A' : z >= -0.4 ? 'B' : z >= -1.1 ? 'C' : 'D';
+    if (h.partidas < 150) h.tier = h.tier === 'S' ? 'A' : h.tier === 'D' ? 'C' : h.tier;
+  }
+  lista.sort((a, b) => b.wr_ajustado - a.wr_ajustado);
+  return { partidas, media: Math.round(media * 10) / 10, sd: Math.round(sd * 100) / 100, heroes: lista };
+}
+function pintarIndicadorVivo() {
+  const txt = VIVO.estado === 'vivo' && VIVO.hora
+    ? 'estadísticas en vivo · ' + new Date(VIVO.hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+    : (D.version && D.version.generado ? fmtFecha(D.version.generado) : '');
+  const e = document.getElementById('marca-parche'); if (e && txt) e.textContent = txt;
+  const p = document.getElementById('pie-parche'); if (p && txt) p.textContent = txt;
+}
+async function refrescarEnVivo() {
+  if (window.claude || location.protocol === 'file:' || !D.stats || !D.stats.brackets) return; // en claude.ai la API está bloqueada
+  try {
+    const cache = JSON.parse(localStorage.getItem('td_vivo') || 'null');
+    if (cache && Date.now() - cache.hora < VIVO_CACHE_MIN * 60000 && cache.datos) {
+      Object.assign(D.stats.datos, cache.datos); VIVO.estado = 'vivo'; VIVO.hora = cache.hora; pintarIndicadorVivo(); return true;
+    }
+  } catch (e) { /* sin caché */ }
+  const ahora = Math.floor(Date.now() / 1000);
+  const nuevos = {}; let ok = 0;
+  for (const v of D.stats.ventanas) {
+    nuevos[v.clave] = {};
+    for (const b of D.stats.brackets) {
+      const q = new URLSearchParams({ min_unix_timestamp: String(ahora - v.dias * 86400) });
+      if (b.min) q.set('min_average_badge', String(b.min));
+      const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 15000);
+      try {
+        const r = await fetch('https://api.deadlock-api.com/v1/analytics/hero-stats?' + q, { signal: ctrl.signal });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const filas = await r.json();
+        if (Array.isArray(filas) && filas.length) { nuevos[v.clave][b.clave] = calcularBracket(filas); ok++; }
+      } catch (e) { /* esta combinación se queda con los datos del archivo */ } finally { clearTimeout(t); }
+    }
+  }
+  if (!ok) return false;
+  for (const [v, porB] of Object.entries(nuevos)) Object.assign(D.stats.datos[v] = D.stats.datos[v] || {}, porB);
+  VIVO.estado = 'vivo'; VIVO.hora = Date.now();
+  try { localStorage.setItem('td_vivo', JSON.stringify({ hora: VIVO.hora, datos: nuevos })); } catch (e) { /* sin almacenamiento */ }
+  pintarIndicadorVivo();
+  return true;
+}
+
+async function iniciar() {
+  try { await cargarDatos(); } catch (e) {
+    $('#vista').innerHTML = ''; $('#vista').append(el('div', { class: 'vacio' }, el('p', null, 'No se pudieron cargar los datos del parche.'), el('p', { class: 'muted pequeno' }, String(e.message))));
+    return;
+  }
+  ALMACEN.cargarLocal();
+  montarBusqueda();
+  render();
+  ALMACEN.conectar();
+  // Estadísticas en vivo: al llegar, se repinta solo si el lector está en una vista de listas y no tiene nada abierto
+  refrescarEnVivo().then((cambio) => {
+    if (!cambio) return;
+    const base = tokenRuta().split('-')[0];
+    if (['tier', 'heroes'].includes(base) && !panelActual && !modalActual && window.scrollY < 120) render();
+  }).catch(() => { /* seguimos con los datos del archivo */ });
+  if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === 'function') {
+    try { window.claude.hot.snapshot(() => ({ hash: location.hash })); } catch (e) { /* sin hot */ }
+  }
+}
+function arrancar() { const inicio = () => iniciar(); if (window.claude && window.claude.hot && typeof window.claude.hot.ready === 'function') { window.claude.hot.ready((datos) => { if (datos && datos.hash && !location.hash) location.hash = datos.hash; inicio(); }); } else inicio(); }
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
+
+
+'use strict';
+/* ============================================================
+   Vistas: tier list, héroes, ficha de héroe, objetos, equipos, guía, novedades
+   ============================================================ */
+
+function segmento(opciones, valor, onCambio, clasePorValor) {
+  const s = el('div', { class: 'segmento', role: 'group' });
+  for (const [v, texto] of opciones) {
+    const b = el('button', { type: 'button', class: (v === valor ? 'activo ' : '') + (clasePorValor ? clasePorValor(v) : ''), onclick: () => { $$('button', s).forEach((x) => x.classList.remove('activo')); b.classList.add('activo'); onCambio(v); } }, texto);
+    s.append(b);
+  }
+  return s;
+}
+function cabecera(pretitulo, titulo, texto, extra) {
+  return el('div', { class: 'seccion-cab' }, el('div', null, pretitulo ? el('div', { class: 'pretitulo' }, pretitulo) : null, el('h1', null, titulo), texto ? el('p', null, texto) : null), extra || null);
+}
+function selectorNombres() {
+  return segmento([['en', 'Nombres EN'], ['es', 'Nombres ES']], PREF.nombres, (v) => { PREF.nombres = v; guardarPref(); render(); });
+}
+function medidor(etiqueta, valor, max, clase, textoValor) {
+  return el('div', { class: 'medidor ' + (clase || '') }, el('span', { class: 'sec' }, etiqueta), el('div', { class: 'barra' }, el('i', { style: { width: clamp((100 * valor) / max, 0, 100) + '%' } })), el('span', { class: 'num' }, textoValor != null ? textoValor : valor));
+}
+function barraWr(wr) {
+  // Winrate centrado en 50 %: hacia la derecha si gana, hacia la izquierda si pierde
+  const d = clamp((wr - 50) * 4, -50, 50);
+  const b = el('div', { class: 'barra centro', title: fmtPct(wr) });
+  const i = el('i', { style: { left: d >= 0 ? '50%' : (50 + d) + '%', width: Math.abs(d) + '%', background: d >= 0 ? 'var(--ok)' : 'var(--mal)' } });
+  b.append(i); return b;
+}
+
+/* ============================================================ TIER LIST */
+RUTAS.tier = function () {
+  const raiz = el('div');
+  const v = D.stats;
+  const bracketOpc = (v.brackets || []).map((b) => [b.clave, b.nombre]);
+  const ventanaOpc = (v.ventanas || []).map((w) => [w.clave, w.nombre]);
+  const ctrl = el('div', { class: 'controles' },
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Fuente'), segmento([['datos', 'Datos de partidas'], ['comunidad', 'Comunidad y pros']], PREF.fuenteTier, (x) => { PREF.fuenteTier = x; guardarPref(); pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Rango'), segmento(bracketOpc, PREF.bracket, (x) => { PREF.bracket = x; guardarPref(); pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Periodo'), segmento(ventanaOpc, PREF.ventana, (x) => { PREF.ventana = x; guardarPref(); pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Nombres'), selectorNombres()));
+  const fecha = D.version && D.version.generado ? fmtFecha(D.version.generado) : '';
+  const pre = VIVO.estado === 'vivo' && VIVO.hora ? 'Parche actual · estadísticas en vivo de las ' + new Date(VIVO.hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'Parche actual · datos del ' + fecha;
+  raiz.append(cabecera(pre, 'Tier list de héroes', 'Qué héroes ganan más partidas ahora mismo, por rango y periodo, y qué opina la comunidad. Pulsa un héroe para ver cómo jugarlo y con qué build.'));
+  raiz.append(ctrl);
+  const cuerpo = el('div'); raiz.append(cuerpo);
+
+  function pintar() {
+    cuerpo.innerHTML = '';
+    const datos = D.stats.datos[PREF.ventana] && D.stats.datos[PREF.ventana][PREF.bracket];
+    if (PREF.fuenteTier === 'comunidad') {
+      if (!D.meta || !D.meta.consenso || !D.meta.consenso.length) { cuerpo.append(el('div', { class: 'vacio' }, 'La tier list de la comunidad todavía no está cargada.')); return; }
+      const urls = new Set((D.meta.fuentes || []).map((f) => String(f.url || '').replace(/[?#].*$/, '').replace(/\/$/, '')).filter(Boolean));
+      const nTier = [...urls].filter((u) => !/youtube\.com|youtu\.be|reddit\.com|api\.deadlock-api/.test(u)).length;
+      const nVideos = [...urls].filter((u) => /youtube\.com|youtu\.be/.test(u)).length; const nReddit = [...urls].filter((u) => /reddit\.com/.test(u)).length;
+      cuerpo.append(el('p', { class: 'intro' }, `Consenso de ${nTier} tier lists de sitios de estadísticas y creadores, ${nVideos} vídeos y ${nReddit} hilos de Reddit recientes` + (D.meta.fecha ? ' (recogidos el ' + fmtFecha(D.meta.fecha) + ')' : '') + '. El número de cada héroe indica cuántas fuentes coinciden en su tier.'));
+      const tabla = el('div', { class: 'tier-tabla' });
+      for (const t of TIERS) {
+        const fila = el('div', { class: 'tier-fila' }, el('div', { class: 'tier-letra t-' + t }, t));
+        const chips = el('div', { class: 'tier-heroes' });
+        for (const c of D.meta.consenso.filter((x) => x.tier === t)) {
+          const h = heroe(c.id) || heroe(c.heroe); if (!h) continue;
+          const s = datos && datos.heroes.find((x) => x.id === h.id);
+          chips.append(el('a', { class: 'tier-chip', href: '#heroe-' + h.clase, title: c.por_que || '' }, imgH(h, ''), el('span', { class: 'datos' }, el('span', null, nombreH(h)), el('span', { class: 'num' }, (c.coincidencias ? c.coincidencias + ' fuentes' : '') + (s ? ' · ' + fmtPct(s.wr) : '')))));
+        }
+        fila.append(chips); tabla.append(fila);
+      }
+      cuerpo.append(tabla);
+      if (D.meta.cambios_recientes) { const partes = partirCambios(D.meta.cambios_recientes); cuerpo.append(el('details', { class: 'plegable', style: { marginTop: '16px' } }, el('summary', null, 'Qué ha cambiado últimamente (parches y lectura de la comunidad)'), el('div', { class: 'contenido' }, el('ul', { class: 'sec', style: { paddingLeft: '1.1em', margin: 0 } }, partes.map((t) => el('li', { style: { marginBottom: '6px' } }, t)))))); }
+      const extra = el('div', { class: 'grid-2', style: { marginTop: '16px' } });
+      if (D.meta.principiantes && D.meta.principiantes.length) extra.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Recomendados para empezar'), el('div', { class: 'fila' }, D.meta.principiantes.map((n) => { const h = heroe(n.id || n.heroe || n); return h ? chipH(h, null, true) : null; }))));
+      if (D.meta.mas_baneados && D.meta.mas_baneados.length) extra.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Los más baneados'), el('div', { class: 'fila' }, D.meta.mas_baneados.map((n) => { const h = heroe(n.id || n.heroe || n); return h ? chipH(h, null, true) : null; }))));
+      if (extra.children.length) cuerpo.append(extra);
+      return;
+    }
+    if (!datos) { cuerpo.append(el('div', { class: 'vacio' }, 'Sin datos para esta combinación.')); return; }
+    const tabla = el('div', { class: 'tier-tabla' });
+    for (const t of TIERS) {
+      const fila = el('div', { class: 'tier-fila' }, el('div', { class: 'tier-letra t-' + t }, t));
+      const chips = el('div', { class: 'tier-heroes' });
+      for (const s of datos.heroes.filter((x) => x.tier === t)) {
+        const h = heroe(s.id); if (!h) continue;
+        const nuevo = (D.stats.nuevos || []).includes(h.id);
+        const otra = PREF.ventana === '7d' ? statsDe(h, '30d', PREF.bracket) : null;
+        const delta = otra && otra.wr != null ? Math.round((s.wr - otra.wr) * 10) / 10 : null;
+        const pocas = s.partidas < 2000;
+        chips.append(el('a', { class: 'tier-chip', href: '#heroe-' + h.clase, title: `${nombreH(h)}: ${fmtPct(s.wr)} de victorias, ${fmtPct(s.pick)} de presencia, ${fmt(s.partidas)} partidas${pocas ? ' (muestra pequeña)' : ''}${delta != null ? `, ${delta >= 0 ? '+' : ''}${delta} puntos frente a los últimos 30 días` : ''}${nuevo ? '. Héroe nuevo: su winrate aún refleja la curva de aprendizaje' : ''}` },
+          imgH(h, ''), el('span', { class: 'datos' }, el('span', null, nombreH(h), nuevo ? el('span', { class: 'chip laton', style: { marginLeft: '6px', padding: '0 6px', fontSize: '0.66rem' } }, 'Nuevo') : null),
+            el('span', { class: 'num' }, fmtPct(s.wr) + (pocas ? '*' : ''), delta != null && Math.abs(delta) >= 0.8 ? el('span', { class: 'delta ' + (delta > 0 ? 'sube' : 'baja') }, delta > 0 ? '▲' : '▼') : null, ' · ' + fmtPct(s.pick, 0) + ' pick'))));
+      }
+      fila.append(chips); tabla.append(fila);
+    }
+    cuerpo.append(tabla);
+    cuerpo.append(el('p', { class: 'muted pequeno', style: { marginTop: '8px' } }, '* menos de 2.000 partidas: tómalo con cautela. ▲▼ tendencia del winrate frente a los últimos 30 días. «Nuevo»: héroe reciente, con mucha presencia y winrate aún en curva de aprendizaje.'));
+    const info = el('div', { class: 'grid-2', style: { marginTop: '16px' } });
+    info.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Cómo se calcula'),
+      el('p', { class: 'sec pequeno' }, `Se usan ${fmt(datos.partidas)} partidas del periodo y rango elegidos (modo normal, ranked y no ranked). El winrate se suaviza hacia el 50 % cuando un héroe tiene pocas partidas (equivale a sumar 400 partidas neutras) y se compara con la media de todos los héroes (${fmtPct(datos.media)}). S = muy por encima de la media, B = en la media, D = muy por debajo. Los héroes con menos de 150 partidas no pueden ser S ni D.`),
+      el('p', { class: 'sec pequeno' }, 'Un héroe con winrate alto pero poca presencia suele ser un héroe de nicho que funciona en manos de quien lo domina. Un héroe con presencia alta y winrate medio es sólido y fácil de encajar en cualquier equipo.')));
+    const top = el('div', { class: 'tarjeta' }, el('h3', null, 'Lectura rápida'));
+    const conHeroe = datos.heroes.filter((s) => heroe(s.id));
+    const porPick = conHeroe.slice().sort((a, b) => b.pick - a.pick).slice(0, 5);
+    const porKda = conHeroe.slice().sort((a, b) => (b.kda || 0) - (a.kda || 0)).slice(0, 5);
+    top.append(el('div', { class: 'etiqueta' }, 'Más jugados'), el('div', { class: 'fila', style: { marginBottom: '10px' } }, porPick.map((s) => chipH(heroe(s.id), fmtPct(s.pick, 0), true))));
+    top.append(el('div', { class: 'etiqueta' }, 'Mejor KDA medio'), el('div', { class: 'fila' }, porKda.map((s) => chipH(heroe(s.id), fmt(s.kda, 2), true))));
+    info.append(top);
+    cuerpo.append(info);
+    // Tabla completa
+    const det = el('details', { class: 'plegable', style: { marginTop: '16px' } }, el('summary', null, 'Tabla completa de estadísticas'));
+    const tb = el('table', { class: 'tabla' }, el('thead', null, el('tr', null, ['Héroe', 'Tier', 'Winrate', 'Presencia', 'Partidas', 'KDA', 'Daño/partida', 'Almas/partida'].map((t, i) => el('th', { class: i >= 2 ? 'num' : '' }, t)))));
+    const tbody = el('tbody');
+    for (const s of datos.heroes) { const h = heroe(s.id); if (!h) continue; tbody.append(el('tr', { class: 'clicable', onclick: () => ir('heroe-' + h.clase) }, el('td', null, el('span', { class: 'fila', style: { gap: '8px', flexWrap: 'nowrap' } }, imgH(h, 'icono-heroe'), nombreH(h))), el('td', null, insigniaTier(s.tier)), el('td', { class: 'num' }, fmtPct(s.wr)), el('td', { class: 'num' }, fmtPct(s.pick)), el('td', { class: 'num' }, fmt(s.partidas)), el('td', { class: 'num' }, fmt(s.kda, 2)), el('td', { class: 'num' }, fmt(s.dano)), el('td', { class: 'num' }, fmt(s.souls)))); }
+    tb.append(tbody); det.append(el('div', { class: 'contenido tabla-env' }, tb)); cuerpo.append(det);
+  }
+  pintar();
+  return raiz;
+};
+
+/* ============================================================ HÉROES */
+RUTAS.heroes = function () {
+  const raiz = el('div');
+  const estado = { q: '', tipo: '', arq: '', comp: '', orden: 'nombre' };
+  raiz.append(cabecera(D.heroes.length + ' héroes', 'Héroes', 'Elige un héroe para ver su guía: cómo se juega, si conviene llevarlo a arma, espíritu o vitalidad, orden de habilidades y build por fases.'));
+  const q = el('input', { class: 'entrada', type: 'search', placeholder: 'Filtrar por nombre', oninput: (e) => { estado.q = e.target.value; pintar(); }, 'aria-label': 'Filtrar héroes' });
+  const ctrl = el('div', { class: 'controles' },
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Buscar'), q),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Tipo'), segmento([['', 'Todos'], ...Object.entries(TIPOS_HEROE).filter(([k]) => D.heroes.some((h) => h.tipo === k))], '', (v) => { estado.tipo = v; pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Se juega a'), segmento([['', 'Todo'], ['arma', 'Arma'], ['espiritu', 'Espíritu'], ['vitalidad', 'Vitalidad'], ['hibrido', 'Híbrido']], '', (v) => { estado.arq = v; pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Dificultad'), segmento([['', 'Toda'], ['1', 'Fácil'], ['2', 'Media'], ['3', 'Alta']], '', (v) => { estado.comp = v; pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Orden'), segmento([['nombre', 'Nombre'], ['wr', 'Winrate'], ['pick', 'Presencia'], ['tier', 'Tier']], 'nombre', (v) => { estado.orden = v; pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Nombres'), selectorNombres()));
+  raiz.append(ctrl);
+  const grid = el('div', { class: 'grid-heroes' }); raiz.append(grid);
+  function pintar() {
+    grid.innerHTML = '';
+    let lista = D.heroes.filter((h) => {
+      if (estado.q && !sinAcentos(h.nombre).includes(sinAcentos(estado.q)) && !sinAcentos(h.nombre_en).includes(sinAcentos(estado.q))) return false;
+      if (estado.tipo && h.tipo !== estado.tipo) return false;
+      if (estado.arq && arquetipoDe(h) !== estado.arq) return false;
+      if (estado.comp) { const g = guia(h); const c = g && g.dificultad ? (g.dificultad <= 2 ? 1 : g.dificultad === 3 ? 2 : 3) : Math.min(3, h.complejidad || 2); if (String(c) !== estado.comp) return false; }
+      return true;
+    });
+    const ordenTier = { S: 0, A: 1, B: 2, C: 3, D: 4 };
+    lista.sort((a, b) => {
+      const sa = statsDe(a) || {}, sb = statsDe(b) || {};
+      if (estado.orden === 'wr') return (sb.wr || 0) - (sa.wr || 0);
+      if (estado.orden === 'pick') return (sb.pick || 0) - (sa.pick || 0);
+      if (estado.orden === 'tier') return (ordenTier[sa.tier] ?? 9) - (ordenTier[sb.tier] ?? 9) || (sb.wr || 0) - (sa.wr || 0);
+      return nombreH(a).localeCompare(nombreH(b), 'es');
+    });
+    if (!lista.length) { grid.append(el('div', { class: 'vacio', style: { gridColumn: '1 / -1' } }, 'Ningún héroe coincide con los filtros.')); return; }
+    for (const h of lista) {
+      const s = statsDe(h); const g = guia(h);
+      grid.append(el('a', { class: 'tarjeta-heroe', href: '#heroe-' + h.clase },
+        el('img', { src: h.imagen.carta, alt: '', loading: 'lazy' }),
+        el('div', { class: 'esquina' }, pillArq(arquetipoDe(h)), (D.stats.nuevos || []).includes(h.id) ? el('span', { class: 'arquetipo', style: { background: 'var(--laton)', color: '#1a1409' } }, 'Nuevo') : null),
+        el('div', { class: 'esquina-der' }, insigniaTier(s && s.tier)),
+        el('div', { class: 'velo' }, el('div', { class: 'nombre' }, nombreH(h)), el('div', { class: 'rol' }, (g && g.rol) || tipoHeroe(h) + (s ? ' · ' + fmtPct(s.wr) : '')))));
+    }
+  }
+  pintar();
+  return raiz;
+};
+
+/* ============================================================ FICHA DE HÉROE */
+/** Nombres de categoría de las builds del juego: traduce los tokens de localización (#CITADEL_HEROBUILDS_…) */
+const CATEGORIAS_JUEGO = { EARLY: 'Inicio', EARLYGAME: 'Inicio de partida', LANE: 'Línea', LANING: 'Línea', MID: 'Medio', MIDGAME: 'Medio de partida', LATE: 'Final', LATEGAME: 'Final de partida', CORE: 'Núcleo', SITUATIONAL: 'Situacionales', OPTIONAL: 'Opcionales', LUXURY: 'Lujo', DEFENSIVE: 'Defensivos', OFFENSIVE: 'Ofensivos', ACTIVES: 'Activos', FLEX: 'Flexibles' };
+function nombreCategoria(n) {
+  const s = String(n || '').trim();
+  const m = s.match(/^#?CITADEL_HEROBUILDS_([A-Z_]+)$/i);
+  if (m) { const k = m[1].toUpperCase(); return CATEGORIAS_JUEGO[k] || k.charAt(0) + k.slice(1).toLowerCase().replace(/_/g, ' '); }
+  return s || 'Objetos';
+}
+function bloque(id, titulo, sub, ...hijos) { return el('section', { class: 'bloque', id: 'b-' + id }, el('h2', null, titulo, sub ? el('span', { class: 'sub' }, sub) : null), ...hijos); }
+function listaItemsBuild(entradas, campoTexto) {
+  const cont = el('div');
+  for (const e of entradas || []) {
+    const o = objeto(e.clase || e.objeto); if (!o) continue;
+    const r = RANURAS[o.ranura] || {};
+    cont.append(el('div', { class: 'item-fila ' + (r.clase || '') }, imgO(o, { onclick: () => abrirObjeto(o) }), el('div', null, el('div', { class: 'nombre', onclick: () => abrirObjeto(o) }, nombreO(o), el('span', { class: 'coste' }, fmtSouls(o.coste) + ' · ' + (r.nombre || ''))), e[campoTexto] ? el('div', { class: 'porque' }, e[campoTexto]) : null)));
+  }
+  if (!cont.children.length) cont.append(el('div', { class: 'muted pequeno' }, 'Sin objetos.'));
+  return cont;
+}
+function tarjetaHabilidad(a, h) {
+  const t = el('div', { class: 'habilidad' });
+  t.append(el('div', { class: 'cab' }, el('img', { src: a.imagen, alt: '' }), el('div', null, el('div', { class: 'tecla' }, (a.tipo === 'ultimate' ? 'Definitiva' : 'Habilidad') + ' · tecla ' + a.tecla), el('div', { class: 'nombre' }, PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre, (a.nombre_en && a.nombre_en !== a.nombre) ? el('small', null, PREF.nombres === 'es' ? a.nombre_en : a.nombre) : null))));
+  const metas = el('div', { class: 'metas' });
+  if (a.enfriamiento) metas.append(el('span', { class: 'chip' }, '⟳ ' + fmt(a.enfriamiento, 1) + ' s'));
+  if (a.cargas && a.cargas > 1) metas.append(el('span', { class: 'chip' }, a.cargas + ' cargas'));
+  if (a.duracion) metas.append(el('span', { class: 'chip' }, fmt(a.duracion, 1) + ' s de duración'));
+  if (a.alcance) metas.append(el('span', { class: 'chip' }, fmt(a.alcance, 0) + ' m'));
+  if (metas.children.length) t.append(metas);
+  if (a.resumen) t.append(el('div', { class: 'sec', style: { fontWeight: 600 } }, a.resumen));
+  t.append(el('div', { class: 'desc', html: rico(a.descripcion) }));
+  if (a.importantes && a.importantes.length) t.append(el('div', { class: 'importantes' }, a.importantes.slice(0, 6).map((p) => el('span', null, p.etiqueta + ': ', el('b', null, fmt(p.valor, 2) + p.sufijo)))));
+  const mej = el('div', { class: 'mejoras' });
+  for (const m of a.mejoras || []) mej.append(el('div', { class: 'mejora' }, el('span', { class: 'pa' }, m.nivel + '·' + m.coste_pa + ' PA'), el('span', { html: rico(m.texto) || '<span class="muted">—</span>' })));
+  if (mej.children.length) t.append(mej);
+  return t;
+}
+function pasoOrden(ab, etiqueta, nivel, extraClase) {
+  return el('div', { class: 'orden-paso ' + (extraClase || ''), title: ab ? (PREF.nombres === 'es' ? ab.nombre : ab.nombre_en || ab.nombre) + ' — ' + etiqueta : etiqueta }, el('img', { src: ab ? ab.imagen : '', alt: '' }), el('span', { class: 'n' }, etiqueta), nivel ? el('span', { class: 'nivel' }, nivel) : null);
+}
+/** Dada una secuencia de acciones [{tipo:'desbloqueo'|'mejora', h}] calcula el nivel en el que se puede ejecutar cada una */
+function nivelesDeSecuencia(h, acciones) {
+  const niveles = h.niveles || []; const resultado = [];
+  let i = 0, pa = 0, desb = 0, tiers = { 1: 0, 2: 0, 3: 0, 4: 0 };
+  const coste = [1, 2, 5];
+  for (const ac of acciones) {
+    const necesita = ac.tipo === 'desbloqueo' ? 1 : coste[tiers[ac.h] || 0];
+    while (i < niveles.length && (ac.tipo === 'desbloqueo' ? desb < necesita : pa < necesita)) { const n = niveles[i]; if (n.da === 'ap') pa++; if (n.da === 'desbloqueo') desb++; i++; }
+    const nivelActual = i > 0 ? niveles[i - 1] : niveles[0];
+    if (ac.tipo === 'desbloqueo') desb -= 1; else { pa -= necesita; tiers[ac.h] = (tiers[ac.h] || 0) + 1; }
+    resultado.push({ ...ac, nivel: nivelActual ? nivelActual.nivel : null, souls: nivelActual ? nivelActual.souls : null, tier: ac.tipo === 'mejora' ? tiers[ac.h] : null, pa: necesita });
+  }
+  return resultado;
+}
+function secuenciaDesdeBuild(b) {
+  // b.desbloqueo: [idx...]; b.orden: [{h, pa}] → acciones en orden intercalando desbloqueos cuando hacen falta
+  const acciones = []; const desbloqueados = new Set();
+  const pendientes = (b.desbloqueo || []).slice();
+  const tiers = {};
+  for (const o of b.orden || []) {
+    while (!desbloqueados.has(o.h) && pendientes.length) { const d = pendientes.shift(); desbloqueados.add(d); acciones.push({ tipo: 'desbloqueo', h: d }); }
+    if (!desbloqueados.has(o.h)) { desbloqueados.add(o.h); acciones.push({ tipo: 'desbloqueo', h: o.h }); }
+    if ((tiers[o.h] || 0) >= 3) continue; tiers[o.h] = (tiers[o.h] || 0) + 1;
+    acciones.push({ tipo: 'mejora', h: o.h });
+  }
+  for (const d of pendientes) if (!desbloqueados.has(d)) { desbloqueados.add(d); acciones.push({ tipo: 'desbloqueo', h: d }); }
+  return acciones;
+}
+function vistaSecuencia(h, acciones) {
+  const abs = D.habilidades[h.id] || [];
+  const cont = el('div', { class: 'orden-hab' });
+  const calc = nivelesDeSecuencia(h, acciones);
+  for (const ac of calc) {
+    const ab = abs[ac.h - 1];
+    cont.append(pasoOrden(ab, ac.tipo === 'desbloqueo' ? 'Desbl.' : 'Nivel ' + ac.tier, ac.nivel ? 'N' + ac.nivel : '', ac.tipo === 'desbloqueo' ? 'desbloqueo' : ''));
+  }
+  return cont;
+}
+
+RUTAS.heroe = function (clase) {
+  const h = heroe(clase);
+  if (!h) return el('div', { class: 'vacio' }, 'No existe ese héroe. ', el('a', { href: '#heroes' }, 'Ver todos los héroes'));
+  const g = guia(h); const abs = D.habilidades[h.id] || []; const s = statsDe(h);
+  const arq = arquetipoDe(h); const A = ARQUETIPOS[arq];
+  const raiz = el('div');
+
+  // Cabecera
+  const cab = el('div', { class: 'heroe-cab' });
+  cab.append(el('div', { class: 'carta' }, el('img', { src: h.imagen.carta, alt: nombreH(h) })));
+  const info = el('div');
+  info.append(el('div', { class: 'pretitulo' }, tipoHeroe(h) + ' · ' + (h.arma_tipo || '') + ' · dificultad ' + (g && g.dificultad ? g.dificultad + '/5' : (h.complejidad || '?') + '/3')));
+  info.append(el('h1', null, nombreH(h), nombreAlt(h) ? el('span', { class: 'alias' }, ' · ' + nombreAlt(h)) : null));
+  info.append(el('div', { class: 'rol-linea' }, (g && g.rol) || h.rol));
+  const estilo = h.estilo || h.estilo_en || (g && g.arquetipo_por_que ? g.arquetipo_por_que.split(/(?<=\.)\s/).slice(0, 2).join(' ') : '');
+  if (estilo) info.append(el('p', { class: 'sec' }, estilo));
+  const LINEA_TXT = { duo: 'Línea en pareja', solo: 'Aguanta solo', ambas: 'Cualquier línea' };
+  info.append(el('div', { class: 'fila' }, pillArq(arq), (D.stats.nuevos || []).includes(h.id) ? el('span', { class: 'chip laton', title: 'Héroe reciente: su winrate todavía refleja la curva de aprendizaje de los jugadores' }, 'Nuevo') : null, ...(h.etiquetas || []).map((t) => el('span', { class: 'chip' }, t)), g && g.linea_tipo ? el('span', { class: 'chip laton', title: 'En el mapa actual las tres líneas se juegan 2 contra 2; «aguanta solo» significa que no sufre cuando su pareja rota.' }, LINEA_TXT[g.linea_tipo] || g.linea_tipo) : null));
+  const kpis = el('div', { class: 'kpis' });
+  const bracketNombre = (D.stats.brackets.find((b) => b.clave === PREF.bracket) || {}).nombre || '';
+  kpis.append(el('div', { class: 'kpi' }, el('div', { class: 'etiqueta' }, 'Tier · ' + bracketNombre), el('div', { class: 'valor' }, insigniaTier(s && s.tier), tierComunidad(h) ? el('small', null, ' comunidad: ' + tierComunidad(h)) : null)));
+  kpis.append(el('div', { class: 'kpi' }, el('div', { class: 'etiqueta' }, 'Winrate ' + PREF.ventana), el('div', { class: 'valor num' }, s ? fmtPct(s.wr) : '—')));
+  kpis.append(el('div', { class: 'kpi' }, el('div', { class: 'etiqueta' }, 'Presencia'), el('div', { class: 'valor num' }, s ? fmtPct(s.pick) : '—')));
+  kpis.append(el('div', { class: 'kpi' }, el('div', { class: 'etiqueta' }, 'KDA medio'), el('div', { class: 'valor num' }, s ? fmt(s.kda, 2) : '—', s ? el('small', null, ` ${fmt(s.kills, 1)}/${fmt(s.muertes, 1)}/${fmt(s.asistencias, 1)}`) : null)));
+  kpis.append(el('div', { class: 'kpi' }, el('div', { class: 'etiqueta' }, 'Partidas analizadas'), el('div', { class: 'valor num' }, s ? fmt(s.partidas) : '—')));
+  info.append(kpis);
+  info.append(el('div', { class: 'fila', style: { marginTop: '12px' } }, el('a', { class: 'boton primario', href: '#build-nueva-' + h.clase }, '＋ Crear build con este héroe'), el('a', { class: 'boton', href: '#equipos' }, 'Probar en el armador de equipos'), selectorNombres()));
+  cab.append(info); raiz.append(cab);
+
+  // Subnavegación
+  const secciones = [['jugar', 'Cómo jugarlo'], ['habilidades', 'Habilidades'], ['orden', 'Orden de habilidades'], ['build', 'Build'], ['datos', 'Objetos por datos'], ['comunidad', 'Builds de la comunidad'], ['vs', 'Counters y sinergias'], ['stats', 'Estadísticas'], ['fuentes', 'Fuentes']];
+  raiz.append(el('nav', { class: 'subnav', 'aria-label': 'Secciones de la ficha' }, secciones.map(([id, t]) => el('a', { href: '#' + rutaActual, onclick: (e) => { e.preventDefault(); const dest = document.getElementById('b-' + id); if (dest) dest.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, t))));
+
+  // Cómo jugarlo
+  const panel = el('div', { class: 'arquetipo-panel' });
+  const izq = el('div');
+  izq.append(el('div', { class: 'arquetipo-grande ' + A.clase, style: { '--c': `var(--${arq === 'arma' ? 'arma' : arq === 'espiritu' ? 'esp' : arq === 'vitalidad' ? 'vit' : 'laton'})`, '--c-bg': `var(--${arq === 'arma' ? 'arma' : arq === 'espiritu' ? 'esp' : arq === 'vitalidad' ? 'vit' : 'laton'}-bg)` } }, el('div', { class: 'sello' }, A.corto), el('div', { class: 'titulo' }, 'Se juega a ' + A.nombre.toLowerCase(), el('small', null, A.desc))));
+  if (g && g.arquetipo_por_que) izq.append(el('p', { class: 'sec' }, g.arquetipo_por_que));
+  else izq.append(el('p', { class: 'sec' }, 'Deducido de los objetos que más compran los jugadores en la fase final de la partida (datos de la API). La guía detallada de este héroe se añadirá en la próxima actualización.'));
+  if (g && g.arquetipos_alternativos && g.arquetipos_alternativos.length) { izq.append(el('div', { class: 'etiqueta', style: { marginTop: '10px' } }, 'Otras formas de jugarlo')); for (const alt of g.arquetipos_alternativos) { const AA = ARQUETIPOS[alt.tipo] || ARQUETIPOS.hibrido; izq.append(el('div', { class: 'fila', style: { marginBottom: '6px', alignItems: 'start' } }, pillArq(alt.tipo), el('span', { class: 'sec pequeno' }, alt.cuando))); } }
+  const der = el('div');
+  const escalado = (g && g.escalado) || null;
+  if (escalado) {
+    der.append(el('div', { class: 'etiqueta' }, 'Cuánto aprovecha cada tipo de objeto'));
+    der.append(el('div', { class: 'escalado' }, medidor('Arma', escalado.arma || 0, 5, 'r-weapon', (escalado.arma || 0) + '/5'), medidor('Espíritu', escalado.espiritu || 0, 5, 'r-spirit', (escalado.espiritu || 0) + '/5'), medidor('Vitalidad', escalado.vitalidad || 0, 5, 'r-vitality', (escalado.vitalidad || 0) + '/5')));
+  }
+  if (g) {
+    const lista = (t, arr, claseChip) => arr && arr.length ? el('div', { style: { marginTop: '10px' } }, el('div', { class: 'etiqueta' }, t), el('ul', { style: { margin: '4px 0 0', paddingLeft: '1.1em' }, class: 'sec pequeno' }, arr.map((x) => el('li', null, x)))) : null;
+    der.append(lista('Fortalezas', g.fortalezas), lista('Debilidades', g.debilidades));
+  }
+  panel.append(izq, der);
+  const fases = g && g.como_jugar ? el('div', { class: 'fases', style: { marginTop: '16px' } }, [['Inicio (0–10 min)', g.como_jugar.inicio], ['Medio (10–25 min)', g.como_jugar.medio], ['Final (25+ min)', g.como_jugar.final]].map(([t, txt]) => el('div', { class: 'fase' }, el('div', { class: 'etiqueta' }, t), el('p', null, txt || '—')))) : null;
+  const consejos = g && g.consejos && g.consejos.length ? el('div', { class: 'grid-2', style: { marginTop: '16px' } }, el('div', { class: 'tarjeta' }, el('h3', null, 'Consejos'), el('ul', { class: 'sec', style: { margin: 0, paddingLeft: '1.1em' } }, g.consejos.map((c) => el('li', null, c)))), g.combos && g.combos.length ? el('div', { class: 'tarjeta' }, el('h3', null, 'Combos'), el('ul', { class: 'sec', style: { margin: 0, paddingLeft: '1.1em' } }, g.combos.map((c) => el('li', null, c)))) : null) : null;
+  const lineaTxt = g && (g.linea_texto || g.linea) ? el('div', { class: 'nota-caja', style: { marginTop: '14px' } }, el('b', null, 'En línea: '), g.linea_texto || g.linea) : null;
+  raiz.append(bloque('jugar', 'Cómo jugarlo', '', panel, lineaTxt, fases, consejos));
+
+  // Habilidades
+  raiz.append(bloque('habilidades', 'Habilidades', 'niveles de mejora: 1, 2 y 5 puntos', el('div', { class: 'habilidades' }, abs.map((a) => tarjetaHabilidad(a, h)))));
+
+  // Orden de habilidades
+  const ordenCont = el('div');
+  let acciones = null;
+  if (g && g.orden_habilidades) {
+    const oh = g.orden_habilidades;
+    const idxDeNombre = (n) => { const i = abs.findIndex((a) => sinAcentos(a.nombre) === sinAcentos(n) || sinAcentos(a.nombre_en) === sinAcentos(n) || sinAcentos(n).includes(sinAcentos(a.nombre_en)) || sinAcentos(n).includes(sinAcentos(a.nombre))); return i >= 0 ? i + 1 : null; };
+    const ordenIdx = (oh.orden || []).map(idxDeNombre).filter(Boolean);
+    if (ordenIdx.length) {
+      // Desbloqueo en el orden indicado; luego se maxea la primera, después el resto
+      const desbloqueo = ordenIdx.slice(); for (let i = 1; i <= 4; i++) if (!desbloqueo.includes(i)) desbloqueo.push(i);
+      const primera = idxDeNombre(oh.primera_maxima || '') || ordenIdx[0];
+      const orden = []; const resto = desbloqueo.filter((x) => x !== primera);
+      // 1 punto en cada una desbloqueada, luego maxear la primera, luego las demás en orden
+      for (const x of desbloqueo) orden.push({ h: x, pa: 1 });
+      orden.push({ h: primera, pa: 2 }, { h: primera, pa: 5 });
+      for (const x of resto) orden.push({ h: x, pa: 2 }, { h: x, pa: 5 });
+      acciones = secuenciaDesdeBuild({ desbloqueo, orden });
+      ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''), el('div', { class: 'etiqueta', style: { margin: '8px 0 4px' } }, 'Secuencia orientativa (N = nivel de poder en el que suele poder comprarse)'), vistaSecuencia(h, acciones));
+    } else ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''));
+  }
+  const buildsCom = (D.builds && D.builds.heroes && D.builds.heroes[h.id]) || [];
+  const conOrden = buildsCom.find((b) => b.orden && b.orden.length >= 6);
+  if (!acciones && conOrden) ordenCont.append(el('p', { class: 'sec' }, 'Orden que usa la build de la comunidad más jugada:'), vistaSecuencia(h, secuenciaDesdeBuild(conOrden)));
+  // Datos reales: qué habilidad se maxea primero y el orden más jugado (7 días, Oracle o superior)
+  const hs = D.habStats && D.habStats.heroes && D.habStats.heroes[h.id];
+  if (hs && (hs.maxea_primero.length || hs.orden.length)) {
+    const caja = el('div', { class: 'grid-2', style: { marginTop: '14px' } });
+    if (hs.maxea_primero.length) caja.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Qué maxean primero los jugadores'), el('p', { class: 'muted pequeno' }, 'Partidas de los últimos 7 días en ' + (D.habStats.bracket || 'rango alto') + ': porcentaje de jugadores que maxea cada habilidad antes que las demás y su winrate.'),
+      el('div', { class: 'col', style: { gap: '6px' } }, hs.maxea_primero.map((m) => { const ab = abs[m.h - 1]; return ab ? el('div', { class: 'popular', style: { gridTemplateColumns: '36px 1fr 56px 56px' } }, el('img', { src: ab.imagen, alt: '', style: { width: '36px', height: '36px', borderRadius: '8px' } }), el('div', null, el('div', { class: 'nombre' }, PREF.nombres === 'es' ? ab.nombre : ab.nombre_en || ab.nombre), el('div', { class: 'barra' }, el('i', { style: { width: clamp(m.pct, 0, 100) + '%' } }))), el('span', { class: 'num pequeno' }, fmtPct(m.pct, 0)), el('span', { class: 'num pequeno', style: { color: m.wr >= 50 ? 'var(--ok)' : 'var(--mal)' } }, fmtPct(m.wr))) : null; }))));
+    if (hs.orden.length) { const acc = []; const des = new Set(); const tiers = {}; for (const idx of hs.orden) { if (!des.has(idx)) { des.add(idx); acc.push({ tipo: 'desbloqueo', h: idx }); } else { tiers[idx] = (tiers[idx] || 0) + 1; if (tiers[idx] <= 3) acc.push({ tipo: 'mejora', h: idx }); } }
+      caja.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Orden más jugado'), el('p', { class: 'muted pequeno' }, 'Camino más frecuente punto a punto (' + fmt(hs.orden_partidas) + ' partidas siguen este prefijo completo).'), vistaSecuencia(h, acc))); }
+    ordenCont.append(caja);
+  }
+  if (!ordenCont.children.length) ordenCont.append(el('div', { class: 'muted' }, 'Sin datos de orden de habilidades todavía.'));
+  raiz.append(bloque('orden', 'Orden de habilidades', '', ordenCont));
+
+  // Build recomendada
+  const buildCont = el('div');
+  if (g && g.build) {
+    buildCont.append(el('div', { class: 'build-fases' },
+      el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Inicio de línea'), el('span', { class: 'num pequeno muted' }, fmtSouls((g.build.inicio || []).reduce((s2, e) => s2 + ((objeto(e.clase || e.objeto) || {}).coste || 0), 0)))), listaItemsBuild(g.build.inicio, 'por_que')),
+      el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Medio de partida'), el('span', { class: 'num pequeno muted' }, fmtSouls((g.build.medio || []).reduce((s2, e) => s2 + ((objeto(e.clase || e.objeto) || {}).coste || 0), 0)))), listaItemsBuild(g.build.medio, 'por_que')),
+      el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Final'), el('span', { class: 'num pequeno muted' }, fmtSouls((g.build.final || []).reduce((s2, e) => s2 + ((objeto(e.clase || e.objeto) || {}).coste || 0), 0)))), listaItemsBuild(g.build.final, 'por_que')),
+      el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, 'Situacionales'), el('span', { class: 'pequeno muted' }, 'según el rival')), listaItemsBuild(g.build.situacionales, 'cuando'))));
+    buildCont.append(el('div', { class: 'fila', style: { marginTop: '12px' } }, el('a', { class: 'boton primario', href: '#build-nueva-' + h.clase }, 'Abrir esta build en el creador y personalizarla')));
+  } else buildCont.append(el('div', { class: 'muted' }, 'La build explicada de este héroe llegará en la próxima actualización. Mientras tanto, abajo tienes los objetos con mejores resultados y las builds de la comunidad.'));
+  raiz.append(bloque('build', 'Build recomendada', 'por fases, con el porqué de cada objeto', buildCont));
+
+  // Objetos por datos
+  const datosCont = el('div', { class: 'build-fases' });
+  if (h.populares) {
+    for (const [f, t] of [['inicio', 'Inicio'], ['medio', 'Medio'], ['final', 'Final']]) {
+      const caja = el('div', { class: 'build-fase' }, el('div', { class: 'cab' }, el('span', { class: 'etiqueta' }, t), el('span', { class: 'pequeno muted' }, 'pick · winrate')));
+      const lista = el('div', { class: 'populares' });
+      for (const p of h.populares[f].slice(0, 8)) { const o = objeto(p.clase); if (!o) continue; const r = RANURAS[o.ranura] || {}; lista.append(el('div', { class: 'popular ' + (r.clase || '') }, imgO(o, { onclick: () => abrirObjeto(o) }), el('div', null, el('div', { class: 'nombre', onclick: () => abrirObjeto(o) }, nombreO(o)), el('div', { class: 'barra', title: 'Lo compra el ' + fmtPct(p.pick) }, el('i', { style: { width: clamp(p.pick, 0, 100) + '%' } }))), el('span', { class: 'num pequeno' }, fmtPct(p.pick, 0)), el('span', { class: 'num pequeno', style: { color: p.wr >= 50 ? 'var(--ok)' : 'var(--mal)' } }, fmtPct(p.wr)))); }
+      caja.append(lista); datosCont.append(caja);
+    }
+  }
+  raiz.append(bloque('datos', 'Objetos con mejores resultados', 'qué compran los jugadores de este héroe y con qué winrate (API, últimos 30 días)', datosCont, g && g.datos_api && g.datos_api.popular_items_resumen ? el('p', { class: 'sec', style: { marginTop: '10px' } }, g.datos_api.popular_items_resumen) : null));
+
+  // Builds de la comunidad: recientes (o muy jugadas), sin nombres ofensivos, con categorías traducidas
+  const comCont = el('div', { class: 'col' });
+  const limiteFecha = Date.now() / 1000 - 150 * 86400;
+  const buildsVisibles = buildsCom.filter((b) => ((b.actualizado || 0) >= limiteFecha || (b.stats && b.stats.partidas >= 1000)) && !/nutting|chup[aá]|piko|chromosom|минет|puta|nigg|fag|retard/i.test(b.nombre || ''));
+  for (const b of buildsVisibles.slice(0, 5)) {
+    const caja = el('div', { class: 'build-com' });
+    const antigua = (b.actualizado || 0) < limiteFecha;
+    caja.append(el('div', { class: 'cab' }, el('div', null, el('b', null, b.nombre || 'Build sin nombre'), el('span', { class: 'muted pequeno' }, b.actualizado ? ' · actualizada el ' + fmtFecha(b.actualizado) : ''), antigua ? el('span', { class: 'chip aviso', style: { marginLeft: '6px' } }, 'anterior al parche actual') : null), el('div', { class: 'fila' }, b.stats ? el('span', { class: 'chip ' + (b.stats.wr >= 50 ? 'ok' : 'mal') }, fmtPct(b.stats.wr) + ' en ' + fmt(b.stats.partidas) + ' partidas') : null, b.favoritos ? el('span', { class: 'chip' }, fmt(b.favoritos) + ' favoritos') : null, el('a', { class: 'boton mini', href: `#build-com-${h.id}-${b.id}` }, 'Abrir en el creador'))));
+    for (const c of b.categorias.slice(0, 8)) { if (!c.objetos.length) continue; caja.append(el('div', { class: 'cat' }, el('div', { class: 'etiqueta' }, nombreCategoria(c.nombre)), el('div', { class: 'objs' }, c.objetos.slice(0, 14).map((x) => { const o = objeto(x.clase); return o ? imgO(o, { class: (RANURAS[o.ranura] || {}).clase || '', title: nombreO(o) + (x.nota ? ' — ' + x.nota : ''), onclick: () => abrirObjeto(o) }) : null; })))); }
+    if (b.orden && b.orden.length) { const sec = secuenciaDesdeBuild(b); caja.append(el('div', { class: 'cat' }, el('div', { class: 'etiqueta' }, 'Orden de habilidades'), vistaSecuencia(h, sec.slice(0, 10)))); }
+    comCont.append(caja);
+  }
+  if (!comCont.children.length) comCont.append(el('div', { class: 'muted' }, 'No hay builds de la comunidad descargadas para este héroe.'));
+  raiz.append(bloque('comunidad', 'Builds de la comunidad', 'las más usadas en partidas reales (datos de 30 días) y las más guardadas', comCont));
+
+  // Counters y sinergias
+  const vsCont = el('div', { class: 'grid-2' });
+  const ct = mejoresCounters(h, 6); const sin = mejoresSinergias(h, 8); const sinLinea = mejoresSinergias(h, 6, true);
+  const listaVs = (arr, color) => el('div', { class: 'lista-heroes-mini' }, arr.map((x) => el('div', { class: 'vs' }, chipH(x.otro, null, true), barraWr(x.wr), el('span', { class: 'num pequeno', style: { color } }, fmtPct(x.wr)))));
+  vsCont.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Le cuesta contra'), el('p', { class: 'muted pequeno' }, 'Winrate de ' + nombreH(h) + ' cuando el rival está en el equipo contrario (14 días, todos los rangos).'), listaVs(ct.pierde, 'var(--mal)'),
+    g && g.counters && g.counters.length ? el('div', { style: { marginTop: '10px' } }, el('div', { class: 'etiqueta' }, 'Por qué, según las guías'), g.counters.map((c) => { const o = heroe(c.id || c.heroe); return el('div', { class: 'vs' }, o ? chipH(o, null, true) : el('span', null, c.heroe), el('span', { class: 'porque' }, c.por_que), el('span')); })) : null));
+  vsCont.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Gana contra'), el('p', { class: 'muted pequeno' }, 'Rivales ante los que este héroe tiene mejor winrate.'), listaVs(ct.gana, 'var(--ok)')));
+  vsCont.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Mejores compañeros'), el('p', { class: 'muted pequeno' }, 'Winrate del par cuando juegan juntos en el mismo equipo.'), listaVs(sin, 'var(--ok)'),
+    g && g.sinergias && g.sinergias.length ? el('div', { style: { marginTop: '10px' } }, el('div', { class: 'etiqueta' }, 'Por qué, según las guías'), g.sinergias.map((c) => { const o = heroe(c.id || c.heroe); return el('div', { class: 'vs' }, o ? chipH(o, null, true) : el('span', null, c.heroe), el('span', { class: 'porque' }, c.por_que), el('span')); })) : null));
+  if (sinLinea.length) vsCont.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Mejores parejas de línea'), el('p', { class: 'muted pequeno' }, 'Compañeros con los que mejor le va compartiendo línea.'), listaVs(sinLinea, 'var(--ok)')));
+  raiz.append(bloque('vs', 'Counters y sinergias', 'datos de partidas + explicación', el('p', { class: 'muted pequeno', style: { marginTop: '-6px', marginBottom: '10px' } }, 'Un mismo héroe puede aparecer como mal rival y como buen compañero: son situaciones distintas (enfrente o en tu equipo).'), vsCont));
+
+  // Estadísticas base
+  const st = h.stats; const ar = h.arma;
+  const statsCont = el('div', { class: 'grid-2' });
+  statsCont.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Atributos base'), el('div', { class: 'stats-base' }, [['Vida', st.vida], ['Regeneración', st.regen + '/s'], ['Velocidad', st.velocidad + ' m/s'], ['Esprint', '+' + st.sprint + ' m/s'], ['Estamina', st.estamina], ['Melé ligero', st.melee_ligero], ['Melé pesado', st.melee_pesado], ['Dash en suelo', st.dash_suelo + ' m'], ['Dash en aire', st.dash_aire + ' m']].map(([k, v]) => el('div', { class: 'stat' }, el('span', null, k), el('b', null, v == null ? '—' : v)))),
+    el('div', { class: 'etiqueta', style: { marginTop: '10px' } }, 'Por cada nivel de poder'), el('div', { class: 'stats-base' }, [['Vida', '+' + h.por_nivel.vida], ['Daño por bala', '+' + fmt(h.por_nivel.dano_bala != null ? h.por_nivel.dano_bala : (h.por_nivel.dano_bala_pct || 0) / 100, 3)], ['Melé', '+' + h.por_nivel.melee], ['Poder de espíritu', '+' + h.por_nivel.espiritu]].map(([k, v]) => el('div', { class: 'stat' }, el('span', null, k), el('b', null, v))))));
+  statsCont.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Arma: ' + (ar.nombre || '')), el('div', { class: 'stats-base' }, [['Daño por bala', ar.dano_bala], ['Balas por disparo', ar.balas_por_disparo], ['Disparos/s', fmt(ar.disparos_por_segundo, 2)], ['Cargador', ar.cargador], ['Recarga', ar.recarga ? fmt(ar.recarga, 2) + ' s' : null], ['DPS', ar.dps], ['DPS con recarga', ar.dps_con_recarga], ['Caída de daño', ar.alcance_caida_inicio ? ar.alcance_caida_inicio + '–' + ar.alcance_caida_fin + ' m' : null], ['Mira', ar.zoom ? 'Sí' : 'No']].filter((x) => x[1] != null).map(([k, v]) => el('div', { class: 'stat' }, el('span', null, k), el('b', null, v))))));
+  // Winrate por rango
+  const porRango = el('div', { class: 'tarjeta' }, el('h3', null, 'Rendimiento por rango (' + PREF.ventana + ')'));
+  const tb = el('table', { class: 'tabla' }, el('thead', null, el('tr', null, ['Rango', 'Tier', 'Winrate', 'Presencia', 'Partidas'].map((t, i) => el('th', { class: i >= 2 ? 'num' : '' }, t)))));
+  const tbody = el('tbody');
+  for (const b of D.stats.brackets) { const x = statsDe(h, PREF.ventana, b.clave); tbody.append(el('tr', null, el('td', null, b.nombre), el('td', null, insigniaTier(x && x.tier)), el('td', { class: 'num' }, x ? fmtPct(x.wr) : '—'), el('td', { class: 'num' }, x ? fmtPct(x.pick) : '—'), el('td', { class: 'num' }, x ? fmt(x.partidas) : '—'))); }
+  tb.append(tbody); porRango.append(el('div', { class: 'tabla-env' }, tb)); statsCont.append(porRango);
+  raiz.append(bloque('stats', 'Estadísticas', '', statsCont));
+
+  // Fuentes y vídeos
+  const fCont = el('div');
+  if (g && g.videos && g.videos.length) fCont.append(el('div', { class: 'etiqueta', style: { marginBottom: '6px' } }, 'Vídeos recientes'), el('div', { class: 'videos' }, g.videos.map((v) => el('div', { class: 'video' }, el('a', { href: v.url, target: '_blank', rel: 'noopener' }, v.titulo || v.url), el('div', { class: 'meta' }, [v.canal, v.fecha].filter(Boolean).join(' · ')), v.resumen ? el('div', { class: 'sec pequeno' }, v.resumen) : null))));
+  if (g && g.fuentes && g.fuentes.length) fCont.append(el('div', { class: 'etiqueta', style: { margin: '12px 0 6px' } }, 'Fuentes consultadas'), el('ul', { class: 'fuentes' }, g.fuentes.map((f) => el('li', null, el('a', { href: f.url, target: '_blank', rel: 'noopener' }, f.titulo || f.url), el('span', { class: 'muted' }, [f.tipo, f.fecha].filter(Boolean).map((x) => ' · ' + x).join(''))))));
+  if (g && g.confianza) fCont.append(el('p', { class: 'sec pequeno', style: { marginTop: '12px' } }, el('b', null, 'Confianza de la guía: ' + g.confianza + '. '), g.confianza === 'media' ? 'Hay afirmaciones que no se pudieron confirmar con la API ni con la wiki, o el héroe lleva poco tiempo en el juego.' : 'Objetos, habilidades, counters y sinergias comprobados contra la API y deadlock.wiki.'));
+  fCont.append(el('p', { class: 'muted pequeno', style: { marginTop: '12px' } }, 'Estadísticas: api.deadlock-api.com. Descripciones de habilidades: datos oficiales del cliente del juego en español.'));
+  raiz.append(bloque('fuentes', 'Fuentes', '', fCont));
+  return raiz;
+};
+
+/* ============================================================ OBJETOS */
+RUTAS.objetos = function (param) {
+  const raiz = el('div');
+  const estado = { q: '', ranura: RANURAS[param] ? param : '', tier: '', activo: '', etiqueta: '', orden: 'tier' };
+  raiz.append(cabecera(D.objetos.length + ' objetos del parche actual', 'Objetos', 'Pulsa un objeto para ver sus estadísticas, para qué sirve, cuándo comprarlo y quién lo compra más.'));
+  const etiquetas = new Set(); for (const g of Object.values(D.objGuia || {})) for (const t of g.etiquetas || []) etiquetas.add(t);
+  const q = el('input', { class: 'entrada', type: 'search', placeholder: 'Nombre en español o inglés', oninput: (e) => { estado.q = e.target.value; pintar(); }, 'aria-label': 'Filtrar objetos' });
+  const ctrl = el('div', { class: 'controles' },
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Buscar'), q),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Categoría'), segmento([['', 'Todas'], ['weapon', 'Arma'], ['vitality', 'Vitalidad'], ['spirit', 'Espíritu']], estado.ranura, (v) => { estado.ranura = v; pintar(); }, (v) => RANURAS[v] ? RANURAS[v].clase : '')),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Tier'), segmento([['', 'Todos'], ['1', 'T1 · 800'], ['2', 'T2 · 1.600'], ['3', 'T3 · 3.200'], ['4', 'T4 · 6.400'], ['5', 'Street Brawl']], '', (v) => { estado.tier = v; pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Tipo'), segmento([['', 'Todos'], ['activo', 'Activos'], ['pasivo', 'Pasivos'], ['imbuir', 'Imbuir']], '', (v) => { estado.activo = v; pintar(); })),
+    etiquetas.size ? el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Función'), el('select', { class: 'select', onchange: (e) => { estado.etiqueta = e.target.value; pintar(); } }, el('option', { value: '' }, 'Cualquiera'), [...etiquetas].sort().map((t) => el('option', { value: t }, t.replace(/_/g, ' '))))) : null,
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Orden'), segmento([['tier', 'Tier'], ['nombre', 'Nombre'], ['wr', 'Winrate'], ['pick', 'Más comprados']], 'tier', (v) => { estado.orden = v; pintar(); })),
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Nombres'), selectorNombres()));
+  raiz.append(ctrl);
+  const cuerpo = el('div'); raiz.append(cuerpo);
+  function pintar() {
+    cuerpo.innerHTML = '';
+    let lista = D.objetos.filter((o) => {
+      if (estado.q) { const qq = sinAcentos(estado.q); if (!sinAcentos(o.nombre).includes(qq) && !sinAcentos(o.nombre_es).includes(qq)) return false; }
+      if (estado.ranura && o.ranura !== estado.ranura) return false;
+      if (estado.tier && String(Math.min(o.tier, 5)) !== estado.tier) return false;
+      if (estado.activo === 'activo' && !o.activo) return false;
+      if (estado.activo === 'pasivo' && o.activo) return false;
+      if (estado.activo === 'imbuir' && !o.imbuir) return false;
+      if (estado.etiqueta) { const g = guiaObjeto(o); if (!g || !(g.etiquetas || []).includes(estado.etiqueta)) return false; }
+      return true;
+    });
+    const st = (o) => (D.objStats && D.objStats.objetos[o.id]) || {};
+    lista.sort((a, b) => {
+      if (estado.orden === 'nombre') return nombreO(a).localeCompare(nombreO(b), 'es');
+      if (estado.orden === 'wr') return (st(b).wr || 0) - (st(a).wr || 0);
+      if (estado.orden === 'pick') return (st(b).partidas || 0) - (st(a).partidas || 0);
+      return a.tier - b.tier || a.ranura.localeCompare(b.ranura) || nombreO(a).localeCompare(nombreO(b), 'es');
+    });
+    if (!lista.length) { cuerpo.append(el('div', { class: 'vacio' }, 'Ningún objeto coincide.')); return; }
+    const tile = (o) => { const r = RANURAS[o.ranura] || {}; const s = st(o); const g = guiaObjeto(o); return el('button', { type: 'button', class: 'obj-tile ' + (r.clase || ''), onclick: () => abrirObjeto(o), title: g && g.resumen ? g.resumen : '' }, imgO(o), el('div', { style: { minWidth: 0 } }, el('div', { class: 'nombre' }, nombreO(o)), nombreOAlt(o) ? el('div', { class: 'nombre-es' }, nombreOAlt(o)) : null, el('div', { class: 'sub' }, (o.tier >= 5 ? 'Street Brawl' : fmt(o.coste)) + (o.activo ? ' · activo' : '') + (s.wr ? ' · ' + fmtPct(s.wr, 0) : '')))); };
+    const grupos = estado.orden === 'tier' && !estado.tier ? [1, 2, 3, 4, 5].map((t) => [t, lista.filter((o) => Math.min(o.tier, 5) === t)]).filter((g) => g[1].length) : [[null, lista]];
+    const tienda = estado.orden === 'tier' && !estado.tier && !estado.ranura; // como la tienda del juego: tres columnas por tier
+    for (const [t, objs] of grupos) {
+      if (t) cuerpo.append(el('h3', { style: { margin: '18px 0 8px' } }, t >= 5 ? 'Objetos de Street Brawl' : `Tier ${t} · ${fmtSouls(objs[0].coste)}`, t >= 5 ? el('span', { class: 'muted pequeno', style: { fontFamily: 'var(--f-body)', fontWeight: 400 } }, ' (solo en ese modo; no existen en partida normal ni clasificatoria)') : null));
+      if (tienda) {
+        const cols = el('div', { class: 'tienda' });
+        for (const [k, r] of Object.entries(RANURAS)) { const sub = objs.filter((o) => o.ranura === k); cols.append(el('div', { class: 'tienda-col ' + r.clase }, el('div', { class: 'etiqueta', style: { color: 'var(--c)' } }, r.nombre + ' · ' + sub.length), el('div', { class: 'col', style: { gap: '6px' } }, sub.map(tile)))); }
+        cuerpo.append(cols);
+      } else cuerpo.append(el('div', { class: 'grid-objetos' }, objs.map(tile)));
+    }
+  }
+  pintar();
+  return raiz;
+};
+RUTAS.objeto = function (clase) { const v = RUTAS.objetos(''); const o = objeto(clase); if (o) setTimeout(() => abrirObjeto(o), 0); return v; };
+
+/* ============================================================ EQUIPOS */
+RUTAS.equipos = function () {
+  const raiz = el('div');
+  raiz.append(cabecera('Composiciones y armador', 'Equipos', 'Arma tu equipo y el rival para ver sinergias, counters, parejas de línea y qué le falta a la composición. Abajo, composiciones recomendadas por la comunidad.'));
+  const estado = { nuestro: [], rival: [] };
+  try { Object.assign(estado, JSON.parse(sessionStorage.getItem('td_equipos') || '{}')); } catch (e) { /* nada */ }
+  const guardar = () => { try { sessionStorage.setItem('td_equipos', JSON.stringify(estado)); } catch (e) { /* nada */ } };
+  const armador = el('div', { class: 'armador' }); raiz.append(armador);
+  const analisis = el('div', { class: 'grid-2', style: { marginTop: '16px' } }); raiz.append(analisis);
+  function elegirHeroe(lado) {
+    const cont = el('div', { class: 'grid-heroes', style: { gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))' } });
+    const usados = new Set([...estado.nuestro, ...estado.rival]);
+    for (const h of D.heroes.slice().sort((a, b) => nombreH(a).localeCompare(nombreH(b), 'es'))) {
+      if (usados.has(h.id)) continue;
+      cont.append(el('button', { type: 'button', class: 'tarjeta-heroe', style: { border: 0, padding: 0, cursor: 'pointer' }, onclick: () => { estado[lado].push(h.id); guardar(); cerrarModal(); pintar(); } }, el('img', { src: h.imagen.carta, alt: '', loading: 'lazy' }), el('div', { class: 'velo' }, el('div', { class: 'nombre', style: { fontSize: '1rem' } }, nombreH(h)))));
+    }
+    abrirModal(lado === 'nuestro' ? 'Añadir a tu equipo' : 'Añadir al equipo rival', cont);
+  }
+  function equipoCaja(lado, titulo) {
+    const caja = el('div', { class: 'equipo ' + (lado === 'nuestro' ? 'nuestro' : 'rival') });
+    caja.append(el('div', { class: 'fila entre' }, el('h3', null, titulo), el('button', { class: 'boton mini', type: 'button', onclick: () => { estado[lado] = []; guardar(); pintar(); } }, 'Vaciar')));
+    const slots = el('div', { class: 'slots' });
+    for (let i = 0; i < 6; i++) {
+      const id = estado[lado][i]; const h = id && heroe(id);
+      if (h) slots.append(el('div', { class: 'slot', title: nombreH(h) }, el('img', { src: h.imagen.icono, alt: nombreH(h) }), el('button', { class: 'quitar', type: 'button', 'aria-label': 'Quitar ' + nombreH(h), onclick: () => { estado[lado] = estado[lado].filter((x) => x !== id); guardar(); pintar(); } }, '✕')));
+      else slots.append(el('button', { class: 'slot', type: 'button', 'aria-label': 'Añadir héroe', onclick: () => elegirHeroe(lado) }, el('span', { class: 'mas' }, '+')));
+    }
+    caja.append(slots);
+    caja.append(el('div', { class: 'fila' }, estado[lado].map((id) => { const h = heroe(id); return h ? chipH(h, null, true) : null; })));
+    return caja;
+  }
+  function pintar() {
+    armador.innerHTML = ''; analisis.innerHTML = '';
+    armador.append(equipoCaja('nuestro', 'Tu equipo'), equipoCaja('rival', 'Equipo rival'));
+    const nuestros = estado.nuestro.map(heroe).filter(Boolean); const rivales = estado.rival.map(heroe).filter(Boolean);
+    // Sinergias internas
+    const pares = [];
+    for (let i = 0; i < nuestros.length; i++) for (let j = i + 1; j < nuestros.length; j++) { const p = sinergiaPar(nuestros[i].id, nuestros[j].id); if (p) pares.push({ a: nuestros[i], b: nuestros[j], wr: p.wr, n: p.n }); }
+    pares.sort((x, y) => y.wr - x.wr);
+    const mediaSin = pares.length ? pares.reduce((s2, p) => s2 + p.wr, 0) / pares.length : null;
+    const cajaSin = el('div', { class: 'tarjeta' }, el('h3', null, 'Sinergias de tu equipo'), el('p', { class: 'muted pequeno' }, 'Winrate de cada pareja cuando juega junta (14 días). La media de un equipo normal ronda el 50 %.'));
+    if (mediaSin != null) cajaSin.append(el('div', { class: 'fila', style: { marginBottom: '8px' } }, el('span', { class: 'chip ' + (mediaSin >= 51 ? 'ok' : mediaSin < 49 ? 'mal' : '') }, 'Media de parejas: ' + fmtPct(mediaSin))));
+    cajaSin.append(pares.length ? el('div', { class: 'lista-sinergia' }, pares.map((p) => el('div', { class: 'fila-s' }, el('span', { class: 'fila', style: { gap: '4px' } }, chipH(p.a, null, true), '+', chipH(p.b, null, true)), el('span', { class: 'num', style: { color: p.wr >= 50 ? 'var(--ok)' : 'var(--mal)' } }, fmtPct(p.wr))))) : el('div', { class: 'muted pequeno' }, 'Añade al menos dos héroes.'));
+    analisis.append(cajaSin);
+    // Counters contra el rival
+    const cajaVs = el('div', { class: 'tarjeta' }, el('h3', null, 'Tu equipo contra el rival'), el('p', { class: 'muted pequeno' }, 'Winrate de cada héroe tuyo contra cada rival. Verde: ventaja; rojo: desventaja.'));
+    if (nuestros.length && rivales.length) {
+      const tb = el('table', { class: 'tabla' }); const thead = el('tr', null, el('th', null, ''), rivales.map((r) => el('th', null, el('img', { src: r.imagen.icono, alt: nombreH(r), title: nombreH(r), class: 'icono-heroe', style: { width: '28px', height: '28px' } }))), el('th', { class: 'num' }, 'Media'));
+      tb.append(el('thead', null, thead)); const tbody = el('tbody');
+      for (const n of nuestros) { let suma = 0, k = 0; const celdas = rivales.map((r) => { const c = counterPar(n.id, r.id); if (c) { suma += c.wr; k++; } return el('td', { class: 'num', style: { color: c ? (c.wr >= 51 ? 'var(--ok)' : c.wr <= 49 ? 'var(--mal)' : 'inherit') : 'var(--fg-3)' } }, c ? fmtPct(c.wr, 0) : '—'); }); tbody.append(el('tr', null, el('td', null, chipH(n, null, true)), celdas, el('td', { class: 'num', style: { fontWeight: 600 } }, k ? fmtPct(suma / k, 0) : '—'))); }
+      tb.append(tbody); cajaVs.append(el('div', { class: 'tabla-env' }, tb));
+    } else cajaVs.append(el('div', { class: 'muted pequeno' }, 'Añade héroes en los dos equipos.'));
+    analisis.append(cajaVs);
+    // Chequeo de la composición
+    const cajaChk = el('div', { class: 'tarjeta' }, el('h3', null, 'Qué tiene y qué le falta'));
+    if (nuestros.length) {
+      const arqs = nuestros.map(arquetipoDe); const roles = nuestros.map((h) => sinAcentos(((guia(h) || {}).rol || '') + ' ' + (h.rol || '') + ' ' + (h.etiquetas || []).join(' ')));
+      const tiene = (re) => roles.some((r) => re.test(r));
+      const nArma = arqs.filter((a) => a === 'arma').length, nEsp = arqs.filter((a) => a === 'espiritu').length;
+      const chk = el('div', { class: 'chequeo' });
+      const linea = (ok, txt) => chk.append(el('div', null, el('span', { class: ok ? 'ok' : 'falta' }, ok ? '✔' : '△'), el('span', null, txt)));
+      linea(nArma >= 1 && nEsp >= 1, `Daño mixto: ${nArma} de arma, ${nEsp} de espíritu, ${arqs.length - nArma - nEsp} vitalidad/híbrido`);
+      linea(tiene(/iniciad|tanque|frontal|bruiser|luchador|iniciar|engage/), 'Un iniciador o tanque que abra las peleas');
+      linea(tiene(/cura|sana|soporte|sosten|heal/), 'Curación o sostén para el equipo');
+      linea(tiene(/control|aturd|stun|silenc|ralent|inmovil|cc/), 'Control de masas (aturdimientos, silencios, ralentizaciones)');
+      linea(tiene(/tirador|carry|dps|daño sostenido|arma a distancia/), 'Un carry de daño sostenido para el final');
+      linea(nuestros.length === 6, nuestros.length === 6 ? 'Equipo completo' : `Faltan ${6 - nuestros.length} héroes`);
+      cajaChk.append(chk);
+      // Sugerencias: héroes con mejor sinergia media con el equipo actual
+      if (nuestros.length < 6 && D.sinergias) {
+        const usados = new Set([...estado.nuestro, ...estado.rival]);
+        const cand = D.heroes.filter((h) => !usados.has(h.id)).map((h) => { let s2 = 0, k = 0; for (const n of nuestros) { const p = sinergiaPar(h.id, n.id); if (p && p.n >= 100) { s2 += p.wr; k++; } } for (const r of rivales) { const c = counterPar(h.id, r.id); if (c && c.n >= 100) { s2 += c.wr; k++; } } return { h, media: k ? s2 / k : null, k }; }).filter((x) => x.media != null && x.k >= Math.max(1, Math.floor((nuestros.length + rivales.length) / 2))).sort((a, b) => b.media - a.media).slice(0, 8);
+        if (cand.length) cajaChk.append(el('div', { class: 'etiqueta', style: { margin: '12px 0 6px' } }, 'Quién encaja mejor ahora'), el('div', { class: 'fila' }, cand.map((c) => el('button', { type: 'button', class: 'heroe-chip mini', onclick: () => { estado.nuestro.push(c.h.id); guardar(); pintar(); } }, imgH(c.h, ''), el('span', null, nombreH(c.h)), el('span', { class: 'num' }, fmtPct(c.media, 0))))));
+      }
+    } else cajaChk.append(el('div', { class: 'muted pequeno' }, 'Añade héroes a tu equipo.'));
+    analisis.append(cajaChk);
+    // Parejas de línea sugeridas (solo si hay datos específicos de línea)
+    if (D.sinergias && D.sinergias.parejas_linea && D.sinergias.parejas_linea.length) {
+      const cajaLinea = el('div', { class: 'tarjeta' }, el('h3', null, 'Parejas de línea de tu equipo'), el('p', { class: 'muted pequeno' }, 'Winrate de cada pareja cuando comparte línea. Úsalo para repartir las tres líneas.'));
+      const paresLinea = [];
+      for (let i = 0; i < nuestros.length; i++) for (let j = i + 1; j < nuestros.length; j++) { const p = sinergiaPar(nuestros[i].id, nuestros[j].id, true); if (p) paresLinea.push({ a: nuestros[i], b: nuestros[j], wr: p.wr, n: p.n }); }
+      paresLinea.sort((x, y) => y.wr - x.wr);
+      cajaLinea.append(paresLinea.length ? el('div', { class: 'lista-sinergia' }, paresLinea.slice(0, 8).map((p) => el('div', { class: 'fila-s' }, el('span', { class: 'fila', style: { gap: '4px' } }, chipH(p.a, null, true), '+', chipH(p.b, null, true)), el('span', { class: 'num', style: { color: p.wr >= 50 ? 'var(--ok)' : 'var(--mal)' } }, fmtPct(p.wr))))) : el('div', { class: 'muted pequeno' }, 'Añade al menos dos héroes.'));
+      analisis.append(cajaLinea);
+    }
+  }
+  pintar();
+
+  // Composiciones recomendadas
+  const comps = D.comps;
+  const secComp = el('section', { class: 'seccion', style: { marginTop: '32px' } });
+  secComp.append(el('div', { class: 'seccion-cab' }, el('div', null, el('div', { class: 'pretitulo' }, 'Investigación'), el('h2', null, 'Composiciones recomendadas'), el('p', null, comps && comps.mapa_y_lineas ? comps.mapa_y_lineas : 'Equipos de seis héroes con un plan claro, para que sepas qué hace cada uno y cómo se reparten las líneas.'))));
+  if (comps && comps.composiciones && comps.composiciones.length) {
+    const grid = el('div', { class: 'grid-3' });
+    for (const c of comps.composiciones) {
+      const hs = (c.heroes_ids || c.heroes || []).map(heroe).filter(Boolean);
+      const corto = (t, n = 230) => (t && t.length > n ? t.slice(0, n).replace(/\s+\S*$/, '') + '…' : t);
+      const largo = (c.plan || '').length + (c.por_que || '').length > 420;
+      grid.append(el('div', { class: 'comp-tarjeta' }, el('div', { class: 'fila entre' }, el('h3', null, c.nombre), c.nivel ? el('span', { class: 'chip laton' }, c.nivel) : null), el('div', { class: 'heroes' }, hs.map((h) => el('a', { href: '#heroe-' + h.clase, title: nombreH(h) }, el('img', { src: h.imagen.icono, alt: nombreH(h) })))), el('div', { class: 'fila' }, hs.map((h) => chipH(h, null, true))), c.lineas ? el('p', null, el('b', null, 'Líneas: '), c.lineas) : null,
+        c.plan ? el('p', null, el('b', null, 'Plan: '), largo ? corto(c.plan) : c.plan) : null,
+        largo ? el('details', { class: 'plegable' }, el('summary', null, 'Ver plan completo y por qué funciona'), el('div', { class: 'contenido' }, c.plan ? el('p', { class: 'sec pequeno' }, el('b', null, 'Plan: '), c.plan) : null, c.por_que ? el('p', { class: 'sec pequeno' }, el('b', null, 'Por qué funciona: '), c.por_que) : null)) : (c.por_que ? el('p', null, el('b', null, 'Por qué funciona: '), c.por_que) : null),
+        el('div', { class: 'fila', style: { marginTop: '4px' } }, el('button', { type: 'button', class: 'boton mini', onclick: () => { estado.nuestro = hs.map((h) => h.id).slice(0, 6); estado.rival = estado.rival.filter((id) => !estado.nuestro.includes(id)); guardar(); pintar(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }, 'Cargar en el armador'))));
+    }
+    secComp.append(grid);
+    if (comps.arquetipos && comps.arquetipos.length) { const det = el('details', { class: 'plegable', style: { marginTop: '16px' } }, el('summary', null, 'Arquetipos de composición')); const c2 = el('div', { class: 'contenido grid-2' }); for (const a of comps.arquetipos) c2.append(el('div', null, el('h4', null, a.nombre), el('p', { class: 'sec pequeno' }, a.descripcion), el('div', { class: 'fila' }, (a.heroes_ids || a.heroes || []).map(heroe).filter(Boolean).map((h) => chipH(h, null, true))))); det.append(c2); secComp.append(det); }
+    if (comps.reglas && comps.reglas.length) { const det = el('details', { class: 'plegable', style: { marginTop: '10px' } }, el('summary', null, 'Reglas para armar una composición'), el('div', { class: 'contenido' }, el('ul', { class: 'sec' }, comps.reglas.map((r) => el('li', null, r))))); secComp.append(det); }
+  } else secComp.append(el('div', { class: 'vacio' }, 'Las composiciones recomendadas se cargarán en la próxima actualización.'));
+  raiz.append(secComp);
+
+  // Mejores parejas según datos y según la comunidad
+  if (D.sinergias) {
+    const sec = el('section', { class: 'seccion' });
+    const hayLinea = D.sinergias.parejas_linea && D.sinergias.parejas_linea.length;
+    const fuente = hayLinea ? D.sinergias.parejas_linea : D.sinergias.parejas;
+    sec.append(el('div', { class: 'seccion-cab' }, el('div', null, el('div', { class: 'pretitulo' }, 'Datos de 14 días'), el('h2', null, hayLinea ? 'Mejores parejas de línea' : 'Mejores parejas de equipo'), el('p', null, hayLinea ? 'Parejas con mayor winrate cuando comparten línea (mínimo 300 partidas juntas).' : 'Parejas con mayor winrate cuando juegan en el mismo equipo (mínimo 300 partidas juntas).'))));
+    const top = fuente.filter((p) => p.n >= 300).sort((a, b) => b.wr - a.wr).slice(0, 15);
+    sec.append(el('div', { class: 'lista-sinergia', style: { maxWidth: '640px' } }, top.map((p) => { const a = heroe(p.a), b = heroe(p.b); return a && b ? el('div', { class: 'fila-s' }, el('span', { class: 'fila', style: { gap: '4px' } }, chipH(a, null, true), '+', chipH(b, null, true), el('span', { class: 'muted pequeno' }, fmt(p.n) + ' partidas')), el('span', { class: 'num', style: { color: 'var(--ok)' } }, fmtPct(p.wr))) : null; })));
+    if (comps && comps.duo_lanes && comps.duo_lanes.length) { sec.append(el('h3', { style: { margin: '18px 0 8px' } }, 'Parejas de línea que recomienda la comunidad')); sec.append(el('div', { class: 'grid-2' }, comps.duo_lanes.map((d) => { const hs = (d.heroes_ids || d.heroes || []).map(heroe).filter(Boolean); return el('div', { class: 'tarjeta' }, el('div', { class: 'fila' }, hs.map((h) => chipH(h, null, true))), el('p', { class: 'sec pequeno', style: { margin: '6px 0 0' } }, d.por_que)); }))); }
+    if (comps && comps.solo_lane && comps.solo_lane.length) { sec.append(el('h3', { style: { margin: '18px 0 8px' } }, 'Héroes que ganan su línea por sí mismos'), el('p', { class: 'muted pequeno' }, 'Las tres líneas se juegan 2 contra 2; estos héroes aguantan y ganan la línea aunque su pareja rote o farmee.')); sec.append(el('div', { class: 'grid-2' }, comps.solo_lane.map((d) => { const h = heroe(d.id || d.heroe); return el('div', { class: 'tarjeta' }, h ? chipH(h, null, true) : el('b', null, d.heroe), el('p', { class: 'sec pequeno', style: { margin: '6px 0 0' } }, d.por_que)); }))); }
+    raiz.append(sec);
+  }
+  return raiz;
+};
+
+/* ============================================================ GUÍA */
+RUTAS.guia = function (param) {
+  const raiz = el('div');
+  const pestana = param === 'objetos' ? 'objetos' : 'sistemas';
+  raiz.append(cabecera('Cómo funciona el juego', 'Guía', 'Lo que necesitas entender para decidir una build: cómo funcionan las almas, los niveles, las categorías de objetos y el escalado; y, en la segunda pestaña, qué objetos comprar según tu arquetipo y contra qué.'));
+  raiz.append(el('div', { class: 'tabs' }, el('button', { type: 'button', class: pestana === 'sistemas' ? 'activo' : '', onclick: () => ir('guia') }, 'Sistemas del juego'), el('button', { type: 'button', class: pestana === 'objetos' ? 'activo' : '', onclick: () => ir('guia-objetos') }, 'Itemización: qué comprar y por qué')));
+  const fuente = pestana === 'objetos' ? D.itemizacion : D.sistemas;
+  if (!fuente || !fuente.secciones) { raiz.append(el('div', { class: 'vacio' }, 'Esta guía se cargará en la próxima actualización.')); return raiz; }
+  const cont = el('div', { class: 'guia' });
+  cont.append(el('nav', { class: 'indice', 'aria-label': 'Índice' }, fuente.secciones.map((s) => el('a', { href: '#' + rutaActual, onclick: (e) => { e.preventDefault(); const d = document.getElementById('g-' + s.id); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, s.titulo))));
+  const prosa = el('div', { class: 'prosa' });
+  for (const s of fuente.secciones) prosa.append(el('h2', { id: 'g-' + s.id }, s.titulo), el('div', { html: s.html }));
+  if (fuente.glosario && fuente.glosario.length) { prosa.append(el('h2', { id: 'g-glosario' }, 'Glosario')); const dl = el('dl', { class: 'glosario' }); for (const g of fuente.glosario) dl.append(el('dt', null, g.termino), el('dd', null, g.definicion)); prosa.append(dl); }
+  // Nombres de objetos y héroes en negrita abren su ficha
+  prosa.addEventListener('click', (e) => {
+    const b = e.target.closest('strong, b'); if (!b) return;
+    const txt = b.textContent.replace(/\s*\(.*$/, '').trim();
+    const o = objeto(txt); if (o) { abrirObjeto(o); return; }
+    const h = heroe(txt); if (h) ir('heroe-' + h.clase);
+  });
+  for (const b of $$('strong', prosa)) { const txt = b.textContent.replace(/\s*\(.*$/, '').trim(); if (objeto(txt) || heroe(txt)) { b.style.cursor = 'pointer'; b.style.textDecoration = 'underline dotted'; b.title = 'Ver ficha'; } }
+  cont.append(prosa); raiz.append(cont);
+  // Niveles de poder (tabla desde datos)
+  const h0 = D.heroes[0];
+  if (pestana === 'sistemas' && h0 && h0.niveles) { const det = el('details', { class: 'plegable', style: { marginTop: '20px' } }, el('summary', null, 'Tabla de niveles de poder: almas ganadas (sin las 600 iniciales) y qué dan')); const tb = el('table', { class: 'tabla' }, el('thead', null, el('tr', null, ['Nivel', 'Almas ganadas', 'En el marcador', 'Da'].map((t) => el('th', null, t))))); const tbody = el('tbody'); for (const n of h0.niveles) tbody.append(el('tr', null, el('td', { class: 'num' }, n.nivel), el('td', { class: 'num' }, fmt(n.souls)), el('td', { class: 'num' }, fmt(n.souls + 600)), el('td', null, n.da === 'ap' ? 'Punto de habilidad' : n.da === 'desbloqueo' ? 'Desbloqueo de habilidad' : 'Mejora de atributos'))); tb.append(tbody); det.append(el('div', { class: 'contenido tabla-env' }, tb)); raiz.append(det); }
+  return raiz;
+};
+
+/** Un texto largo con varias fechas ("16-09-2026: …") → una entrada por fecha */
+function partirCambios(texto) {
+  const partes = String(texto || '').split(/\s+(?=\d{2}-\d{2}(?:-\d{4})?:\s)/).map((s) => s.trim()).filter(Boolean);
+  return partes.length > 1 ? partes : [String(texto || '')];
+}
+
+/* ============================================================ NOVEDADES */
+RUTAS.novedades = function () {
+  const raiz = el('div');
+  raiz.append(cabecera('Parches y actualizaciones', 'Novedades', 'Qué ha cambiado en el juego y cuándo se actualizaron los datos de esta web.'));
+  const v = D.version || {};
+  const grid = el('div', { class: 'grid-2' });
+  grid.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Estado de los datos'), el('div', { class: 'stats-base' }, [['Datos descargados', fmtFecha(v.generado)], ['Versión del cliente', v.cliente || '—'], ['Héroes', v.heroes || D.heroes.length], ['Objetos', v.objetos || D.objetos.length], ['Guías de héroe', Object.keys(D.guias || {}).length + ' de ' + D.heroes.length], ['Fichas de objetos', Object.keys(D.objGuia || {}).length + ' de ' + D.objetos.length]].map(([k, val]) => el('div', { class: 'stat' }, el('span', null, k), el('b', null, val)))),
+    el('p', { class: 'muted pequeno', style: { marginTop: '10px' } }, 'Las estadísticas (winrates, objetos populares, sinergias, builds) salen de partidas reales a través de api.deadlock-api.com y se regeneran con el script de actualización. Las guías escritas se revisan tras cada parche importante.')));
+  if (D.meta && D.meta.cambios_recientes) grid.append(el('div', { class: 'tarjeta' }, el('h3', null, 'Lo que se comenta en la comunidad'), el('ul', { class: 'sec', style: { paddingLeft: '1.1em', margin: 0 } }, partirCambios(D.meta.cambios_recientes).map((t) => el('li', { style: { marginBottom: '6px' } }, t))), D.meta.fecha ? el('p', { class: 'muted pequeno', style: { marginTop: '8px' } }, 'Recogido el ' + fmtFecha(D.meta.fecha) + ' de tier lists, Reddit y vídeos recientes.') : null));
+  raiz.append(grid);
+  const p = D.parche;
+  const sec = el('section', { class: 'seccion', style: { marginTop: '24px' } }, el('h2', { style: { marginBottom: '12px' } }, 'Últimos parches'));
+  if (p && p.parches && p.parches.length) {
+    for (const x of p.parches) sec.append(el('div', { class: 'parche' }, el('div', { class: 'fecha' }, fmtFecha(x.fecha)), el('b', null, x.titulo || 'Actualización'), x.resumen && x.resumen.length ? el('ul', null, (Array.isArray(x.resumen) ? x.resumen : [x.resumen]).map((r) => el('li', null, r))) : null, x.url ? el('div', null, el('a', { href: x.url, target: '_blank', rel: 'noopener', class: 'pequeno' }, 'Notas completas')) : null));
+    if (p.cadencia) sec.append(el('p', { class: 'sec pequeno' }, p.cadencia));
+  } else sec.append(el('div', { class: 'vacio' }, 'El resumen de parches se cargará en la próxima actualización.'));
+  raiz.append(sec);
+  const fuentes = (p && p.fuentes) || [];
+  const sec2 = el('section', { class: 'seccion' }, el('h2', { style: { marginBottom: '12px' } }, 'Dónde seguir las novedades'));
+  const lista = el('ul', { class: 'fuentes' }, [
+    ['Notas de parche oficiales (foro de Valve)', 'https://forums.playdeadlock.com/forums/changelog.10/'],
+    ['Noticias en Steam', 'https://store.steampowered.com/news/app/1422450'],
+    ['Wiki de la comunidad (en inglés)', 'https://deadlock.wiki'],
+    ['API de datos usada por esta web', 'https://api.deadlock-api.com/docs'],
+    ...fuentes.map((f) => [f.nombre + (f.que ? ' · ' + f.que : ''), f.url]),
+  ].map(([t, u]) => el('li', null, el('a', { href: u, target: '_blank', rel: 'noopener' }, t))));
+  sec2.append(lista); raiz.append(sec2);
+  return raiz;
+};
+
+
+'use strict';
+/* ============================================================
+   Creador de builds: lista de builds guardadas y editor
+   ============================================================ */
+
+function buildNueva(h) {
+  return { id: uid(), nombre: 'Build de ' + nombreH(h), heroe: h.id, creado: Date.now(), actualizado: Date.now(), notas: '', desbloqueo: [], orden: [], categorias: [
+    { nombre: 'Inicio de línea', objetos: [] }, { nombre: 'Medio de partida', objetos: [] }, { nombre: 'Final', objetos: [] }, { nombre: 'Situacionales', objetos: [] }] };
+}
+function buildDesdeGuia(h) {
+  const b = buildNueva(h); const g = guia(h);
+  if (g && g.build) {
+    const conv = (arr, campo) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: e[campo] || '' } : null; }).filter(Boolean);
+    b.categorias = [{ nombre: 'Inicio de línea', objetos: conv(g.build.inicio, 'por_que') }, { nombre: 'Medio de partida', objetos: conv(g.build.medio, 'por_que') }, { nombre: 'Final', objetos: conv(g.build.final, 'por_que') }, { nombre: 'Situacionales', objetos: conv(g.build.situacionales, 'cuando') }];
+    b.nombre = nombreH(h) + ' · ' + (ARQUETIPOS[g.arquetipo_principal] || ARQUETIPOS.hibrido).nombre.toLowerCase();
+    b.notas = g.arquetipo_por_que || '';
+  } else if (h.populares) {
+    const conv = (arr) => arr.slice(0, 5).map((p) => { const o = objeto(p.clase); return o ? { clase: o.clase, nota: `Lo compra el ${fmtPct(p.pick, 0)} de los jugadores, con ${fmtPct(p.wr)} de victorias.` } : null; }).filter(Boolean);
+    b.categorias = [{ nombre: 'Inicio de línea', objetos: conv(h.populares.inicio) }, { nombre: 'Medio de partida', objetos: conv(h.populares.medio) }, { nombre: 'Final', objetos: conv(h.populares.final) }, { nombre: 'Situacionales', objetos: [] }];
+    b.notas = 'Build generada a partir de los objetos más comprados y con mejor winrate según los datos de la API.';
+  }
+  // Orden de habilidades desde la guía (misma lógica que la ficha) o desde la build comunitaria más jugada
+  const abs = D.habilidades[h.id] || [];
+  if (g && g.orden_habilidades && g.orden_habilidades.orden) {
+    const idxDeNombre = (n) => { const i = abs.findIndex((a) => sinAcentos(a.nombre) === sinAcentos(n) || sinAcentos(a.nombre_en) === sinAcentos(n) || sinAcentos(n).includes(sinAcentos(a.nombre_en)) || sinAcentos(n).includes(sinAcentos(a.nombre))); return i >= 0 ? i + 1 : null; };
+    const ordenIdx = g.orden_habilidades.orden.map(idxDeNombre).filter(Boolean);
+    if (ordenIdx.length) {
+      const desbloqueo = ordenIdx.slice(); for (let i = 1; i <= 4; i++) if (!desbloqueo.includes(i)) desbloqueo.push(i);
+      const primera = idxDeNombre(g.orden_habilidades.primera_maxima || '') || ordenIdx[0];
+      const orden = []; for (const x of desbloqueo) orden.push({ h: x, pa: 1 }); orden.push({ h: primera, pa: 2 }, { h: primera, pa: 5 }); for (const x of desbloqueo.filter((x) => x !== primera)) orden.push({ h: x, pa: 2 }, { h: x, pa: 5 });
+      b.desbloqueo = desbloqueo; b.orden = orden;
+    }
+  }
+  if (!b.orden.length) { const com = ((D.builds && D.builds.heroes && D.builds.heroes[h.id]) || []).find((x) => x.orden && x.orden.length >= 6); if (com) { b.desbloqueo = com.desbloqueo.slice(); b.orden = com.orden.slice(); } }
+  return b;
+}
+function buildDesdeComunidad(h, com) {
+  const b = buildNueva(h);
+  b.nombre = com.nombre || 'Build de la comunidad'; b.notas = (com.descripcion || '').slice(0, 400);
+  b.categorias = com.categorias.filter((c) => c.objetos.length).map((c) => ({ nombre: c.nombre || 'Objetos', objetos: c.objetos.map((x) => ({ clase: x.clase, nota: x.nota || '' })) }));
+  if (!b.categorias.length) b.categorias = buildNueva(h).categorias;
+  b.desbloqueo = (com.desbloqueo || []).slice(); b.orden = (com.orden || []).slice();
+  return b;
+}
+function textoBuild(b) {
+  const h = heroe(b.heroe); const abs = D.habilidades[h.id] || [];
+  const lineas = [`${b.nombre} — ${nombreH(h)} (Taller de Deadlock)`, ''];
+  if (b.notas) lineas.push(b.notas, '');
+  const acciones = nivelesDeSecuencia(h, secuenciaDesdeBuild(b));
+  if (acciones.length) { lineas.push('Orden de habilidades:'); lineas.push(acciones.map((a) => { const ab = abs[a.h - 1]; return (a.tipo === 'desbloqueo' ? '[' + (ab ? (PREF.nombres === 'es' ? ab.nombre : ab.nombre_en || ab.nombre) : a.h) + ']' : (ab ? (PREF.nombres === 'es' ? ab.nombre : ab.nombre_en || ab.nombre) : a.h) + ' ' + a.tier) + (a.nivel ? ' (N' + a.nivel + ')' : ''); }).join(' → ')); lineas.push(''); }
+  for (const c of b.categorias) { if (!c.objetos.length) continue; lineas.push(c.nombre + ':'); for (const x of c.objetos) { const o = objeto(x.clase); if (o) lineas.push(`  - ${nombreO(o)} (${fmt(o.coste)})${x.nota ? ' — ' + x.nota : ''}`); } lineas.push(''); }
+  return lineas.join('\n');
+}
+
+/* ---------- Lista de builds ---------- */
+RUTAS.builds = function () {
+  const raiz = el('div');
+  raiz.append(cabecera('Tus builds', 'Creador de builds', 'Diseña el orden de habilidades y los objetos por fase de cualquier héroe, anota por qué compras cada cosa y guarda tus builds. Puedes partir de la build recomendada de cada héroe o de una build de la comunidad.'));
+  const acciones = el('div', { class: 'fila', style: { marginBottom: '16px' } },
+    el('button', { class: 'boton primario', type: 'button', onclick: () => elegirHeroeParaBuild() }, '＋ Nueva build'),
+    el('button', { class: 'boton', type: 'button', onclick: importarBuild }, 'Importar código'),
+    el('span', { class: 'muted pequeno' }, ALMACEN.coleccion ? 'Guardado en tu cuenta (sincronizado) y en este navegador.' : 'Las builds se guardan en este navegador. Exporta el código para llevarlas a otro dispositivo.'));
+  raiz.append(acciones);
+  const lista = el('div', { class: 'builds-lista' }); raiz.append(lista);
+  function pintar() {
+    lista.innerHTML = '';
+    if (!ALMACEN.lista.length) { lista.append(el('div', { class: 'vacio', style: { gridColumn: '1 / -1' } }, 'Todavía no tienes builds. Crea una nueva o abre la build recomendada desde la ficha de un héroe.')); return; }
+    for (const b of ALMACEN.lista.slice().sort((x, y) => (y.actualizado || 0) - (x.actualizado || 0))) {
+      const h = heroe(b.heroe); if (!h) continue;
+      const total = b.categorias.reduce((s, c) => s + c.objetos.reduce((s2, x) => s2 + ((objeto(x.clase) || {}).coste || 0), 0), 0);
+      lista.append(el('div', { class: 'build-tarjeta', role: 'link', tabindex: '0', onclick: () => ir('build-' + b.id), onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ir('build-' + b.id); } } }, el('img', { src: h.imagen.icono, alt: '' }), el('div', { class: 'info' }, el('b', null, b.nombre), el('small', null, nombreH(h) + ' · ' + b.categorias.reduce((s, c) => s + c.objetos.length, 0) + ' objetos · ' + fmtSouls(total) + ' · ' + fmtFecha(b.actualizado)))));
+    }
+  }
+  pintar();
+  const alCambiar = () => pintar();
+  document.addEventListener('builds-cambiadas', alCambiar);
+  const quitar = () => { document.removeEventListener('builds-cambiadas', alCambiar); window.removeEventListener('hashchange', quitar); };
+  window.addEventListener('hashchange', quitar);
+  return raiz;
+};
+function elegirHeroeParaBuild() {
+  const cont = el('div', { class: 'grid-heroes', style: { gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))' } });
+  for (const h of D.heroes.slice().sort((a, b) => nombreH(a).localeCompare(nombreH(b), 'es'))) cont.append(el('a', { class: 'tarjeta-heroe', href: '#build-nueva-' + h.clase, onclick: cerrarModal }, el('img', { src: h.imagen.carta, alt: '', loading: 'lazy' }), el('div', { class: 'velo' }, el('div', { class: 'nombre', style: { fontSize: '1rem' } }, nombreH(h)))));
+  abrirModal('Elige un héroe', cont);
+}
+function importarBuild() {
+  const ta = el('textarea', { class: 'entrada', placeholder: 'Pega aquí el código de la build', style: { minHeight: '100px' } });
+  const btn = el('button', { class: 'boton primario', type: 'button', onclick: async () => { const b = decodificarBuild(ta.value); if (!b || !heroe(b.heroe)) { toast('El código no es válido'); return; } b.id = uid(); b.nombre = (b.nombre || 'Build importada'); await ALMACEN.guardar(b); cerrarModal(); ir('build-' + b.id); } }, 'Importar');
+  abrirModal('Importar build', el('div', { class: 'col' }, ta, el('div', null, btn)));
+}
+
+/* ---------- Editor ---------- */
+RUTAS.build = function (param) {
+  // param: "nueva-<clase>" | "com-<heroId>-<buildId>" | "<id>"
+  let b = null; let h = null; let guardada = false;
+  if (param.startsWith('nueva-')) { h = heroe(param.slice(6)); if (h) b = buildDesdeGuia(h); }
+  else if (param.startsWith('com-')) { const [, hid, bid] = param.split('-'); h = heroe(hid); const com = h && D.builds && D.builds.heroes[h.id] && D.builds.heroes[h.id].find((x) => String(x.id) === bid); if (h && com) b = buildDesdeComunidad(h, com); }
+  else { b = ALMACEN.obtener(param); if (b) { b = JSON.parse(JSON.stringify(b)); h = heroe(b.heroe); guardada = true; } }
+  if (!b || !h) return el('div', { class: 'vacio' }, 'No se encontró la build. ', el('a', { href: '#builds' }, 'Ver tus builds'));
+  const abs = D.habilidades[h.id] || [];
+  const raiz = el('div');
+  let sucio = false;
+
+  // Cabecera
+  const titulo = el('input', { class: 'titulo', value: b.nombre, 'aria-label': 'Nombre de la build', oninput: (e) => { b.nombre = e.target.value; sucio = true; } });
+  const cab = el('div', { class: 'builder-cab' }, el('img', { src: h.imagen.icono, alt: '' }), el('div', null, el('div', { class: 'pretitulo' }, 'Build de ' + nombreH(h) + ' · ', el('a', { href: '#heroe-' + h.clase }, 'ver ficha')), titulo));
+  raiz.append(cab);
+  const barra = el('div', { class: 'fila', style: { marginBottom: '16px' } });
+  const btnGuardar = el('button', { class: 'boton primario', type: 'button', onclick: async () => { await ALMACEN.guardar(b); guardada = true; sucio = false; toast('Build guardada'); if (rutaActual !== 'build-' + b.id) ir('build-' + b.id); } }, 'Guardar');
+  barra.append(...[btnGuardar,
+    el('button', { class: 'boton', type: 'button', onclick: () => copiar(textoBuild(b)) }, 'Copiar como texto'),
+    el('button', { class: 'boton', type: 'button', onclick: () => { const c = codificarBuild(b); abrirModal('Código de la build', el('div', { class: 'col' }, el('p', { class: 'sec pequeno' }, 'Guarda o comparte este código. Se importa desde la pestaña Builds.'), el('div', { class: 'codigo' }, c), el('div', null, el('button', { class: 'boton primario', type: 'button', onclick: () => copiar(c) }, 'Copiar código')))); } }, 'Exportar código'),
+    el('button', { class: 'boton', type: 'button', onclick: async () => { const copia = JSON.parse(JSON.stringify(b)); copia.id = uid(); copia.nombre = b.nombre + ' (copia)'; await ALMACEN.guardar(copia); ir('build-' + copia.id); } }, 'Duplicar'),
+    guardada ? el('button', { class: 'boton peligro', type: 'button', onclick: () => { const c = abrirModal('Borrar build', el('div', { class: 'col' }, el('p', null, '¿Borrar «' + b.nombre + '»? No se puede deshacer.'), el('div', { class: 'fila' }, el('button', { class: 'boton peligro', type: 'button', onclick: async () => { await ALMACEN.borrar(b.id); cerrarModal(); ir('builds'); } }, 'Sí, borrar'), el('button', { class: 'boton', type: 'button', onclick: cerrarModal }, 'Cancelar')))); } }, 'Borrar') : null,
+    el('a', { class: 'boton', href: '#builds' }, 'Todas las builds')].filter(Boolean));
+  raiz.append(barra);
+  const notas = el('textarea', { class: 'entrada', placeholder: 'Notas generales: cómo se juega esta build, cuándo elegirla…', oninput: (e) => { b.notas = e.target.value; sucio = true; } }, b.notas || '');
+  raiz.append(el('div', { style: { marginBottom: '16px' } }, el('div', { class: 'etiqueta' }, 'Notas'), notas));
+
+  const cuerpo = el('div', { class: 'builder' }); raiz.append(cuerpo);
+
+  // ----- Columna izquierda: habilidades -----
+  const colHab = el('div', { class: 'col' });
+  colHab.append(el('h2', null, 'Orden de habilidades'), el('p', { class: 'sec pequeno' }, 'Pulsa una habilidad para desbloquearla o subirle el siguiente nivel (cuestan 1, 2 y 5 puntos). Las 4 habilidades se desbloquean en los niveles de poder 1, 3, 5 y 8; los puntos llegan con el resto de niveles. N = nivel de poder en el que suele ser posible.'));
+  const tablero = el('div', { class: 'pa-tablero' }); colHab.append(tablero);
+  function estadoHab() {
+    const acciones = secuenciaDesdeBuild(b); const des = new Set(); const tiers = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    for (const a of acciones) { if (a.tipo === 'desbloqueo') des.add(a.h); else tiers[a.h]++; }
+    return { acciones, des, tiers };
+  }
+  function pintarHab() {
+    tablero.innerHTML = '';
+    const { acciones, des, tiers } = estadoHab();
+    const botones = el('div', { class: 'pa-botones' });
+    abs.forEach((a, i) => {
+      const idx = i + 1; const t = tiers[idx]; const desb = des.has(idx);
+      const texto = !desb ? 'Desbloquear' : t >= 3 ? 'Máximo' : `Nivel ${t + 1} · ${[1, 2, 5][t]} PA`;
+      botones.append(el('button', { type: 'button', class: 'pa-boton' + (!desb ? ' pendiente' : ''), disabled: desb && t >= 3, title: (PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre), onclick: () => {
+        if (!desb) { b.desbloqueo.push(idx); } else { b.orden.push({ h: idx, pa: [1, 2, 5][t] }); }
+        sucio = true; pintarHab();
+      } }, el('img', { src: a.imagen, alt: '' }), el('span', { class: 'nombre' }, PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre), el('span', { class: 'nivel' }, texto)));
+    });
+    tablero.append(botones);
+    const sec = el('div', { class: 'secuencia' });
+    const calc = nivelesDeSecuencia(h, acciones);
+    calc.forEach((ac, i) => {
+      const ab = abs[ac.h - 1];
+      const paso = pasoOrden(ab, ac.tipo === 'desbloqueo' ? 'Desbl.' : 'Nivel ' + ac.tier, ac.nivel ? 'N' + ac.nivel : '', ac.tipo === 'desbloqueo' ? 'desbloqueo' : '');
+      paso.title += ' — pulsa para quitar este paso y los posteriores';
+      paso.addEventListener('click', () => {
+        // Reconstruir desde las acciones anteriores a i
+        const previas = acciones.slice(0, i); b.desbloqueo = previas.filter((x) => x.tipo === 'desbloqueo').map((x) => x.h); const tiersN = {}; b.orden = previas.filter((x) => x.tipo === 'mejora').map((x) => { tiersN[x.h] = (tiersN[x.h] || 0) + 1; return { h: x.h, pa: [1, 2, 5][tiersN[x.h] - 1] }; }); sucio = true; pintarHab();
+      });
+      sec.append(paso);
+    });
+    if (!calc.length) sec.append(el('span', { class: 'muted pequeno' }, 'Sin pasos todavía. Empieza desbloqueando una habilidad.'));
+    tablero.append(sec);
+    const paUsados = calc.filter((x) => x.tipo === 'mejora').reduce((s, x) => s + x.pa, 0);
+    const ultimo = calc.length ? calc[calc.length - 1] : null;
+    tablero.append(el('div', { class: 'resumen-pa' }, el('span', null, 'Puntos usados: ', el('b', { class: 'num' }, paUsados + ' / 32')), el('span', null, 'Desbloqueadas: ', el('b', { class: 'num' }, des.size + ' / 4')), ultimo && ultimo.nivel ? el('span', null, 'Último paso en el nivel ', el('b', { class: 'num' }, ultimo.nivel), ' (', fmtSouls(ultimo.souls), ')') : null));
+    tablero.append(el('div', { class: 'fila' },
+      el('button', { class: 'boton mini', type: 'button', onclick: () => { // Autocompletar: desbloquear las que faltan, 1 punto en cada una, luego maxear en orden de desbloqueo
+        const { des: d2, tiers: t2 } = estadoHab(); for (let i = 1; i <= 4; i++) if (!d2.has(i)) b.desbloqueo.push(i); const ordenDes = secuenciaDesdeBuild(b).filter((x) => x.tipo === 'desbloqueo').map((x) => x.h); for (const i of ordenDes) if (t2[i] < 1) { b.orden.push({ h: i, pa: 1 }); t2[i] = 1; } for (const i of ordenDes) while (t2[i] < 3) { b.orden.push({ h: i, pa: [1, 2, 5][t2[i]] }); t2[i]++; } sucio = true; pintarHab(); } }, 'Autocompletar'),
+      el('button', { class: 'boton mini', type: 'button', onclick: () => { b.desbloqueo = []; b.orden = []; sucio = true; pintarHab(); } }, 'Vaciar'),
+      guia(h) && guia(h).orden_habilidades ? el('button', { class: 'boton mini', type: 'button', onclick: () => { const g2 = buildDesdeGuia(h); b.desbloqueo = g2.desbloqueo; b.orden = g2.orden; sucio = true; pintarHab(); } }, 'Usar el orden de la guía') : null));
+    if (guia(h) && guia(h).orden_habilidades && guia(h).orden_habilidades.detalle) tablero.append(el('div', { class: 'nota-caja' }, el('b', null, 'Guía: '), guia(h).orden_habilidades.detalle));
+  }
+  pintarHab();
+  cuerpo.append(colHab);
+
+  // ----- Columna derecha: objetos por categoría -----
+  const colObj = el('div', { class: 'col' });
+  colObj.append(el('h2', null, 'Objetos por fase'), el('p', { class: 'sec pequeno' }, 'Añade objetos a cada fase y escribe por qué los compras. Puedes renombrar, reordenar y crear categorías (por ejemplo «Contra curación»).'));
+  const resumen = el('div', { class: 'ranuras' }); colObj.append(resumen);
+  const cats = el('div', { class: 'categorias' }); colObj.append(cats);
+  colObj.append(el('div', { class: 'fila' }, el('button', { class: 'boton', type: 'button', onclick: () => { b.categorias.push({ nombre: 'Nueva categoría', objetos: [] }); sucio = true; pintarObj(); } }, '＋ Añadir categoría')));
+  function pintarResumen() {
+    resumen.innerHTML = '';
+    const cuenta = { weapon: 0, vitality: 0, spirit: 0 }; const coste = { weapon: 0, vitality: 0, spirit: 0 };
+    for (const c of b.categorias) if (!/situacional|opcional|contra|optional/i.test(c.nombre)) for (const x of c.objetos) { const o = objeto(x.clase); if (o) { cuenta[o.ranura]++; coste[o.ranura] += o.coste; } }
+    // Bonus pasivo por almas invertidas en cada categoría (cost_bonuses del cliente; idéntico para todos los héroes)
+    const BONUS = { weapon: [[800, 9], [1600, 12], [2400, 15], [3200, 18], [4800, 46], [6400, 54], [8000, 62], [11200, 74], [16000, 86], [22400, 100], [28800, 115]], vitality: [[800, 9], [1600, 12], [2400, 15], [3200, 20], [4800, 38], [6400, 42], [8000, 46], [11200, 50], [16000, 54], [22400, 60], [28800, 66]], spirit: [[800, 7], [1600, 11], [2400, 15], [3200, 19], [4800, 38], [6400, 45], [8000, 52], [11200, 59], [16000, 66], [22400, 75], [28800, 100]] };
+    const bonusDe = (k, souls) => { let b = 0; for (const [s, v] of BONUS[k]) if (souls >= s) b = v; return b; };
+    const textoBonus = { weapon: (v) => '+' + v + ' % daño de arma', vitality: (v) => '+' + v + ' % de vida', spirit: (v) => '+' + v + ' de espíritu' };
+    for (const [k, r] of Object.entries(RANURAS)) resumen.append(el('div', { class: 'ranura ' + r.clase, title: 'Bonus pasivo por almas invertidas en ' + r.nombre.toLowerCase() + ' (el gran salto está en 4.800)' }, el('b', null, cuenta[k]), el('span', null, r.nombre + ' · ' + fmtSouls(coste[k]) + ' · ' + textoBonus[k](bonusDe(k, coste[k])))));
+    const total = coste.weapon + coste.vitality + coste.spirit; const nObj = cuenta.weapon + cuenta.vitality + cuenta.spirit;
+    let activos = 0; for (const c of b.categorias) if (!/situacional|opcional|contra|optional/i.test(c.nombre)) for (const x of c.objetos) { const o = objeto(x.clase); if (o && o.activo) activos++; }
+    const nivel = (h.niveles || []).filter((n) => n.souls <= total).pop();
+    resumen.append(el('div', { class: 'ranura', style: { gridColumn: '1 / -1', background: 'var(--bg-3)' } }, el('span', null, 'Build principal (sin situacionales): ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem' } }, fmtSouls(total)), nivel ? ' · equivale aproximadamente al nivel ' + nivel.nivel : '', ' · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: nObj > 12 ? 'var(--mal)' : 'inherit' } }, nObj + '/12'), ' ranuras (9 base + 1 por cada Walker enemigo destruido) · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: activos > 4 ? 'var(--mal)' : 'inherit' } }, activos + '/4'), ' activos')));
+    if (nObj > 12 || activos > 4) resumen.append(el('div', { class: 'aviso-caja', style: { gridColumn: '1 / -1' } }, nObj > 12 ? 'Hay más de 12 objetos en la build principal: en el juego no caben todos a la vez, marca cuáles se venden. ' : '', activos > 4 ? 'Hay más de 4 objetos activos: solo se pueden equipar 4.' : ''));
+  }
+  function pintarObj() {
+    cats.innerHTML = ''; pintarResumen();
+    b.categorias.forEach((c, ci) => {
+      const caja = el('div', { class: 'categoria' });
+      const nombre = el('input', { value: c.nombre, 'aria-label': 'Nombre de la categoría', oninput: (e) => { c.nombre = e.target.value; sucio = true; pintarResumen(); } });
+      const total = c.objetos.reduce((s, x) => s + ((objeto(x.clase) || {}).coste || 0), 0);
+      caja.append(el('div', { class: 'cab' }, nombre, el('span', { class: 'total' }, fmtSouls(total)),
+        el('button', { class: 'boton mini', type: 'button', title: 'Subir', disabled: ci === 0, onclick: () => { [b.categorias[ci - 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci - 1]]; sucio = true; pintarObj(); } }, '▲'),
+        el('button', { class: 'boton mini', type: 'button', title: 'Bajar', disabled: ci === b.categorias.length - 1, onclick: () => { [b.categorias[ci + 1], b.categorias[ci]] = [b.categorias[ci], b.categorias[ci + 1]]; sucio = true; pintarObj(); } }, '▼'),
+        el('button', { class: 'boton mini peligro', type: 'button', title: 'Quitar categoría', onclick: () => { b.categorias.splice(ci, 1); sucio = true; pintarObj(); } }, '✕')));
+      const items = el('div', { class: 'items' });
+      c.objetos.forEach((x, xi) => {
+        const o = objeto(x.clase); if (!o) return;
+        const r = RANURAS[o.ranura] || {};
+        items.append(el('div', { class: 'cat-item ' + (r.clase || '') }, imgO(o, { onclick: () => abrirObjeto(o) }), el('div', { style: { minWidth: 0 } }, el('div', { class: 'nombre' }, nombreO(o), el('span', { class: 'coste' }, fmt(o.coste) + ' · ' + (r.nombre || '') + ' T' + o.tier)), el('textarea', { placeholder: '¿Por qué este objeto?', rows: 1, oninput: (e) => { x.nota = e.target.value; sucio = true; } }, x.nota || '')),
+          el('div', { class: 'acciones' }, el('button', { type: 'button', title: 'Subir', disabled: xi === 0, onclick: () => { [c.objetos[xi - 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi - 1]]; sucio = true; pintarObj(); } }, '▲'), el('button', { type: 'button', title: 'Bajar', disabled: xi === c.objetos.length - 1, onclick: () => { [c.objetos[xi + 1], c.objetos[xi]] = [c.objetos[xi], c.objetos[xi + 1]]; sucio = true; pintarObj(); } }, '▼'), el('button', { type: 'button', title: 'Quitar', onclick: () => { c.objetos.splice(xi, 1); sucio = true; pintarObj(); } }, '✕'))));
+      });
+      caja.append(items);
+      caja.append(el('div', { class: 'fila', style: { marginTop: '8px' } }, el('button', { class: 'boton mini', type: 'button', onclick: () => abrirCatalogo((o) => { c.objetos.push({ clase: o.clase, nota: '' }); sucio = true; pintarObj(); }) }, '＋ Añadir objeto')));
+      cats.append(caja);
+    });
+  }
+  pintarObj();
+  cuerpo.append(colObj);
+
+  // Aviso al salir con cambios sin guardar
+  const aviso = (e) => { if (sucio) { e.preventDefault(); e.returnValue = ''; } };
+  window.addEventListener('beforeunload', aviso);
+  const salir = () => { window.removeEventListener('beforeunload', aviso); window.removeEventListener('hashchange', salir); };
+  window.addEventListener('hashchange', salir);
+  return raiz;
+};
+
+/** Catálogo de objetos para añadir a una build */
+function abrirCatalogo(alElegir) {
+  const estado = { q: '', ranura: '', tier: '' };
+  const lista = el('div', { class: 'lista' });
+  const q = el('input', { class: 'entrada', type: 'search', placeholder: 'Buscar objeto', oninput: (e) => { estado.q = e.target.value; pintar(); }, 'aria-label': 'Buscar objeto' });
+  const cont = el('div', { class: 'catalogo' }, q, el('div', { class: 'fila' }, segmento([['', 'Todas'], ['weapon', 'Arma'], ['vitality', 'Vitalidad'], ['spirit', 'Espíritu']], '', (v) => { estado.ranura = v; pintar(); }, (v) => RANURAS[v] ? RANURAS[v].clase : ''), segmento([['', 'Todos'], ['1', 'T1'], ['2', 'T2'], ['3', 'T3'], ['4', 'T4']], '', (v) => { estado.tier = v; pintar(); })), lista);
+  function pintar() {
+    lista.innerHTML = '';
+    const qq = sinAcentos(estado.q);
+    for (const o of D.objetos) {
+      if (o.tier >= 5) continue;
+      if (qq && !sinAcentos(o.nombre).includes(qq) && !sinAcentos(o.nombre_es).includes(qq)) continue;
+      if (estado.ranura && o.ranura !== estado.ranura) continue;
+      if (estado.tier && String(o.tier) !== estado.tier) continue;
+      const r = RANURAS[o.ranura] || {};
+      lista.append(el('button', { type: 'button', class: 'obj-tile ' + (r.clase || ''), onclick: () => { alElegir(o); cerrarModal(); } }, imgO(o), el('div', { style: { minWidth: 0 } }, el('div', { class: 'nombre' }, nombreO(o)), el('div', { class: 'sub' }, 'T' + o.tier + ' · ' + fmt(o.coste)))));
+    }
+    if (!lista.children.length) lista.append(el('div', { class: 'muted' }, 'Sin resultados'));
+  }
+  pintar();
+  abrirModal('Añadir objeto', cont, { alto: '70vh' });
+  setTimeout(() => q.focus(), 50);
+}
+
+</script>
+
+</body>
+</html>

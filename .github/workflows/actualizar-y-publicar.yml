@@ -1,0 +1,73 @@
+# Actualiza los datos de Deadlock cada día y publica la web en GitHub Pages.
+# - Cada día a las 09:00 UTC (05:00 en República Dominicana) y cuando lo lances a mano:
+#   descarga los datos del parche, regenera la web y guarda los cambios en el repositorio.
+# - En cada push a main: solo regenera y publica (sin descargar datos).
+name: Actualizar y publicar
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Descargar datos del parche actual
+        if: github.event_name != 'push'
+        run: node scripts/actualizar.js
+
+      - name: Generar la web
+        run: node scripts/construir.js
+
+      - name: Guardar los datos nuevos en el repositorio
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data assets index.html artefacto.html
+          if git diff --cached --quiet; then
+            echo "Sin cambios en los datos"
+          else
+            git commit -m "Datos del $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Preparar la carpeta publicada
+        run: |
+          mkdir -p _site
+          cp -r index.html data assets .nojekyll _site/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  publicar:
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4

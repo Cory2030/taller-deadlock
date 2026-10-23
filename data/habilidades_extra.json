@@ -1,0 +1,33 @@
+{
+  "nota": "Descripciones escritas a mano para las habilidades que la API entrega sin texto (ni en español ni en inglés). La web solo las usa cuando la descripción oficial viene vacía. Fuentes: valores del cliente (API) y guías verificadas del 23-10-2026.",
+  "habilidades": {
+    "citadel_ability_shiv_killing_blow": {
+      "resumen": "Salta hasta un héroe con poca vida y lo remata",
+      "descripcion": "Definitiva. Shiv salta hasta un héroe enemigo y le inflige 200 de daño. Si el objetivo está por debajo del umbral de vida (18 % de su vida máxima, 28 % con la mejora de nivel 3) muere al instante. Con la furia al máximo el golpe es más fuerte. Úsala para rematar, no para abrir la pelea."
+    },
+    "ability_vampirebat_steallife": {
+      "resumen": "Zarpazo que castiga la vida que falta y cura al matar",
+      "descripcion": "Golpe con el paraguas que inflige 60 de {{SpiritDamage|daño espiritual}} más un 6 % de la vida que le falta al héroe alcanzado, y suma carga a Love Bites. Cada objetivo que muere por el golpe te cura 25 de vida, así que rematar tropas con él es la forma más segura de farmear y sostenerte en línea."
+    },
+    "ability_drifter_hunger": {
+      "resumen": "Más daño contra enemigos aislados",
+      "descripcion": "Pasiva. Todo tu daño contra enemigos aislados (sin aliados a menos de 20 m) aumenta un 15 %. Cada héroe aislado que muere cerca de ti te da un +3 % de daño de arma permanente. Con la mejora de nivel 2, esas muertes también te curan parte de la vida que te falta y te devuelven aguante."
+    },
+    "ability_necro_gravestone": {
+      "resumen": "Una lápida que levanta muertos para empujar y pelear",
+      "descripcion": "Definitiva. Coloca una lápida que durante 16-26 s genera Ghouls. Los Ghouls avanzan hacia los enemigos y explotan, infligiendo 115 de daño y {{Slow|ralentizando}} un 64 %. También reducen la resistencia a espíritu de las estructuras, por eso sirve tanto para empujar y tomar Caminantes como para cerrar una zona en una pelea."
+    },
+    "ability_werewolf_kickflip": {
+      "resumen": "Patada para pegarte al objetivo",
+      "descripcion": "Patada con impulso hacia el enemigo que lo golpea con 25 de daño adicional y lo empuja. Sirve para pegarte a un objetivo y encadenar los tres disparos de Slam Fire. Guárdala para entrar cuando puedas rematar; si la usas para huir te quedas sin forma de alcanzar al rival."
+    },
+    "ability_chessmaster_queen": {
+      "resumen": "La reina cae sobre la zona y encierra a los enemigos",
+      "descripcion": "Definitiva (210 s de recarga, 170 s con la mejora de nivel 1). La reina cae sobre la zona marcada e inflige 120 de daño, encerrando a los enemigos en un jaque final que abre las peleas de equipo. La mejora de nivel 2 añade la ejecución de enemigos con poca vida."
+    },
+    "ability_artist_homingbrush": {
+      "resumen": "Balas de tinta que salpican y aceleran tus habilidades",
+      "descripcion": "Pasiva del arma. Las balas de tinta salpican e infligen 35 de {{SpiritDamage|daño espiritual}} en área, y cada impacto reduce 1,5 s el tiempo de recarga de tus habilidades. La tinta deja trazos de hasta 25 m que duran 20 s. Estas balas no pueden hacer disparos a la cabeza ni activan objetos de arma, por eso Violet se construye a espíritu."
+    }
+  }
+}

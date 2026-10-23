@@ -1,0 +1,61 @@
+{
+  "generado": "2026-10-23",
+  "cadencia": "Valve ya no publica un parche grande cada dos semanas: hay actualizaciones grandes muy espaciadas (Old Gods, New Blood el 22-01-2026; City Never Sleeps el 29-09-2026), Gameplay Updates intermedias y Minor Updates de balance cada 1-4 semanas, además de hotfixes sin notas que Yoshi anuncia en Discord y que deadlock.wiki recoge en uno o dos días. Esta web se regenera con los datos del día y revisa las guías tras cada parche que toque a un héroe.",
+  "parches": [
+    {
+      "fecha": "2026-10-21",
+      "titulo": "Hotfix sin notas (Discord de Yoshi)",
+      "resumen": [
+        "Warden: Last Stand da inmunidad al miedo de Lurking Terrors (Nurse Harrow).",
+        "Arreglos de The Doorman (Doorway) y de Solomon."
+      ],
+      "url": "https://deadlock.wiki/Update:October_21,_2026"
+    },
+    {
+      "fecha": "2026-10-14",
+      "titulo": "Minor Update 14-10-2026 (parche actual)",
+      "resumen": [
+        "Radiant Regeneration: escalado de espíritu 0,04 → 0,035.",
+        "Baba (nerf): −7 % de resistencia a balas base; Threadsap termina si Baba muere y pasa a 28 s de recarga; Granny Long Legs 32 s de recarga y menos impulso; Baba's Brew barrera 90, escalado 0,7, recarga 27 s (pasa a T2).",
+        "Deadman Danny (buff grande): 730 de vida, 3,25 de regeneración, daño de bala 15/48; Chimera Mk1 y Strix Salvo escalan más y recargan antes; Close the Deal +90 y +75 % de daño a objetivos con menos de la mitad de vida; Rocket Jumping pasa a daño espiritual y 5 % de autodaño."
+      ],
+      "url": "https://store.steampowered.com/news/app/1422450/view/1846651706676198"
+    },
+    {
+      "fecha": "2026-10-05",
+      "titulo": "Minor Update 05-10-2026",
+      "resumen": [
+        "Rat King (nerf a la definitiva): Rule, Ratannia! pasa a 160 s de recarga, 15 % de reducción de daño (25 % con T3), radio 20 m y la velocidad extra ya no escala con espíritu; Scrap Grenade 70 de daño; Rat Swarm 24 s.",
+        "Sinclair (nerf): regeneración 1, arma 16,5 de daño con caída 20-60 m, Vexing Bolt la mitad de daño a objetivos, Rabbit Hex 6 m, Audience Participation copia 9 s con +60 % de recarga.",
+        "Arreglo de las tropas que caminaban demasiado despacio."
+      ],
+      "url": "https://store.steampowered.com/news/app/1422450/view/1845383656394833"
+    },
+    {
+      "fecha": "2026-09-29",
+      "titulo": "City Never Sleeps (actualización grande) y seis héroes nuevos",
+      "resumen": [
+        "Seis héroes elegidos por votación, lanzados dos por semana: Rat King (02-10), Baba (06-10), Solomon (09-10), Deadman Danny (13-10), Violet (16-10) y Nurse Harrow (20-10).",
+        "Rework visual completo del mapa y de los neutrales, que pasan a llamarse Haunts; nuevos respiraderos de vapor (invisibilidad y regeneración), cajas duras (golpe pesado), Healing Snacks y contenedores de mejoras.",
+        "Armor Piercing Rounds pasa a llamarse Armor Piercer. Los objetos corruptos y The Broker se retiraron del modo normal el 02-10.",
+        "Tienda rediseñada, feed de eventos nuevo, opciones de accesibilidad y HUD para 21:9; los puntos de habilidad se devuelven con clic derecho."
+      ],
+      "url": "https://store.steampowered.com/news/app/1422450/view/1844751498235383"
+    },
+    {
+      "fecha": "2026-09-16",
+      "titulo": "Minor Update 16-09-2026 (balance amplio)",
+      "resumen": [
+        "Remontada: resistencias de la Grieta para el equipo que va perdiendo (10 % + 1 %/min, tope 40 %), menos almas de remontada en general y el 70 % del extra de los ricos pasa a los dos más pobres; Guardián 1.375 y Caminante 3.675 almas; todas las ralentizaciones −20 %.",
+        "Objetos: Shadow Weave se construye desde Sprint Boots y Veil Walker deja de hacerlo; Spiritual Overflow, Golden Goose Egg, Mercurial Magnum y Restorative Locket nerfeados; Leech, Lifestrike, Fortitude, Diviner's Kevlar y Focus Lens buffeados.",
+        "Héroes: nerfs a Celeste, Warden, Viscous, Wraith, Lash, Paradox, Vyper e Ivy; buffs a Silver, Shiv, Paige, Lady Geist, Holliday, Haze, Yamato, Kelvin, Graves, Venator y Abrams."
+      ],
+      "url": "https://store.steampowered.com/news/app/1422450/view/1844115010490072"
+    }
+  ],
+  "fuentes": [
+    { "nombre": "deadlock.wiki/Updates", "url": "https://deadlock.wiki/Updates", "que": "todas las actualizaciones, incluidas las que no tienen notas oficiales" },
+    { "nombre": "API de noticias de Steam", "url": "https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid=1422450&count=20&maxlength=0&format=json&feeds=steam_community_announcements", "que": "texto completo de cada post oficial, en JSON" },
+    { "nombre": "Lista de parches en la API comunitaria", "url": "https://api.deadlock-api.com/v1/patches", "que": "réplica del changelog del foro" }
+  ]
+}

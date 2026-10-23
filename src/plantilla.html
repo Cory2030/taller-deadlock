@@ -1,0 +1,52 @@
+<title>Taller de Deadlock</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Tier list, builds, composiciones de equipo y guías de héroes de Deadlock en español, con datos del parche actual.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/*__CSS__*/
+</style>
+
+<header class="cabecera" id="cabecera">
+  <div class="cabecera-interior">
+    <a class="marca" href="#tier" data-ruta="tier" aria-label="Taller de Deadlock, inicio">
+      <span class="marca-sello" aria-hidden="true">TD</span>
+      <span class="marca-texto"><span class="marca-nombre">Taller de Deadlock</span><span class="marca-sub">Guía en español · parche <span id="marca-parche">__GENERADO__</span></span></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Secciones">
+      <a href="#tier" data-ruta="tier">Tier list</a>
+      <a href="#heroes" data-ruta="heroes">Héroes</a>
+      <a href="#builds" data-ruta="builds">Builds</a>
+      <a href="#objetos" data-ruta="objetos">Objetos</a>
+      <a href="#equipos" data-ruta="equipos">Equipos</a>
+      <a href="#guia" data-ruta="guia">Guía</a>
+      <a href="#novedades" data-ruta="novedades">Novedades</a>
+    </nav>
+    <div class="cabecera-acciones">
+      <label class="buscador" for="buscar-global">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="buscar-global" type="search" placeholder="Buscar héroe u objeto" autocomplete="off" aria-label="Buscar héroe u objeto">
+      </label>
+      <div class="buscador-resultados" id="buscar-resultados" hidden></div>
+    </div>
+  </div>
+</header>
+
+<main id="vista" class="vista" aria-live="polite">
+  <div class="cargando" id="cargando"><div class="cargando-sello">TD</div><p>Cargando datos del parche…</p></div>
+</main>
+
+<footer class="pie">
+  <div class="pie-interior">
+    <p><strong>Taller de Deadlock</strong> es una guía no oficial hecha por aficionados. Deadlock es una marca de Valve Corporation.</p>
+    <p>Datos del juego y estadísticas: <a href="https://api.deadlock-api.com" target="_blank" rel="noopener">deadlock-api.com</a> (parche <span id="pie-parche">__GENERADO__</span>). Guías elaboradas a partir de deadlock.wiki, Steam, Reddit, YouTube y sitios de estadísticas; las fuentes aparecen en cada ficha.</p>
+  </div>
+</footer>
+
+<div id="capa-modal" class="capa-modal" hidden></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script>
+/*__JS__*/
+</script>
