@@ -55,6 +55,7 @@ jobs:
         run: |
           mkdir -p _site
           cp -r index.html data assets .nojekyll _site/
+          rm -f _site/data/datos.js
 
       - uses: actions/configure-pages@v5
 

@@ -4,3 +4,5 @@ _site/
 *.log
 .DS_Store
 Thumbs.db
+# Generado por scripts/construir.js para abrir la web con doble clic
+data/datos.js

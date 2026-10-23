@@ -308,7 +308,35 @@ function montarBusqueda() {
 }
 
 /* ---------- Carga de datos ---------- */
+/* Al abrir index.html con doble clic (file://) el navegador bloquea fetch() de archivos locales:
+   en ese caso los datos vienen de data/datos.js, que scripts/construir.js genera junto a la web. */
+let promesaDatosLocales = null;
+// construir.js sustituye __GENERADO__ por la fecha de los datos con los que se generó esta página.
+const GENERADO_PAGINA = '__GENERADO__';
+/** Con doble clic: avisa si data/datos.js es más viejo que la página (p. ej. tras un git pull sin regenerar) */
+function avisarDatosLocalesViejos() {
+  if (location.protocol !== 'file:' || !window.__DATOS__ || !/^\d{4}-\d{2}-\d{2}$/.test(GENERADO_PAGINA)) return;
+  const fechaDatos = String(((window.__DATOS__['data/version.json'] || {}).generado) || '').slice(0, 10);
+  if (fechaDatos && fechaDatos < GENERADO_PAGINA) toast('Los datos de esta copia son del ' + fmtFecha(fechaDatos) + '. Ábrela con el acceso «Taller de Deadlock» para traer los de hoy.', 10000);
+}
+function cargarDatosLocales() {
+  if (window.__DATOS__) return Promise.resolve(true);
+  if (!promesaDatosLocales) promesaDatosLocales = new Promise((resolver) => {
+    const s = document.createElement('script');
+    s.src = 'data/datos.js';
+    s.onload = () => resolver(!!window.__DATOS__);
+    s.onerror = () => resolver(false);
+    (document.head || document.documentElement).appendChild(s);
+  });
+  return promesaDatosLocales;
+}
 async function cargarJSON(ruta, opcional) {
+  if (location.protocol === 'file:') {
+    await cargarDatosLocales();
+    if (window.__DATOS__ && Object.prototype.hasOwnProperty.call(window.__DATOS__, ruta)) return window.__DATOS__[ruta];
+    if (opcional) return null;
+    throw new Error(ruta + ': no está en data/datos.js. Abre la web con «Abrir Taller de Deadlock.bat» o ejecuta «node scripts/construir.js» en la carpeta del proyecto.');
+  }
   try { const r = await fetch(ruta, { cache: 'no-cache' }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } catch (e) { if (opcional) return null; throw new Error(ruta + ': ' + e.message); }
 }
 async function cargarDatos() {
@@ -327,7 +355,7 @@ async function cargarDatos() {
   for (const h of heroes) { IDX.heroPorId[h.id] = h; IDX.heroPorClase[h.clase] = h; IDX.heroPorNombre[sinAcentos(h.nombre)] = h; IDX.heroPorNombre[sinAcentos(h.nombre_en)] = h; }
   for (const o of objetos) { IDX.objPorClase[o.clase] = o; IDX.objPorId[o.id] = o; IDX.objPorNombre[sinAcentos(o.nombre)] = o; IDX.objPorNombre[sinAcentos(o.nombre_es)] = o; }
   const fecha = version && version.generado ? fmtFecha(version.generado) : '';
-  for (const id of ['marca-parche', 'pie-parche']) { const e = document.getElementById(id); if (e && fecha) e.textContent = fecha; }
+  for (const id of ['marca-parche', 'pie-parche']) { const e = document.getElementById(id); if (e && fecha) e.textContent = 'datos del ' + fecha; }
 }
 
 /* ---------- Estadísticas en vivo ----------
@@ -365,12 +393,12 @@ function calcularBracket(filas) {
 function pintarIndicadorVivo() {
   const txt = VIVO.estado === 'vivo' && VIVO.hora
     ? 'estadísticas en vivo · ' + new Date(VIVO.hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
-    : (D.version && D.version.generado ? fmtFecha(D.version.generado) : '');
+    : (D.version && D.version.generado ? 'datos del ' + fmtFecha(D.version.generado) : '');
   const e = document.getElementById('marca-parche'); if (e && txt) e.textContent = txt;
   const p = document.getElementById('pie-parche'); if (p && txt) p.textContent = txt;
 }
 async function refrescarEnVivo() {
-  if (window.claude || location.protocol === 'file:' || !D.stats || !D.stats.brackets) return; // en claude.ai la API está bloqueada
+  if (window.claude || !D.stats || !D.stats.brackets) return; // en claude.ai la API está bloqueada; con doble clic (file://) sí funciona
   try {
     const cache = JSON.parse(localStorage.getItem('td_vivo') || 'null');
     if (cache && Date.now() - cache.hora < VIVO_CACHE_MIN * 60000 && cache.datos) {
@@ -403,12 +431,14 @@ async function refrescarEnVivo() {
 
 async function iniciar() {
   try { await cargarDatos(); } catch (e) {
-    $('#vista').innerHTML = ''; $('#vista').append(el('div', { class: 'vacio' }, el('p', null, 'No se pudieron cargar los datos del parche.'), el('p', { class: 'muted pequeno' }, String(e.message))));
+    $('#vista').innerHTML = ''; $('#vista').append(el('div', { class: 'vacio' }, el('p', null, 'No se pudieron cargar los datos del parche.'), el('p', { class: 'muted pequeno' }, String(e.message)),
+      el('p', { class: 'pequeno' }, 'También puedes verla en ', el('a', { href: 'https://cory2030.github.io/taller-deadlock/', target: '_blank', rel: 'noopener' }, 'cory2030.github.io/taller-deadlock'), '.')));
     return;
   }
   ALMACEN.cargarLocal();
   montarBusqueda();
   render();
+  avisarDatosLocalesViejos();
   ALMACEN.conectar();
   // Estadísticas en vivo: al llegar, se repinta solo si el lector está en una vista de listas y no tiene nada abierto
   refrescarEnVivo().then((cambio) => {

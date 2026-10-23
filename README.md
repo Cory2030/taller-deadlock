@@ -102,13 +102,22 @@ Cloudflare. En ese caso borra el trabajo `publicar` del archivo de la tarea.
 La versión de claude.ai (`artefacto.html`) sigue siendo una foto de los datos: allí la API
 está bloqueada y la capa en vivo no se activa.
 
-## Probar en local
+## Abrirla en local
+
+- **Acceso del escritorio «Taller de Deadlock»** (o doble clic en `Abrir Taller de Deadlock.bat`):
+  trae de GitHub los datos que la tarea diaria publicó, regenera la web y abre `index.html`.
+- **Doble clic en `index.html`** también funciona: `scripts/construir.js` genera `data/datos.js`
+  con todos los datos, porque el navegador bloquea la lectura de los `.json` en archivos locales.
+  Ese archivo no se sube a GitHub; si falta, ejecuta `node scripts/construir.js`.
+- **Con servidor local** (como en internet):
 
 ```bash
 node scripts/servir.js
 ```
 
 y abrir <http://localhost:8765>.
+
+En los tres casos la tier list se recalcula con las estadísticas en vivo de la API si hay internet.
 
 ## Fuentes
 

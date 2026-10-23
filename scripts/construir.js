@@ -38,3 +38,17 @@ const completo = [
 ].join('\n');
 fs.writeFileSync(path.join(RAIZ, 'index.html'), completo);
 console.log(`artefacto.html (${Math.round(salida.length / 1024)} KB) e index.html (${Math.round(completo.length / 1024)} KB) generados`);
+
+// data/datos.js: los mismos JSON de data/ dentro de un script. Al abrir index.html con doble clic
+// (file://) el navegador bloquea fetch() de archivos locales, pero sí carga un <script> de la carpeta.
+// No se sube al repositorio ni a GitHub Pages (ver .gitignore y la tarea de GitHub).
+const DATA = path.join(RAIZ, 'data');
+if (fs.existsSync(DATA)) {
+  const datos = {};
+  for (const f of fs.readdirSync(DATA).filter((n) => n.endsWith('.json')).sort()) {
+    try { datos['data/' + f] = JSON.parse(fs.readFileSync(path.join(DATA, f), 'utf8')); } catch (e) { console.warn('  JSON inválido, no se incluye:', f, e.message); }
+  }
+  const js = '/* Generado por scripts/construir.js. No editar: se regenera con cada build. */\nwindow.__DATOS__ = ' + JSON.stringify(datos) + ';\n';
+  fs.writeFileSync(path.join(DATA, 'datos.js'), js);
+  console.log(`data/datos.js (${Object.keys(datos).length} archivos, ${Math.round(js.length / 1024)} KB) generado para abrir la web con doble clic`);
+}

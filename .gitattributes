@@ -1,0 +1,3 @@
+# Los .bat necesitan finales de linea de Windows para que cmd los lea bien
+*.bat text eol=crlf
+*.ico binary
