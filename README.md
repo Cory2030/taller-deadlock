@@ -86,6 +86,10 @@ gh api -X POST repos/{owner}/taller-deadlock/pages -f build_type=workflow
 gh workflow run actualizar-y-publicar.yml
 ```
 
+Publicada en https://cory2030.github.io/taller-deadlock/ (repositorio
+https://github.com/Cory2030/taller-deadlock). Como la tarea diaria hace commits en `main`,
+ejecuta `git pull` antes de cambiar nada en local.
+
 La web queda en `https://<tu-usuario>.github.io/taller-deadlock/` a los 3-6 minutos. El
 repositorio tiene que ser público para usar GitHub Pages gratis. Los commits diarios mantienen
 viva la tarea programada (GitHub la pausa tras 60 días sin actividad).
