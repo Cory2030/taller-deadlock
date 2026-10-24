@@ -14,7 +14,9 @@ const leer = (n) => fs.readFileSync(path.join(SRC, n), 'utf8');
 
 const plantilla = leer('plantilla.html');
 const css = leer('estilos.css');
-const js = [leer('app.js'), leer('vistas.js'), leer('fases.js'), leer('builder.js')].join('\n\n');
+const ARCHIVOS_JS = ['app.js', 'vistas.js', 'fases.js', 'builder.js', 'perfil.js'];
+for (const f of ARCHIVOS_JS) if (!fs.existsSync(path.join(SRC, f))) throw new Error('Falta src/' + f + ' (¿se te olvidó añadirlo a git?)');
+const js = ARCHIVOS_JS.map(leer).join('\n\n');
 if (/<\/script>/i.test(js)) throw new Error('El JS contiene "</script>": rómpelo con "<\\/script>"');
 
 let version = {};
@@ -33,17 +35,22 @@ const salida = plantilla
   .replace('/*__CSS__*/', () => css)
   .replace('/*__JS__*/', () => js)
   .replace(/__GENERADO__/g, () => (version.generado || '').slice(0, 10))
-  .replace(/__HUELLA_DATOS__/g, () => huella);
+  .replace(/__HUELLA_DATOS__/g, () => huella)
+  .replace(/__HAY_PERFIL__/g, () => (fs.existsSync(path.join(RAIZ, 'data', 'perfil.json')) ? 'si' : 'no'));
 
 // artefacto.html: fragmento para publicar como Artifact (la plataforma añade doctype, head y body)
 fs.writeFileSync(path.join(RAIZ, 'artefacto.html'), salida);
 // index.html: documento completo para servir en cualquier hosting o en local
+const corteCabeza = salida.indexOf('<header');
+const cabeza = corteCabeza > 0 ? salida.slice(0, corteCabeza).replace(/\n<meta name="claude:viewport-fit-sides"[^>]*>/, '') : '';
+const cuerpoHtml = corteCabeza > 0 ? salida.slice(corteCabeza) : salida.replace(/\n<meta name="claude:viewport-fit-sides"[^>]*>/, '');
 const completo = [
   '<!doctype html>', '<html lang="es">', '<head>', '<meta charset="utf-8">',
   '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
   '<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>',
+  cabeza.trim(),
   '</head>', '<body>',
-  salida.replace(/\n<meta name="claude:viewport-fit-sides"[^>]*>/, ''),
+  cuerpoHtml,
   '</body>', '</html>', '',
 ].join('\n');
 fs.writeFileSync(path.join(RAIZ, 'index.html'), completo);

@@ -32,7 +32,10 @@ function barraWr(wr) {
 RUTAS.tier = function () {
   const raiz = el('div');
   const v = D.stats;
-  const bracketOpc = (v.brackets || []).map((b) => [b.clave, b.nombre]);
+  // Etiquetas cortas con los nombres de rango del juego (el nombre largo va en el texto de la tabla)
+  const CORTO = { todos: 'Todos', principiante: 'Initiate–Acolyte', medio: 'Sentinel–Emissary', oracle: 'Oracle+', phantom: 'Phantom+', ascendant: 'Ascendant+' };
+  const bracketOpc = (v.brackets || []).map((b) => [b.clave, CORTO[b.clave] || b.nombre]);
+  if (!(v.brackets || []).some((b) => b.clave === PREF.bracket)) PREF.bracket = 'todos';
   const ventanaOpc = (v.ventanas || []).map((w) => [w.clave, w.nombre]);
   const ctrl = el('div', { class: 'controles' },
     el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, 'Fuente'), segmento([['datos', 'Datos de partidas'], ['comunidad', 'Comunidad y pros']], PREF.fuenteTier, (x) => { PREF.fuenteTier = x; guardarPref(); pintar(); })),

@@ -20,9 +20,12 @@ function buildDesdeGuia(h) {
     for (const fase of f.fases) {
       const info = FASES[fase.fase] || { nombre: fase.fase };
       const tn = partirTitulo(fase.titulo_categoria_juego || info.nombre, false), ts = partirTitulo(fase.titulo_situacionales_juego || info.nombre, true);
-      b.categorias.push({ nombre: tn.nombre, descripcion: tn.desc || fase.objetivo || '', objetos: conv(fase.nucleo), opcional: false });
-      if ((fase.situacionales || []).length) b.categorias.push({ nombre: ts.nombre, descripcion: ts.desc, objetos: conv(fase.situacionales), opcional: true });
+      b.categorias.push({ nombre: tn.nombre, descripcion: tn.desc || fase.objetivo || '', objetos: conv(fase.nucleo), opcional: false, fase: fase.fase });
+      if ((fase.situacionales || []).length) b.categorias.push({ nombre: ts.nombre, descripcion: ts.desc, objetos: conv(fase.situacionales), opcional: true, fase: fase.fase });
     }
+    // Un situacional que ya está en el núcleo de otra fase no se repite
+    const enNucleo = new Set(b.categorias.filter((c) => !c.opcional).flatMap((c) => c.objetos.map((x) => x.clase)));
+    for (const c of b.categorias) if (c.opcional) c.objetos = c.objetos.filter((x) => !enNucleo.has(x.clase));
     b.nombre = f.titulo_build_juego || nombreH(h) + ' · por fases';
     b.notas = f.descripcion_build_juego || (g && g.arquetipo_por_que) || '';
   } else if (g && g.build) {
@@ -113,9 +116,10 @@ function importarBuild() {
 
 /* ---------- Editor ---------- */
 RUTAS.build = function (param) {
-  // param: "nueva-<clase>" | "com-<heroId>-<buildId>" | "<id>"
+  // param: "nueva-<clase>" | "perfil-<clase>" | "com-<heroId>-<buildId>" | "<id>"
   let b = null; let h = null; let guardada = false;
   if (param.startsWith('nueva-')) { h = heroe(param.slice(6)); if (h) b = buildDesdeGuia(h); }
+  else if (param.startsWith('perfil-')) { h = heroe(param.slice(7)); if (h) b = buildConAjustes(h, ajustesPerfil(h)); }
   else if (param.startsWith('com-')) { const [, hid, bid] = param.split('-'); h = heroe(hid); const com = h && D.builds && D.builds.heroes[h.id] && D.builds.heroes[h.id].find((x) => String(x.id) === bid); if (h && com) b = buildDesdeComunidad(h, com); }
   else { b = ALMACEN.obtener(param); if (b) { b = JSON.parse(JSON.stringify(b)); h = heroe(b.heroe); guardada = true; } }
   if (!b || !h) return el('div', { class: 'vacio' }, 'No se encontró la build. ', el('a', { href: '#builds' }, 'Ver tus builds'));
@@ -125,7 +129,7 @@ RUTAS.build = function (param) {
 
   // Cabecera
   const titulo = el('input', { class: 'titulo', value: b.nombre, 'aria-label': 'Nombre de la build', oninput: (e) => { b.nombre = e.target.value; sucio = true; } });
-  const cab = el('div', { class: 'builder-cab' }, el('img', { src: h.imagen.icono, alt: '' }), el('div', null, el('div', { class: 'pretitulo' }, 'Build de ' + nombreH(h) + ' · ', el('a', { href: '#heroe-' + h.clase }, 'ver ficha')), titulo));
+  const cab = el('div', { class: 'builder-cab' }, el('img', { src: h.imagen.icono, alt: '' }), el('div', null, el('div', { class: 'pretitulo' }, 'Build de ' + nombreH(h) + ' · ', el('a', { href: '#heroe-' + h.clase }, 'ver ficha'), param.startsWith('perfil-') ? [' · ', el('a', { href: '#perfil' }, '← Mi perfil')] : null), titulo));
   raiz.append(cab);
   const barra = el('div', { class: 'fila', style: { marginBottom: '16px' } });
   const btnGuardar = el('button', { class: 'boton primario', type: 'button', onclick: async () => { await ALMACEN.guardar(b); guardada = true; sucio = false; toast('Build guardada'); if (rutaActual !== 'build-' + b.id) ir('build-' + b.id); } }, 'Guardar');
@@ -270,6 +274,10 @@ RUTAS.build = function (param) {
   window.addEventListener('beforeunload', aviso);
   const salir = () => { window.removeEventListener('beforeunload', aviso); window.removeEventListener('hashchange', salir); };
   window.addEventListener('hashchange', salir);
+  // Las notas crecen con su texto (los navegadores sin field-sizing: content)
+  const ajustarAlto = (t) => { if (t.scrollHeight > t.clientHeight + 2) t.style.height = Math.min(t.scrollHeight + 2, 400) + 'px'; };
+  raiz.addEventListener('input', (e) => { if (e.target.tagName === 'TEXTAREA') ajustarAlto(e.target); });
+  requestAnimationFrame(() => raiz.querySelectorAll('textarea').forEach(ajustarAlto));
   return raiz;
 };
 

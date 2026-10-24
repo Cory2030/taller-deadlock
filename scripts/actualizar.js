@@ -24,7 +24,9 @@ const DIA = 86400;
 
 const BRACKETS = [
   { clave: 'todos', nombre: 'Todos los rangos', min: null },
-  // badge = tier × 10 + subrango: Oracle I = 81, Phantom I = 91, Ascendant I = 101
+  // badge = tier × 10 + subrango: Initiate I = 11, Acolyte VI = 36, Sentinel I = 41, Emissary VI = 76, Oracle I = 81, Phantom I = 91, Ascendant I = 101
+  { clave: 'principiante', nombre: 'Principiante (Initiate a Acolyte)', min: 1, max: 36 },
+  { clave: 'medio', nombre: 'Medio (Sentinel a Emissary)', min: 41, max: 76 },
   { clave: 'oracle', nombre: 'Oracle o superior', min: 81 },
   { clave: 'phantom', nombre: 'Phantom o superior', min: 91 },
   { clave: 'ascendant', nombre: 'Ascendant y Eternus', min: 101 },
@@ -293,6 +295,7 @@ async function main() {
     for (const b of BRACKETS) {
       const q = new URLSearchParams({ min_unix_timestamp: String(AHORA - v.dias * DIA) });
       if (b.min) q.set('min_average_badge', String(b.min));
+      if (b.max) q.set('max_average_badge', String(b.max));
       const filas = await getJSON(`${API}/v1/analytics/hero-stats?${q}`);
       const total = filas.reduce((s, r) => s + r.matches, 0);
       const partidas = Math.round(total / 12);

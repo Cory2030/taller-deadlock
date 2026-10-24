@@ -3,7 +3,7 @@
    Taller de Deadlock — núcleo: datos, utilidades, router, almacén
    ============================================================ */
 
-const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null, compras: null, fases: {}, mapa: null };
+const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null, compras: null, fases: {}, mapa: null, perfil: null };
 const IDX = { heroPorId: {}, heroPorClase: {}, heroPorNombre: {}, objPorClase: {}, objPorId: {}, objPorNombre: {} };
 const PREF = (() => {
   let p = { nombres: 'en', ventana: '7d', bracket: 'todos', fuenteTier: 'datos' };
@@ -353,20 +353,53 @@ function render() {
   // Si la sección necesita datos que aún no han llegado, se espera a ellos (solo a esos) y se vuelve a pintar
   const necesita = datosDeRuta(token);
   if (!hayDatos(necesita)) {
-    const activaN = { heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base;
+    const activaN = token.startsWith('build-perfil-') ? 'perfil' : ({ heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base);
     $$('#nav a').forEach((a) => a.classList.toggle('activo', a.dataset.ruta === activaN));
     raiz.append(el('div', { class: 'vacio cargando' }, 'Cargando…'));
     asegurarDatos(necesita).then(() => { if (rutaActual === token) render(); });
     return;
   }
   try { const out = vista(param, token); if (out) raiz.append(out); } catch (e) { console.error(e); raiz.append(el('div', { class: 'vacio' }, 'No se pudo mostrar esta sección. ', el('a', { href: '#tier' }, 'Volver al inicio'))); }
-  const activa = { heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base;
+  const activa = token.startsWith('build-perfil-') ? 'perfil' : ({ heroe: 'heroes', build: 'builds', objeto: 'objetos' }[base] || base);
   $$('#nav a').forEach((a) => a.classList.toggle('activo', a.dataset.ruta === activa));
   const navActivo = $('#nav a.activo'); if (navActivo && navActivo.scrollIntoView) { try { navActivo.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) { /* nada */ } }
-  if (!resto.length || base !== 'heroe') window.scrollTo({ top: 0 });
-  else window.scrollTo({ top: 0 });
+  restaurarScroll(token);
 }
 window.addEventListener('hashchange', render);
+
+/* Al volver atrás, cada sección vuelve a donde estabas: la posición se guarda en la entrada del historial,
+   anclada a la primera sección visible (las secciones largas usan content-visibility y su altura cambia al repintar) */
+let guardarScrollDesde = 0;
+function restaurarScroll(token) {
+  const st = history.state;
+  guardarScrollDesde = Date.now() + 700;
+  if (!(st && st.ruta === token && (st.ancla || st.y))) { window.scrollTo({ top: 0 }); return; }
+  const saltar = () => {
+    if (st.ancla) {
+      const h = [...document.querySelectorAll('#vista .seccion > h2')].find((x) => x.textContent === st.ancla.h2);
+      if (h) { window.scrollTo({ top: window.scrollY + h.parentElement.getBoundingClientRect().top - st.ancla.off }); return; }
+    }
+    window.scrollTo({ top: st.y || 0 });
+  };
+  saltar(); requestAnimationFrame(() => { saltar(); requestAnimationFrame(saltar); });
+}
+let temporizadorScroll = 0;
+function apuntarPosicion() {
+  if (Date.now() < guardarScrollDesde) return;
+  clearTimeout(temporizadorScroll);
+  temporizadorScroll = setTimeout(() => {
+    const token = tokenRuta(); if (token !== rutaPintada) return;
+    let ancla = null;
+    for (const s of document.querySelectorAll('#vista .seccion')) {
+      const r = s.getBoundingClientRect();
+      if (r.bottom > 80) { const h = s.querySelector(':scope > h2'); if (h && r.top < window.innerHeight) ancla = { h2: h.textContent, off: Math.round(r.top) }; break; }
+    }
+    const abiertos = [...document.querySelectorAll('#vista details[data-clave]')].filter((d) => d.open).map((d) => d.dataset.clave);
+    try { history.replaceState(Object.assign({}, history.state || {}, { ruta: token, y: Math.round(window.scrollY), ancla, abiertos }), ''); } catch (e) { /* sin historial */ }
+  }, 150);
+}
+window.addEventListener('scroll', apuntarPosicion, { passive: true });
+document.addEventListener('toggle', (e) => { if (e.target && e.target.matches && e.target.matches('#vista details[data-clave]')) apuntarPosicion(); }, true);
 
 /* ---------- Búsqueda global ---------- */
 function montarBusqueda() {
@@ -405,6 +438,8 @@ let promesaDatosLocales = null;
 const GENERADO_PAGINA = '__GENERADO__';
 // construir.js sustituye __HUELLA_DATOS__ por una huella de data/*.json (ver cargarJSON)
 const HUELLA_DATOS = '__HUELLA_DATOS__';
+// construir.js pone 'si' cuando existe data/perfil.json (foto personal, fuera del repositorio público)
+const HAY_PERFIL = '__HAY_PERFIL__' === 'si';
 /** Con doble clic: avisa si data/datos.js es más viejo que la página (p. ej. tras un git pull sin regenerar) */
 function avisarDatosLocalesViejos() {
   if (location.protocol !== 'file:' || !window.__DATOS__ || !/^\d{4}-\d{2}-\d{2}$/.test(GENERADO_PAGINA)) return;
@@ -446,19 +481,23 @@ const GRUPOS_DATOS = {
   compras: ['data/compras.json', (j) => { D.compras = j; }],
   fases: ['data/fases.json', (j) => { D.fases = (j && j.heroes) || {}; }],
   mapa: ['data/mapa.json', (j) => { D.mapa = j; }],
+  // Foto de tus partidas (scripts/perfil.js). Es personal: no se sube al repositorio público
+  perfil: ['data/perfil.json', (j) => { D.perfil = j; }],
 };
 const DATOS_POR_RUTA = {
   tier: ['guias'], heroes: ['guias'], heroe: ['guias', 'fases', 'compras', 'builds', 'mapa', 'objGuia'],
   objetos: ['objGuia'], objeto: ['objGuia', 'compras', 'fases'],
-  builds: [], build: ['guias', 'fases', 'compras', 'builds', 'objGuia'],
+  builds: [], build: ['guias', 'fases', 'compras', 'builds', 'objGuia'], perfil: ['perfil'],
   equipos: ['guias', 'comps'], guia: ['sistemas'], 'guia-objetos': ['itemizacion'], 'guia-mapa': ['mapa'], novedades: ['guias', 'objGuia'],
 };
 /** Datos que necesita una ruta (#guia-mapa tiene los suyos; si no, los de su sección) */
-function datosDeRuta(token) { const base = token.split('-')[0]; return DATOS_POR_RUTA[token] || DATOS_POR_RUTA[RUTAS[base] ? base : 'tier'] || DATOS_POR_RUTA.tier; }
+function datosDeRuta(token) { if (token.startsWith('build-perfil-')) return [...DATOS_POR_RUTA.build, 'perfil']; const base = token.split('-')[0]; return DATOS_POR_RUTA[token] || DATOS_POR_RUTA[RUTAS[base] ? base : 'tier'] || DATOS_POR_RUTA.tier; }
 const datosCargados = new Set(); const promesasDatos = {};
 function hayDatos(claves) { return (claves || []).every((k) => datosCargados.has(k)); }
 function asegurarDatos(claves) {
-  return Promise.all((claves || []).map((k) => promesasDatos[k] || (promesasDatos[k] = cargarJSON(GRUPOS_DATOS[k][0], true)
+  // perfil.json solo existe en la copia local y en el Artifact privado: en la web pública no se pide (evita un 404)
+  if (!HAY_PERFIL) datosCargados.add('perfil');
+  return Promise.all((claves || []).filter((k) => HAY_PERFIL || k !== 'perfil').map((k) => promesasDatos[k] || (promesasDatos[k] = cargarJSON(GRUPOS_DATOS[k][0], true)
     .then((j) => { GRUPOS_DATOS[k][1](j); }).catch(() => { /* opcional: la sección lo indica */ }).then(() => { datosCargados.add(k); }))));
 }
 async function cargarDatos() {
@@ -535,6 +574,7 @@ async function refrescarEnVivo() {
   const pedir = async ([v, b]) => {
     const q = new URLSearchParams({ min_unix_timestamp: String(ahora - v.dias * 86400) });
     if (b.min) q.set('min_average_badge', String(b.min));
+    if (b.max) q.set('max_average_badge', String(b.max));
     const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 15000);
     try {
       const r = await fetch('https://api.deadlock-api.com/v1/analytics/hero-stats?' + q, { signal: ctrl.signal });
@@ -574,6 +614,7 @@ async function iniciar() {
     if (!cambio) return;
     const base = tokenRuta().split('-')[0];
     if (base === 'tier' && !panelActual && !modalActual && window.scrollY < 120) render();
+    if (base === 'perfil' && typeof window.repintarPerfil === 'function') window.repintarPerfil();
   }).catch(() => { /* seguimos con los datos del archivo */ });
   if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === 'function') {
     try { window.claude.hot.snapshot(() => ({ hash: location.hash })); } catch (e) { /* sin hot */ }

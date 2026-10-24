@@ -80,7 +80,7 @@ En la carpeta `capturas/`: tier list, héroes, ficha de Abrams, build recomendad
 
 # Segunda entrega (23-10-2026): build por fases, cuándo comprar y plan de mapa
 
-**Estado:** terminado en local (`index.html`, `node scripts/servir.js` o doble clic). **No está publicado**: ni en GitHub Pages ni en el Artifact, hasta que des el visto bueno.
+**Estado:** publicado con tu aprobación el 23-10-2026 en GitHub Pages (commit 60d344e) y en el Artifact (versión 7).
 
 ## Qué pediste y qué hay
 
@@ -132,3 +132,62 @@ En la carpeta `capturas/`: tier list, héroes, ficha de Abrams, build recomendad
 ## Capturas de esta entrega
 
 `capturas/12-build-por-fases-pc.png`, `13-build-por-fases-movil.png`, `14-plan-de-mapa-puentes.png`, `15-ruta-jungla-base-arriba.png`, `16-guia-mapa-zonas-de-cajas.png`, `17-panel-huevo-de-oro.png`, `18-creador-dos-columnas.png`, `19-movil-ruta-jungla.png`.
+
+# Tercera entrega (23-10-2026): Mi perfil
+
+**Estado:** terminado en local. **No está publicado**: ni en GitHub Pages ni en el Artifact, hasta que des el visto bueno.
+
+## Qué pediste y qué hay
+
+| Pedido | Dónde está |
+|---|---|
+| Tener en cuenta tu nivel aunque no juegues clasificatorias | Si no tienes rango, la web estima tu nivel con el rango de los jugadores de tus partidas. La tier list tiene dos rangos nuevos: **Initiate–Acolyte** y **Sentinel–Emissary**. |
+| Usar tu % de victorias y tus estadísticas | Sección **Mi perfil**:<br>• Resumen y comparación con la media de tu nivel, héroe a héroe.<br>• «Lo que dicen tus partidas».<br>• «Dónde se te escapan las partidas»: muertes por tramo, de dónde salen tus almas y almas sin gastar.<br>• Tus partidas, quién te mata y con quién juegas. |
+| Tier list para tu caso | **Tier list de tu nivel**, con borde dorado en los héroes que ya has jugado, y **Héroes para ti**: principal, reserva, para aprender y «mejor no por ahora». |
+| Builds para tu caso | **Builds para ti** con 6 héroes: qué cambiar respecto a la build del Taller, cuándo y por qué. El botón «Abrir en el creador con tus ajustes» deja la build lista para copiar al juego. |
+| Composiciones para tu caso | **Composiciones para ti**:<br>• 5 equipos con quién va en cada línea y el plan de partida.<br>• Las mejores parejas de línea.<br>• Los rivales que más te cuestan, con los objetos contra ellos.<br>• Consejos para elegir héroe. |
+| Tus datos de lockbuilds | Salen de la misma API pública que usa lockbuilds. Pega tu SteamID o el enlace de lockbuilds en «Tu cuenta». |
+
+## Cómo se hizo
+
+1. **Datos:** `scripts/perfil.js` descarga tus partidas de la API pública y escribe `data/perfil.json`.
+2. **Análisis (8 agentes):** cuatro analistas (estadísticas, tier list, builds y composiciones), cada uno con un verificador que recalculó sus cifras. Corrigieron unas 70 cosas.
+3. **Redacción (8 agentes):** una pasada para quitar la jerga técnica. Un comprobador automático garantizó que no cambiara ninguna cifra.
+4. **Construcción a una sola mano:** `src/perfil.js` y los estilos.
+5. **Revisión en tres rondas** (computadora, celular, velocidad, enlaces, datos y la versión pública sin tus datos):
+   - 1.ª ronda: 58 problemas confirmados.
+   - 2.ª ronda: comprobó los arreglos y encontró unos 35 detalles más.
+   - 3.ª ronda: comprobación final.
+
+## Decisiones que tomé sin preguntarte
+
+- **Tus datos personales no van al repositorio público.** `data/perfil.json` (tus partidas y el análisis) y `MI-PERFIL.md` están en `.gitignore`.
+- **En GitHub Pages, «Mi perfil» funciona para cualquier cuenta** con los datos en vivo de la API (resumen, tus héroes, la tier list de tu nivel y las partidas), pero sin el análisis escrito. El análisis escrito solo estaría en la copia local y en el Artifact privado.
+- **Comparación con tu nivel:** las medias salen de la misma tabla que la tier list (30 días). Puedes elegir otro nivel en «Comparar con el nivel».
+- **Consejos condicionales:** en el creador, un consejo con condición («si hay Billy») va a los situacionales y no sustituye al objeto de la build.
+- **Mejoras para toda la web:**
+  - Al volver atrás, cada sección vuelve a donde estabas.
+  - Los avisos se leen bien en el móvil.
+  - Mejor contraste en los temas claro y oscuro.
+  - Icono de la web.
+  - En el creador, un objeto que ya está en el núcleo no se repite en los situacionales.
+
+## Lo que falta
+
+- **Publicar.** Hace falta tu visto bueno, y también decidir si la versión del Artifact lleva tu análisis.
+- **El análisis escrito no se rehace solo.** Las partidas se actualizan en vivo, pero los textos son del 23-10. Para rehacerlo hace falta otra pasada de análisis.
+- **Pocas partidas.** Con pocas partidas, las cifras por héroe son orientativas.
+- **El nivel sin rango es una estimación.** Sale del rango de los jugadores de tus partidas.
+
+## Fuentes de esta entrega
+
+- **API pública de Deadlock** (api.deadlock-api.com):
+  - historial, partidas, estadísticas por héroe y rango;
+  - estadísticas de héroes, objetos, parejas, cruces y baneos por nivel;
+  - curvas de almas por minuto.
+- **Tu captura de lockbuilds.**
+- **Datos de la web:** la build por fases, las reglas de composición y las guías.
+
+## Capturas de esta entrega
+
+Están en `capturas/perfil/` y no se suben al repositorio porque llevan tus datos: `01-perfil-pc-arriba.png`, `02-perfil-pc-donde-se-escapan.png`, `03-perfil-pc-tier-de-tu-nivel.png`, `04-perfil-pc-builds-para-ti.png`, `05-perfil-pc-composiciones.png`, `06-perfil-movil-arriba.png`, `07-perfil-movil-barras.png`, `08-creador-victor-para-ti.png`.

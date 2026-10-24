@@ -6,3 +6,7 @@ _site/
 Thumbs.db
 # Generado por scripts/construir.js para abrir la web con doble clic
 data/datos.js
+data/perfil.json
+# Personal: análisis y capturas de «Mi perfil» (no se publican en el repositorio)
+MI-PERFIL.md
+capturas/perfil/
