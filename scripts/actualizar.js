@@ -133,10 +133,10 @@ async function main() {
 
   // ---------- 1. Héroes (ES + EN) ----------
   log('Héroes…');
-  const heroesES = await getJSON(`${API}/v1/assets/heroes?only_active=true&language=spanish`);
+  const heroesES = await getJSON(`${API}/v1/assets/heroes?only_active=true&language=latam`);
   const heroesEN = await getJSON(`${API}/v1/assets/heroes?only_active=true&language=english`);
   const enPorId = Object.fromEntries(heroesEN.map((h) => [h.id, h]));
-  const armas = await getJSON(`${API}/v1/assets/items/by-type/weapon?language=spanish`);
+  const armas = await getJSON(`${API}/v1/assets/items/by-type/weapon?language=latam`);
   const armaPorClase = Object.fromEntries(armas.map((w) => [w.class_name, w]));
   const clienteVersion = await getJSON(`${API}/v1/assets/client-versions`).catch(() => null);
   if (Array.isArray(clienteVersion) && clienteVersion.length) version.cliente = clienteVersion[clienteVersion.length - 1];
@@ -210,7 +210,7 @@ async function main() {
   const abilitiesEN = await getJSON(`${API}/v1/assets/items/by-type/ability?language=english`);
   const enAbil = Object.fromEntries(abilitiesEN.map((a) => [a.class_name, a]));
   for (const hero of heroes) {
-    const lista = await getJSON(`${API}/v1/assets/items/by-hero-id/${hero.id}?language=spanish`);
+    const lista = await getJSON(`${API}/v1/assets/items/by-hero-id/${hero.id}?language=latam`);
     const porClase = Object.fromEntries(lista.map((a) => [a.class_name, a]));
     habilidades[hero.id] = hero.habilidades_clave.map((clase, i) => {
       const a = porClase[clase] || {};
@@ -252,7 +252,7 @@ async function main() {
 
   // ---------- 3. Objetos ----------
   log('Objetos…');
-  const itemsES = await getJSON(`${API}/v1/assets/items/by-type/upgrade?language=spanish`);
+  const itemsES = await getJSON(`${API}/v1/assets/items/by-type/upgrade?language=latam`);
   const itemsEN = await getJSON(`${API}/v1/assets/items/by-type/upgrade?language=english`);
   const enItem = Object.fromEntries(itemsEN.map((i) => [i.class_name, i]));
   const objetos = [];
