@@ -22,7 +22,40 @@ const TIPO_CAMPAMENTO = {
 const CARRIL_ESPEJO = { York: 'Greenwich', Greenwich: 'York', Broadway: 'Broadway' };
 
 /* ---------- Datos ---------- */
-function fasesDe(h) { return (h && D.fases && D.fases[h.id]) || null; }
+/* Si un consejo dice «súbelo a X» y X no está en la build, X se añade como situacional de la fase
+   en que toca (por el minuto del consejo o el minuto real de compra), para que salga en la build y al copiarla */
+const CACHE_FASES = new WeakMap();
+function fasesDe(h) {
+  const f = (h && D.fases && D.fases[h.id]) || null;
+  if (!f || !Array.isArray(f.fases)) return f;
+  if (CACHE_FASES.has(f)) return CACHE_FASES.get(f);
+  const copia = Object.assign({}, f, { fases: f.fases.map((x) => Object.assign({}, x, { nucleo: (x.nucleo || []).slice(), situacionales: (x.situacionales || []).slice() })) });
+  const enBuild = new Set(copia.fases.flatMap((x) => [...x.nucleo, ...x.situacionales]).map((e) => { const o = objeto(e.clase || e.objeto); return o && o.clase; }));
+  const ORDEN = ['inicial', 'media', 'avanzada'];
+  const re = /(?:[Ss][uú]belo|[Mm]ej[oó]ralo|[Ss]ube|[Mm]ejora|[Ss]e mejora|[Ss]e sube)\s+a\s+([A-Z][\w' -]+?)(?=\s+(?:hacia|pasado|al|en|cuando|si|antes|desde|con|o)\b|[.,;:)]|$)([^.;]*)/g;
+  for (const x of copia.fases) for (const e of [...x.nucleo, ...x.situacionales]) {
+    let m; re.lastIndex = 0;
+    while ((m = re.exec(e.cuando || ''))) {
+      const o = objeto(m[1].trim()); const base = objeto(e.clase || e.objeto);
+      if (!o || !base || enBuild.has(o.clase) || o.coste <= base.coste) continue;
+      const d = compraDe(h, o.clase);
+      const mm = m[2].match(/(?:hacia|pasado)\s+(?:el\s+)?min\s+(\d+(?:[.,]\d+)?)/i);
+      const minuto = mm ? parseFloat(mm[1].replace(',', '.')) : d && d.min != null ? d.min : null;
+      let fase = minuto == null ? x.fase : minuto < 10 ? 'inicial' : minuto < 22 ? 'media' : 'avanzada';
+      if (ORDEN.indexOf(fase) < ORDEN.indexOf(x.fase)) fase = x.fase;
+      const destino = copia.fases.find((y) => y.fase === fase) || x;
+      const cuando = `Si llevas ${base.nombre}: mejóralo a ${o.nombre}${minuto != null ? ' hacia el min ' + fmt(minuto, 0) : ''} (pagas solo la diferencia, ${fmt(o.coste - base.coste)} almas).`;
+      destino.situacionales.push({
+        clase: o.clase, objeto: o.nombre, cuando, derivado: true,
+        por_que: d ? `Mejora de ${base.nombre}. Lo compra el ${fmt(d.pick, 0)} % de los jugadores de este héroe, hacia el min ${fmt(d.min, 0)}, y ganan el ${fmt(d.wr, 1)} %.` : `Mejora de ${base.nombre}.`,
+        nota_juego: `Si llevas ${base.nombre}: mejóralo${minuto != null ? ' hacia el min ' + fmt(minuto, 0) : ''}.`,
+      });
+      enBuild.add(o.clase);
+    }
+  }
+  CACHE_FASES.set(f, copia);
+  return copia;
+}
 function compraDe(h, clase) { const c = h && D.compras && D.compras.heroes && D.compras.heroes[h.id]; return (c && c.objetos && c.objetos[clase]) || null; }
 function compraGlobal(clase) { return (D.compras && D.compras.objetos && D.compras.objetos[clase]) || null; }
 function textoCompra(d) {
