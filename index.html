@@ -1352,10 +1352,10 @@ function montarBusqueda() {
 let promesaDatosLocales = null;
 // construir.js sustituye 2026-10-25 por la fecha de los datos con los que se generó esta página.
 const GENERADO_PAGINA = '2026-10-25';
-// construir.js sustituye 5c985589f2 por una huella de data/*.json (ver cargarJSON)
-const HUELLA_DATOS = '5c985589f2';
+// construir.js sustituye e0cec72dbd por una huella de data/*.json (ver cargarJSON)
+const HUELLA_DATOS = 'e0cec72dbd';
 // construir.js pone 'si' cuando existe data/perfil.json (foto personal, fuera del repositorio público)
-const HAY_PERFIL = 'si' === 'si';
+const HAY_PERFIL = 'no' === 'si';
 /** Con doble clic: avisa si data/datos.js es más viejo que la página (p. ej. tras un git pull sin regenerar) */
 function avisarDatosLocalesViejos() {
   if (location.protocol !== 'file:' || !window.__DATOS__ || !/^\d{4}-\d{2}-\d{2}$/.test(GENERADO_PAGINA)) return;
