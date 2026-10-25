@@ -39,7 +39,7 @@ function el(tag, attrs, ...hijos) {
     else if (k === 'style' && typeof v === 'object') { for (const [p, val] of Object.entries(v)) { if (val == null) continue; if (p.startsWith('--')) e.style.setProperty(p, val); else e.style[p] = val; } }
     else e.setAttribute(k, v === true ? '' : v);
   }
-  for (const h of hijos.flat(Infinity)) { if (h == null || h === false) continue; e.append(h instanceof Node ? h : document.createTextNode(String(h))); }
+  for (const h of hijos.flat(Infinity)) { if (h == null || h === false) continue; e.append(h instanceof Node ? h : document.createTextNode(typeof h === 'string' ? traducirNombres(h) : String(h))); }
   return e;
 }
 const fmtNum = new Intl.NumberFormat('es-ES');
@@ -86,6 +86,23 @@ function rico(texto) {
 function nombreH(h) { if (!h) return '—'; return PREF.nombres === 'es' ? h.nombre : h.nombre_en; }
 function nombreAlt(h) { if (!h || h.nombre === h.nombre_en) return ''; return PREF.nombres === 'es' ? h.nombre_en : h.nombre; }
 function nombreO(o) { if (!o) return '—'; return PREF.nombres === 'es' ? o.nombre_es : o.nombre; }
+/* Con «Nombres ES», los textos (cuándo, por qué, notas, análisis) cambian los nombres en inglés
+   de objetos, habilidades y héroes por los del juego en español; también lo que se copia */
+let REGEX_ES = null; let MAPA_ES = null;
+function traducirNombres(t) {
+  if (PREF.nombres !== 'es' || !t || typeof t !== 'string' || !D.objetos.length) return t;
+  if (!REGEX_ES) {
+    const m = new Map();
+    for (const h of D.heroes) if (h.nombre_en && h.nombre && h.nombre_en !== h.nombre) m.set(h.nombre_en, h.nombre);
+    for (const id in D.habilidades) for (const a of D.habilidades[id] || []) if (a.nombre_en && a.nombre && a.nombre_en !== a.nombre) m.set(a.nombre_en, a.nombre);
+    for (const o of D.objetos) if (o.nombre && o.nombre_es && o.nombre !== o.nombre_es) m.set(o.nombre, o.nombre_es);
+    if (!m.size || !Object.keys(D.habilidades).length) return t;
+    const claves = [...m.keys()].sort((a, b) => b.length - a.length).map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, (c) => '\\' + c));
+    REGEX_ES = new RegExp('(?<![\\p{L}\\p{N}])(?:' + claves.join('|') + ')(?![\\p{L}\\p{N}])', 'gu');
+    MAPA_ES = m;
+  }
+  return t.replace(REGEX_ES, (x) => MAPA_ES.get(x) || x);
+}
 function nombreOAlt(o) { if (!o || o.nombre === o.nombre_es) return ''; return PREF.nombres === 'es' ? o.nombre : o.nombre_es; }
 function heroe(idOClase) { return IDX.heroPorId[idOClase] || IDX.heroPorClase[idOClase] || IDX.heroPorNombre[sinAcentos(idOClase)] || null; }
 function objeto(x) { if (!x) return null; return IDX.objPorClase[x] || IDX.objPorId[x] || IDX.objPorNombre[sinAcentos(x)] || null; }
@@ -298,6 +315,7 @@ function decodificarBuild(c) {
   return null;
 }
 async function copiar(texto) {
+  texto = traducirNombres(texto);
   try { await navigator.clipboard.writeText(texto); toast('Copiado al portapapeles'); return true; } catch (e) {
     // Segundo intento: método clásico (funciona donde la API moderna está bloqueada)
     try {
