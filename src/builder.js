@@ -15,13 +15,13 @@ function buildDesdeGuia(h) {
   const b = buildNueva(h); const g = guia(h); const f = fasesDe(h);
   if (f && (f.fases || []).length) {
     // Build por fases: núcleo + situacionales (opcional) por fase, con la nota corta para el juego
-    const conv = (arr) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: e.nota_juego || e.cuando || e.por_que || '' } : null; }).filter(Boolean);
+    const conv = (arr, situacional) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: notaJuego(e, situacional) || e.cuando || e.por_que || '' } : null; }).filter(Boolean);
     b.categorias = [];
     for (const fase of f.fases) {
       const info = FASES[fase.fase] || { nombre: fase.fase };
       const tn = partirTitulo(fase.titulo_categoria_juego || info.nombre, false), ts = partirTitulo(fase.titulo_situacionales_juego || info.nombre, true);
       b.categorias.push({ nombre: tn.nombre, descripcion: tn.desc || fase.objetivo || '', objetos: conv(fase.nucleo), opcional: false, fase: fase.fase });
-      if ((fase.situacionales || []).length) b.categorias.push({ nombre: ts.nombre, descripcion: ts.desc, objetos: conv(fase.situacionales), opcional: true, fase: fase.fase });
+      if ((fase.situacionales || []).length) b.categorias.push({ nombre: ts.nombre, descripcion: ts.desc, objetos: conv(fase.situacionales, true), opcional: true, fase: fase.fase });
     }
     // Un situacional que ya está en el núcleo de otra fase no se repite
     const enNucleo = new Set(b.categorias.filter((c) => !c.opcional).flatMap((c) => c.objetos.map((x) => x.clase)));

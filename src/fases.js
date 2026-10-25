@@ -110,6 +110,39 @@ function sinCifrasReales(t, d) {
 }
 /** "Si mueres 2 veces…" detrás de «Cómpralo si:» → "Mueres 2 veces…" */
 function sinSiInicial(t) { const s = String(t || ''); return /^si\s/i.test(s) ? s.slice(3, 4).toUpperCase() + s.slice(4) : s; }
+/** Nota para el editor del juego: si el objeto es situacional, empieza por cuándo comprarlo
+    (contra qué rivales o en qué situación), sacado de «cuando», y sigue con la nota corta */
+const CONDICION_NOTA = /^(Si |Solo |Contra |De soporte|Ruta |Build |Variante|Anticuraci|Para |Cuando |Ante |Frente a |Con un |Sin )/i;
+const ACCION_NOTA = /^(c[oó]mpra|con \d|con ~|con \d|hacia|mej[oó]ra|sube|adel[aá]nt|\d|en la|en el|en cuanto|antes|justo|l[aá]nza|imb[uú]|tras|despu[eé]s|a partir|al |ll[eé]valo|vend|del min|desde|dato|s[uú]belo|qu[eé]datelo)/i;
+const VERBO_NOTA = /\b(s[uú]belo|mej[oó]ralo|v[eé]ndelo|c[oó]mpralo|c[oó]mprala|dato real)\b/i;
+const palabrasNota = (t) => new Set(sinAcentos(t).match(/[a-z0-9]{3,}/g) || []);
+function notaJuego(e, situacional) {
+  const nota = String((e && e.nota_juego) || '').trim();
+  const cuando = String((e && e.cuando) || '').trim();
+  // Núcleo: solo si su «cuando» es una condición. Situacional: siempre que no empiece por un minuto o una acción
+  if (!CONDICION_NOTA.test(cuando) && !(situacional && cuando && !/^(min|hacia|con \d|con ~|\d|imbuid|una vez|ya |c[oó]mpra|mej[oó]ra|sube)/i.test(cuando))) return nota;
+  // Condición: la primera frase de «cuando» sin la parte de qué hacer («: cómpralo con 800…») ni datos entre paréntesis con %
+  let cond = (cuando.match(/^[\s\S]*?\.(?=\s+[A-ZÁÉÍÓÚÑ¿(]|$)/) || [cuando])[0].replace(/\.$/, '');
+  // Primer «: » fuera de paréntesis: lo que sigue es qué hacer si empieza por una acción o lleva minutos y compras
+  let dos = -1, prof = 0;
+  for (let k = 0; k < cond.length - 1; k++) { const c = cond[k]; if (c === '(') prof++; else if (c === ')') prof = Math.max(0, prof - 1); else if (c === ':' && cond[k + 1] === ' ' && !prof) { dos = k; break; } }
+  const tras = dos > 0 ? cond.slice(dos + 2) : '';
+  if (dos > 0 && (ACCION_NOTA.test(tras) || VERBO_NOTA.test(tras) || /\b(hacia el|imbuid[oa]|en partidas reales)\b|\(\s*(min|\d)|~\d/i.test(tras))) cond = cond.slice(0, dos);
+  // Sin dos puntos, la parte de cuándo («, hacia el min 14 con…») también se corta
+  cond = cond.split(/[,;:]?\s+(?=hacia el min|con \d[\d.]* (?:en mano|almas)|con ~|dato real|en partidas reales)/i)[0];
+  cond = cond.replace(/\s*\([^)]*\d\s*%[^)]*\)/g, '').replace(/[,;:\s]+$/, '').trim();
+  if (!cond) return nota;
+  // De la nota se quita su primer trozo si ya era una condición (para no repetirla)
+  let resto = nota;
+  const m = nota.match(/^([\s\S]*?)[.:](?:\s+|$)([\s\S]*)$/);
+  const primero = m ? m[1] : nota;
+  const pc = palabrasNota(cond); const pp = [...palabrasNota(primero)];
+  const repetido = pp.length && pp.filter((w) => pc.has(w)).length / pp.length >= 0.6;
+  if (CONDICION_NOTA.test(nota) || repetido) resto = m ? m[2] : '';
+  resto = resto.trim();
+  if (resto) resto = resto[0].toUpperCase() + resto.slice(1);
+  return cond + '.' + (resto ? ' ' + resto.replace(/([^.!?])$/, '$1.') : '');
+}
 function tarjetaCompra(h, e, situacional, pago, abierto) {
   const o = objeto(e.clase || e.objeto); if (!o) return null;
   const r = RANURAS[o.ranura] || {};
@@ -126,7 +159,7 @@ function tarjetaCompra(h, e, situacional, pago, abierto) {
       e.cuando ? el('p', { class: 'compra-cuando' }, el('b', null, situacional ? 'Cómpralo si: ' : 'Cuándo: '), situacional ? sinSiInicial(sinCifrasReales(e.cuando, d)) : sinCifrasReales(e.cuando, d)) : null,
       rel ? el('p', { class: 'compra-meta' }, el('b', null, rel.etiqueta + ': '), rel.texto) : null,
       e.por_que ? el('details', { class: 'compra-mas', open: abierto }, el('summary', null, 'Por qué'), el('p', { class: 'compra-porque' }, sinCifrasReales(e.por_que, d))) : null,
-      e.nota_juego ? el('div', { class: 'compra-nota' }, el('span', { class: 'mono' }, e.nota_juego), botonCopiar(e.nota_juego, 'Copiar nota', 'Copia la nota para pegarla en este objeto dentro del editor de builds del juego')) : null));
+      notaJuego(e, situacional) ? el('div', { class: 'compra-nota' }, el('span', { class: 'mono' }, notaJuego(e, situacional)), botonCopiar(notaJuego(e, situacional), 'Copiar nota', 'Copia la nota para pegarla en este objeto dentro del editor de builds del juego')) : null));
 }
 /** "Fase inicial 0-10 · Gana la línea…" → nombre corto para la categoría del juego + el resto como su descripción */
 function partirTitulo(t, situacionales) {
@@ -200,7 +233,7 @@ function textoBuildFases(h) {
     (fase.nucleo || []).forEach((e, i) => {
       const o = objeto(e.clase || e.objeto); if (!o) return; const d = compraDe(h, o.clase); const p = pagos.find((x) => x.o === o);
       L.push(`${i + 1}. ${nombreO(o)} (${fmt(o.coste)}${p && p.desde ? ', pagas ' + fmt(p.paga) + ' si ya tienes ' + nombreO(p.desde) : ''})${d ? ' [' + textoCompra(d) + ']' : ''}`);
-      if (e.nota_juego) L.push('   Nota para el juego: ' + e.nota_juego);
+      if (notaJuego(e)) L.push('   Nota para el juego: ' + notaJuego(e));
       if (e.cuando) L.push('   Cuándo: ' + sinCifrasReales(e.cuando, d));
       if (e.por_que) L.push('   Por qué: ' + sinCifrasReales(e.por_que, d));
     });
@@ -211,7 +244,7 @@ function textoBuildFases(h) {
       for (const e of fase.situacionales) {
         const o = objeto(e.clase || e.objeto); if (!o) continue; const rel = relacionReemplazo(e.reemplaza); const d = compraDe(h, o.clase);
         L.push(`- ${nombreO(o)} (${fmt(o.coste)})${d ? ' [' + textoCompra(d) + ']' : ''}`);
-        if (e.nota_juego) L.push('   Nota para el juego: ' + e.nota_juego);
+        if (notaJuego(e, true)) L.push('   Nota para el juego: ' + notaJuego(e, true));
         if (e.cuando) L.push('   Cómpralo si: ' + sinSiInicial(sinCifrasReales(e.cuando, d)));
         if (rel) L.push(`   ${rel.etiqueta}: ${rel.texto}`);
         if (e.por_que) L.push('   Por qué: ' + sinCifrasReales(e.por_que, d));
