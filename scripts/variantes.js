@@ -122,9 +122,17 @@ const REGLAS = [
   [/\b([Aa]) tu nivel\b/g, (m, a) => (a === 'A' ? 'E' : 'e') + 'n Initiate–Acolyte'],
   [/\bde tu nivel\b/g, 'de Initiate–Acolyte'],
   [/\b[Tt]u nivel\b/g, 'Initiate–Acolyte'],
+  // «cuando más mueres» sale de su perfil (muere más entre los min 15 y 25): en lo público, el tramo de más peleas
+  [/\s*\(\d+(?:,\d+)? muertes frente a \d+(?:,\d+)? de media\)/g, ''],
+  [/\s*\(de los que más te matan\)/g, ''],
+  [/las peleas del medio juego, donde más mueres/g, 'las peleas del medio juego'],
+  [/en las peleas en que más mueres/g, 'en las peleas'],
+  [/\b(cuando|donde) más mueres\b/g, '$1 más peleas hay'],
+  [/\ben (el|la) que más mueres\b/g, 'en $1 que más peleas hay'],
+  [/\ben que más mueres\b/g, 'en que más peleas hay'],
 ];
 // Red de seguridad: si tras las reglas queda algo de esto, la frase entera se quita
-const PERSONAL = /stiveeng|1096317017|9,5 en derrotas|37 ?% de parr|tu 37 ?%|haces el 37|20 ?% de precisi|aciertas el [0-9]+ ?%|tu [0-9]+ ?% de (?:tiros|parr)|tus parrys|tu perfil|tu historial|jugaste|tu caso|Tú aciertas|tus muertes|tus partidas|^Para ti[,:]|recomendada para ti|tu héroe más jugado|punto d[eé]bil (?:son|es) (?:las muertes|morir|farmear|la jungla)/i;
+const PERSONAL = /más mueres|muertes frente a [0-9]+(?:,[0-9]+)? de media|más te matan|stiveeng|1096317017|9,5 en derrotas|37 ?% de parr|tu 37 ?%|haces el 37|20 ?% de precisi|aciertas el [0-9]+ ?%|tu [0-9]+ ?% de (?:tiros|parr)|tus parrys|tu perfil|tu historial|jugaste|tu caso|Tú aciertas|tus muertes|tus partidas|^Para ti[,:]|recomendada para ti|tu héroe más jugado|punto d[eé]bil (?:son|es) (?:las muertes|morir|farmear|la jungla)/i;
 let cambios = 0; let frasesQuitadas = 0; const vacios = [];
 function neutro(t, ruta) {
   if (typeof t !== 'string') return t;

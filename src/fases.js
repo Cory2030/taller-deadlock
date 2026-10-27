@@ -124,12 +124,16 @@ function pantallaEstrecha() { try { return window.matchMedia('(max-width: 960px)
 // Al mejorar, el componente se gasta: otra mejora del mismo componente ya no lo descuenta.
 function pagosDe(lista, previos) {
   const tengo = new Map(previos instanceof Map ? previos : []);
+  // desde: lista de componentes que ya tenías y se gastan (null si ninguno)
   const comprar = (o) => {
-    const n = o.componente ? tengo.get(o.componente) || 0 : 0;
-    const comp = n > 0 ? objeto(o.componente) : null;
-    if (comp) { if (n > 1) tengo.set(o.componente, n - 1); else tengo.delete(o.componente); }
+    const desde = [];
+    for (const c of compsDe(o)) {
+      const n = tengo.get(c) || 0; const comp = n > 0 ? objeto(c) : null; if (!comp) continue;
+      if (n > 1) tengo.set(c, n - 1); else tengo.delete(c);
+      desde.push(comp);
+    }
     tengo.set(o.clase, (tengo.get(o.clase) || 0) + 1);
-    return { o, paga: o.coste - (comp ? comp.coste : 0), desde: comp };
+    return { o, paga: o.coste - desde.reduce((s, c) => s + c.coste, 0), desde: desde.length ? desde : null };
   };
   if (Array.isArray(previos)) for (const c of previos) { const o = objeto(c); if (o) comprar(o); }
   const pagos = [];
@@ -141,7 +145,7 @@ function pagosDe(lista, previos) {
 function objetosFinales(clases) {
   const set = new Set(clases.map((c) => (objeto(c) || {}).clase).filter(Boolean));
   const consumidos = new Set();
-  for (const c of set) { const o = objeto(c); if (o.componente && set.has(o.componente)) consumidos.add(o.componente); }
+  for (const c of set) for (const k of compsDe(objeto(c))) if (set.has(k)) consumidos.add(k);
   return [...set].filter((c) => !consumidos.has(c)).map(objeto);
 }
 /** "Improved Spirit (lo mejora)" → { etiqueta: 'Se mejora desde', texto: 'Improved Spirit' } */
@@ -234,7 +238,7 @@ function tarjetaCompra(h, e, situacional, pago, abierto) {
   const r = RANURAS[o.ranura] || {};
   const d = compraDe(h, o.clase);
   const rel = situacional ? relacionReemplazo(e.reemplaza) : null;
-  const coste = pago && pago.desde ? `${fmt(o.coste)} · pagas ${fmt(pago.paga)} si ya tienes ${nombreO(pago.desde)}` : fmt(o.coste);
+  const coste = pago && pago.desde ? `${fmt(o.coste)} · pagas ${fmt(pago.paga)} si ya tienes ${pago.desde.map(nombreO).join(' y ')}` : fmt(o.coste);
   return el('article', { class: 'compra ' + (r.clase || '') + (situacional ? ' situacional' : '') },
     tileObjeto(o),
     el('div', { class: 'compra-cuerpo' },
@@ -354,7 +358,7 @@ function finalDe(h, clave) {
   const usados = new Set();
   // 1) Mejoras de lo que ya llevas: no gastan ranura ni pierdes almas (si ese nivel 4 no gana claramente menos)
   for (const x of filas.filter((y) => !inv.includes(y.o) && y.d.pick >= 3).sort((a, b) => puntua(b) - puntua(a))) {
-    const base = x.o.componente && inv.find((o) => o.clase === x.o.componente);
+    const base = compsDe(x.o).map((c) => inv.find((o) => o.clase === c)).find(Boolean);
     if (!base || x.d.wr < media - 3) continue;
     pasos.push({ tipo: 'mejora', vende: base, compra: x.o, d: x.d, paga: x.o.coste - base.coste });
     inv = inv.map((o) => (o === base ? x.o : o)); usados.add(x.o.clase);
@@ -372,9 +376,9 @@ function finalDe(h, clave) {
   while (resto.length && pasos.length < 8) {
     const x = resto.shift();
     // Si lo que se va a comprar mejora algo que llevas, es una mejora (pagas la diferencia), no una venta
-    const base = x.o.componente && inv.find((o) => o.clase === x.o.componente);
+    const base = compsDe(x.o).map((c) => inv.find((o) => o.clase === c)).find(Boolean);
     if (base) { pasos.push({ tipo: 'mejora', vende: base, compra: x.o, d: x.d, paga: x.o.coste - base.coste }); inv = inv.map((o) => (o === base ? x.o : o)); continue; }
-    const vende = ordenVenta().find((o) => !resto.some((y) => y.o.componente === o.clase)); if (!vende) break;
+    const vende = ordenVenta().find((o) => !resto.some((y) => compsDe(y.o).includes(o.clase))); if (!vende) break;
     pasos.push({ tipo: 'cambio', vende, compra: x.o, d: x.d, paga: x.o.coste - vende.coste / 2, recupera: vende.coste / 2 });
     inv = inv.map((o) => (o === vende ? x.o : o));
   }
@@ -451,7 +455,7 @@ function textoBuildFases(h) {
     const pagos = pagosDe(fase.nucleo, nucleoPrevio(h, fase));
     (fase.nucleo || []).forEach((e, i) => {
       const o = objeto(e.clase || e.objeto); if (!o) return; const d = compraDe(h, o.clase); const p = pagos.find((x) => x.o === o);
-      L.push(`${i + 1}. ${nombreO(o)} (${fmt(o.coste)}${p && p.desde ? ', pagas ' + fmt(p.paga) + ' si ya tienes ' + nombreO(p.desde) : ''})${d ? ' [' + textoCompra(d) + ']' : ''}`);
+      L.push(`${i + 1}. ${nombreO(o)} (${fmt(o.coste)}${p && p.desde ? ', pagas ' + fmt(p.paga) + ' si ya tienes ' + p.desde.map(nombreO).join(' y ') : ''})${d ? ' [' + textoCompra(d) + ']' : ''}`);
       if (notaJuego(e)) L.push('   Nota para el juego: ' + notaJuego(e));
       if (e.cuando) L.push('   Cuándo: ' + sinCifrasReales(e.cuando, d));
       if (e.por_que) L.push('   Por qué: ' + sinCifrasReales(e.por_que, d));

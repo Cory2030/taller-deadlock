@@ -416,4 +416,9 @@ if (sj) { fs.writeFileSync(path.join(DATA, 'sistemas.json'), JSON.stringify(sj))
   }
 }
 
+/* ---------- Correcciones de la build base (scripts/correcciones_base.json) ---------- */
+// Mueven, añaden y quitan objetos de las builds base: se vuelven a aplicar sobre el fases.json recién generado.
+try { require('child_process').execFileSync(process.execPath, [path.join(__dirname, 'corregir_base.js')], { stdio: 'inherit' }); }
+catch (e) { avisos.push('corregir_base.js falló: revisa scripts/correcciones_base.json'); }
+
 if (avisos.length) { console.log('\nAvisos (' + avisos.length + '):'); for (const a of [...new Set(avisos)].slice(0, 80)) console.log(' -', a); }

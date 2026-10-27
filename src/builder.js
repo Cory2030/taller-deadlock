@@ -39,6 +39,8 @@ function buildDesdeGuia(h, clave) {
     }
     b.nombre = f.titulo_build_juego || nombreH(h) + ' · por fases';
     b.notas = f.descripcion_build_juego || (g && g.arquetipo_por_que) || '';
+    // Lo que la build manda vender antes del min 30 no ocupa ranura al final (p. ej. Headshot Booster de Paradox)
+    b.vende = (f.vender || []).map((v) => { const o = objeto(v.clase || v.objeto); const m = /^no (?:lo|la|los|las) vendas|^no hace falta venderl/i.test(v.cuando || '') ? null : minutoDeTexto(v.cuando); return o && m != null && m < 30 ? o.clase : null; }).filter(Boolean);
   } else if (g && g.build) {
     const conv = (arr, campo) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: e[campo] || '' } : null; }).filter(Boolean);
     b.categorias = [{ nombre: 'Inicio de línea', objetos: conv(g.build.inicio, 'por_que') }, { nombre: 'Medio de partida', objetos: conv(g.build.medio, 'por_que') }, { nombre: 'Final', objetos: conv(g.build.final, 'por_que') }, { nombre: 'Situacionales', objetos: conv(g.build.situacionales, 'cuando') }];
@@ -212,7 +214,8 @@ RUTAS.build = function (param) {
     const cuenta = { weapon: 0, vitality: 0, spirit: 0 }; const coste = { weapon: 0, vitality: 0, spirit: 0 };
     // Al mejorar un objeto, la mejora sustituye a su componente (pagas la diferencia y no ocupa otra ranura):
     // solo cuentan los objetos que quedan al final
-    const finales = objetosFinales(b.categorias.filter((c) => !esOpcional(c)).flatMap((c) => c.objetos.map((x) => x.clase)));
+    const vendidos = new Set(b.vende || []);
+    const finales = objetosFinales(b.categorias.filter((c) => !esOpcional(c)).flatMap((c) => c.objetos.map((x) => x.clase))).filter((o) => !vendidos.has(o.clase));
     for (const o of finales) { cuenta[o.ranura]++; coste[o.ranura] += o.coste; }
     // Bonus pasivo por almas invertidas en cada categoría (cost_bonuses del cliente; idéntico para todos los héroes)
     const BONUS = { weapon: [[800, 9], [1600, 12], [2400, 15], [3200, 18], [4800, 46], [6400, 54], [8000, 62], [11200, 74], [16000, 86], [22400, 100], [28800, 115]], vitality: [[800, 9], [1600, 12], [2400, 15], [3200, 20], [4800, 38], [6400, 42], [8000, 46], [11200, 50], [16000, 54], [22400, 60], [28800, 66]], spirit: [[800, 7], [1600, 11], [2400, 15], [3200, 19], [4800, 38], [6400, 45], [8000, 52], [11200, 59], [16000, 66], [22400, 75], [28800, 100]] };
@@ -222,7 +225,7 @@ RUTAS.build = function (param) {
     const total = coste.weapon + coste.vitality + coste.spirit; const nObj = cuenta.weapon + cuenta.vitality + cuenta.spirit;
     const activos = finales.filter((o) => o.activo).length;
     const nivel = (h.niveles || []).filter((n) => n.souls <= total).pop();
-    resumen.append(el('div', { class: 'ranura', style: { gridColumn: '1 / -1', background: 'var(--bg-3)' } }, el('span', null, 'Build principal al final (sin situacionales; cada mejora sustituye a su componente): ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem' } }, fmtSouls(total)), nivel ? ' · equivale aproximadamente al nivel ' + nivel.nivel : '', ' · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: nObj > 12 ? 'var(--mal)' : 'inherit' } }, nObj + '/12'), ' ranuras (9 base + 1 por cada Walker enemigo destruido) · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: activos > 4 ? 'var(--mal)' : 'inherit' } }, activos + '/4'), ' activos')));
+    resumen.append(el('div', { class: 'ranura', style: { gridColumn: '1 / -1', background: 'var(--bg-3)' } }, el('span', null, 'Build principal al final (sin situacionales' + (vendidos.size ? ' ni lo que vendes antes del min 30' : '') + '; cada mejora sustituye a su componente): ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem' } }, fmtSouls(total)), nivel ? ' · equivale aproximadamente al nivel ' + nivel.nivel : '', ' · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: nObj > 12 ? 'var(--mal)' : 'inherit' } }, nObj + '/12'), ' ranuras (9 base + 1 por cada Walker enemigo destruido) · ', el('b', { class: 'num', style: { display: 'inline', fontSize: '1rem', color: activos > 4 ? 'var(--mal)' : 'inherit' } }, activos + '/4'), ' activos')));
     if (nObj > 12 || activos > 4) resumen.append(el('div', { class: 'aviso-caja', style: { gridColumn: '1 / -1' } }, nObj > 12 ? 'Hay más de 12 objetos en la build principal: en el juego no caben todos a la vez, marca cuáles se venden. ' : '', activos > 4 ? 'Hay más de 4 objetos activos: solo se pueden equipar 4.' : ''));
   }
   function pintarObj() {

@@ -273,7 +273,8 @@ async function main() {
       // Algunos nombres en español de la API traen detrás el inglés («Destructor espiritual Spirit Shredder»): se quita
       id: it.id, clase: it.class_name, nombre: en.name || it.name, nombre_es: sinNombreIngles(it.name, en.name),
       ranura: it.item_slot_type, tier: it.item_tier, coste: it.cost, activo: !!it.is_active_item, activacion: it.activation || '',
-      imbuir: !!it.imbue, componente: (it.component_items && it.component_items[0]) || null,
+      // Sharpshooter y Leech se hacen con dos objetos: «componentes» los lleva todos (componente = el primero)
+      imbuir: !!it.imbue, componente: (it.component_items && it.component_items[0]) || null, componentes: (it.component_items || []).filter(Boolean),
       enfriamiento: props.AbilityCooldown ? props.AbilityCooldown.v : null, duracion: props.AbilityDuration ? props.AbilityDuration.v : null,
       stats,
       descripcion: limpiarTexto(d.desc), activa: limpiarTexto(d.active), pasiva: limpiarTexto(d.passive),

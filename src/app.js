@@ -112,6 +112,8 @@ function traducirNombres(t) {
 function nombreOAlt(o) { if (!o || o.nombre === o.nombre_es) return ''; return PREF.nombres === 'es' ? o.nombre : o.nombre_es; }
 function heroe(idOClase) { return IDX.heroPorId[idOClase] || IDX.heroPorClase[idOClase] || IDX.heroPorNombre[sinAcentos(idOClase)] || null; }
 function objeto(x) { if (!x) return null; return IDX.objPorClase[x] || IDX.objPorId[x] || IDX.objPorNombre[sinAcentos(x)] || null; }
+/** Clases de los objetos con los que se hace (Sharpshooter = Long Range + High-Velocity Rounds) */
+function compsDe(o) { return !o ? [] : Array.isArray(o.componentes) && o.componentes.length ? o.componentes : o.componente ? [o.componente] : []; }
 function imgH(h, clase = 'icono-heroe') { return el('img', { loading: 'lazy', src: h.imagen.icono, alt: nombreH(h), class: clase, width: 36, height: 36 }); }
 function imgO(o, attrs = {}) { return el('img', Object.assign({ loading: 'lazy', src: o.imagen, alt: nombreO(o), class: RANURAS[o.ranura] ? RANURAS[o.ranura].clase : '', title: nombreO(o) + ' · ' + fmtSouls(o.coste) }, attrs)); }
 function chipH(h, extra, mini) {
@@ -234,8 +236,9 @@ function abrirObjeto(o) {
     if (g.contra) cont.append(el('h3', { class: 'sub' }, 'Especialmente bueno contra'), el('p', { class: 'sec' }, g.contra));
     if (g.etiquetas && g.etiquetas.length) cont.append(el('div', { class: 'etiquetas-obj', style: { marginTop: '8px' } }, g.etiquetas.map((t) => el('span', { class: 'chip' }, etiquetaObj(t)))));
   }
-  if (o.componente) { const c = objeto(o.componente); if (c) cont.append(el('h3', { class: 'sub' }, 'Se mejora desde'), el('div', null, chipO(c))); }
-  const mejoras = D.objetos.filter((x) => x.componente === o.clase);
+  const comps = compsDe(o).map(objeto).filter(Boolean);
+  if (comps.length) cont.append(el('h3', { class: 'sub' }, 'Se mejora desde'), el('div', { class: 'fila' }, comps.map((c) => chipO(c))));
+  const mejoras = D.objetos.filter((x) => compsDe(x).includes(o.clase));
   if (mejoras.length) cont.append(el('h3', { class: 'sub' }, 'Se puede mejorar a'), el('div', { class: 'fila' }, mejoras.map((m) => chipO(m))));
   if (st) cont.append(el('h3', { class: 'sub' }, 'Uso en los últimos 14 días'), el('div', { class: 'fila', style: { gap: '14px' } }, el('span', null, 'Gana el ', el('b', { class: 'num' }, fmtPct(st.wr)), ' de las partidas en que se compra'), el('span', null, 'Partidas ', el('b', { class: 'num' }, fmt(st.partidas)))));
   // Quién lo compra y cuándo (datos reales por héroe); si no hay, los objetos populares por fase

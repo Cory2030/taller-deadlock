@@ -223,7 +223,7 @@ Están en `capturas/perfil/` y no se suben al repositorio porque llevan tus dato
 
 ## Lo que falta
 
-- **Correcciones a la build base:** los agentes propusieron unas 210, guardadas para revisarlas en una segunda pasada.
+- **Correcciones a la build base:** los agentes propusieron unas 210, guardadas para revisarlas en una segunda pasada. *(Hechas en la quinta entrega.)*
 - **Algunos % de compra en los textos** pueden venir de totales antiguos sin citarlos. Los que citaban el total ya están corregidos; los demás son orientativos.
 - **Las variantes no se rehacen solas.** Los datos diarios se actualizan, pero los textos de las variantes son del 25-26 de octubre.
 
@@ -241,3 +241,86 @@ Están en `capturas/perfil/` y no se suben al repositorio porque llevan tus dato
   - buildlocker.gg
   - deadlocktiers.com
   - vídeos de jugadores en YouTube y Twitch
+
+---
+
+# Quinta entrega (27-10-2026): correcciones a las builds base
+
+**Estado:** publicado en GitHub Pages (sin datos personales) y en el Artifact privado.
+
+## Qué pediste y qué hay
+
+| Pedido | Resultado |
+|---|---|
+| Aplicar las ~210 correcciones a las builds base | 211 revisadas una por una contra los datos: 193 aplicadas, 14 en parte y 4 descartadas (la base ya lo hacía bien, o la corrección era falsa). |
+| Revisar | 6 revisores (4 de datos y redacción, 1 en computadora y 1 en celular) encontraron 81 puntos: todos corregidos salvo los de «Lo que falta». Después, 2 verificadores comprobaron los arreglos: 78 de 81 estaban bien. Encontraron otros 17 detalles y también quedan corregidos. |
+| Publicar como la vez anterior | GitHub Pages sin datos personales y Artifact privado con tu análisis. |
+
+**Qué cambia en la web:** en la ficha de cada héroe, la build del Taller (la variante base) trae el nuevo orden de compra, minutos que cuadran con las almas reales, opcionales nuevos y una fase final coherente con lo que llevas. Ejemplos:
+
+- **Abrams:** Colossus antes que Phantom Strike.
+- **Billy:** Scourge por defecto; Juggernaut pasa a alternativa.
+- **Venator:** sin Close Quarters; Hollow Point en el núcleo.
+- **Sinclair:** sin objetos de arma en línea.
+- **Paradox:** Mystic Reverb antes del min 30.
+
+## Errores antiguos que salieron en la revisión (y quedan arreglados)
+
+- **Spirit Resilience y Bullet Resilience:** dan +30 % de resistencia siempre y +15 % más por debajo del 50 % de vida. 25 héroes lo tenían al revés (más Abrams, que venía en sus correcciones).
+- **Sharpshooter y Leech se hacen con dos objetos:**
+  - Sharpshooter = Long Range + High-Velocity Rounds.
+  - Leech = Bullet Lifesteal + Spirit Lifesteal.
+  - Antes la web solo contaba el primero: cobraba de más al mejorar y contaba una ranura de más.
+  - Ahora `data/objetos.json` guarda todos los componentes y la web los descuenta todos.
+  - La actualización diaria también los guarda.
+- **Cifras de compra sin verbo:** unas 200 frases decían «(59,5 % de sus partidas)» o «acumuladas (…)». Ahora dicen «se compra en el 59,5 % de las partidas de McGinnis».
+- **Kelvin:** la lista de ventas mandaba vender Healing Booster aunque la fase final lo mejora a Healing Tempo.
+- **Privacidad:**
+  - Algunas variantes públicas conservaban frases del análisis privado («cuando más mueres»).
+  - El filtro que genera la copia pública (`scripts/variantes.js`) ahora las cambia por «cuando más peleas hay» y quita cualquier cifra de muertes.
+- **Creador de builds:** contaba como ranura lo que la propia build vende antes del min 30 (por ejemplo, Paradox salía con 13 de 12). Ya no lo cuenta.
+- **Minutos de la fase final y de los niveles 4:**
+  - Algunos minutos no cuadraban con las almas reales tras los cambios (McGinnis, Vyper, Shiv, Pocket, Sinclair, Rem, Baba y Paradox).
+  - Ahora siguen la curva de almas de cada héroe.
+  - Las descripciones de la categoría final caben en los 120 caracteres del juego.
+
+## Cómo se hizo
+
+1. **Verificación por agentes:** 9 agentes, unos 5 héroes cada uno. Comprobaron cada corrección contra la API y los datos locales y la convirtieron en cambios exactos.
+2. **Aplicación a una sola mano:** con `scripts/corregir_base.js`. Se puede repetir sin duplicar nada y `integrar.js` lo vuelve a pasar si algún día se regenera `fases.json`.
+   - Las correcciones públicas están en `scripts/correcciones_base.json`.
+   - Las de la variante privada (tocan tu análisis) están en `investigacion/variantes/_correcciones_variante.json`, fuera de git.
+3. **Revisión por 6 agentes** y comprobaciones automáticas:
+   - orden de minutos;
+   - ranuras;
+   - fase final coherente;
+   - menciones a objetos que ya no están;
+   - notas de 120 caracteres o menos;
+   - ningún dato personal en lo público.
+4. **Verificación de los arreglos** por 2 agentes más, y una segunda ronda de arreglos con las mismas comprobaciones.
+
+## Decisiones que tomé sin preguntarte
+
+- **Descarté la corrección que decía que Sharpshooter no necesita High-Velocity Rounds** (Solomon). La API dice que sí lo necesita, y ese error se había colado también en un arreglo mío en Paradox: quedó deshecho.
+- **Shiv sigue con escopeta en la build del Taller.** La de cuchillos gana más en Initiate–Acolyte, pero ya está como variante «Espíritu» y el selector la marca como la mejor de tu nivel.
+- **El análisis de variantes ahora vive en `investigacion/`**, dentro del proyecto y fuera de git. Antes solo estaba en una carpeta temporal de la sesión y era la única fuente de `data/variantes/`.
+
+## Lo que falta
+
+- **Orden de desbloqueo de habilidades:**
+  - La secuencia que pinta la ficha, y la que se copia al juego, desbloquea en el orden de prioridad de mejora.
+  - En unos 17 héroes eso no coincide con el texto de debajo (por ejemplo, Drifter dice «desbloquea Rend» y la secuencia empieza por Stalker's Mark).
+  - Ya pasaba antes de hoy. Arreglarlo pide un campo «desbloqueo» por héroe, sacado de los datos de la API.
+- **Creador en el celular:** el nombre largo de la build y algunos nombres de habilidades salen cortados.
+- **Títulos de categoría para el juego:** la mitad de los héroes los lleva con minutos («Fase inicial 0-10 · …») y la otra mitad sin ellos.
+- **Fase final de 7 héroes** (Vindicta, Ivy, Warden, Victor, Apollo, Rem y Abrams): algún paso vende un objeto que es opcional. Si no lo compraste, ese paso no aplica. Ya pasaba antes de hoy.
+- **Las cifras de los textos son del 25 al 27 de octubre**; los datos diarios se actualizan solos, pero los textos no.
+
+## Fuentes de esta entrega
+
+- **API pública de Deadlock** (api.deadlock-api.com):
+  - estadísticas de objetos por rango y por minuto de compra;
+  - orden de habilidades;
+  - builds de la comunidad;
+  - fichas de objetos (componentes y valores).
+- **deadlock.wiki** (coste de la bomba de Lady Geist).

@@ -12,3 +12,5 @@ MI-PERFIL.md
 capturas/perfil/
 data/variantes_perfil/
 data/variantes_perfil.json
+# Privado: análisis de variantes por héroe (fuente de data/variantes) y estadísticas; lleva el análisis del perfil
+investigacion/
