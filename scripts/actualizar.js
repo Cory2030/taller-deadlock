@@ -114,6 +114,12 @@ function num(v) {
 }
 
 /** Propiedades con valor distinto de 0, con etiqueta y sufijo */
+function sinNombreIngles(es, en) {
+  if (!es || !en || es === en) return es;
+  const esc = en.replace(/[.*+?^${}()|[\]\\]/g, (c) => '\\' + c);
+  const limpio = es.replace(new RegExp('\\s+(?:[A-Z]{1,3}\\s+)?' + esc + '$'), '').trim();
+  return limpio || es;
+}
 function propiedades(props) {
   const out = {};
   for (const [k, p] of Object.entries(props || {})) {
@@ -264,7 +270,8 @@ async function main() {
     const stats = Object.entries(props).filter(([k]) => !/^Ability(Cooldown|Duration|CastRange|UnitTargetLimit|CastDelay|ChannelTime|Charges|CooldownBetweenCharge)$/.test(k))
       .map(([k, p]) => ({ clave: k, etiqueta: p.etiqueta, valor: p.v, sufijo: p.sufijo }));
     objetos.push({
-      id: it.id, clase: it.class_name, nombre: en.name || it.name, nombre_es: it.name,
+      // Algunos nombres en español de la API traen detrás el inglés («Destructor espiritual Spirit Shredder»): se quita
+      id: it.id, clase: it.class_name, nombre: en.name || it.name, nombre_es: sinNombreIngles(it.name, en.name),
       ranura: it.item_slot_type, tier: it.item_tier, coste: it.cost, activo: !!it.is_active_item, activacion: it.activation || '',
       imbuir: !!it.imbue, componente: (it.component_items && it.component_items[0]) || null,
       enfriamiento: props.AbilityCooldown ? props.AbilityCooldown.v : null, duracion: props.AbilityDuration ? props.AbilityDuration.v : null,

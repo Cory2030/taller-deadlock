@@ -25,8 +25,59 @@ const CARRIL_ESPEJO = { York: 'Greenwich', Greenwich: 'York', Broadway: 'Broadwa
 /* Si un consejo dice «súbelo a X» y X no está en la build, X se añade como situacional de la fase
    en que toca (por el minuto del consejo o el minuto real de compra), para que salga en la build y al copiarla */
 const CACHE_FASES = new WeakMap();
-function fasesDe(h) {
-  const f = (h && D.fases && D.fases[h.id]) || null;
+/* ---------- Variantes de build (arma, espíritu, vitalidad) ----------
+   data/variantes.json: por héroe, el veredicto (la mejor en tu nivel y en todos los rangos) y sus variantes.
+   La base es la build de data/fases.json; las demás traen sus fases. Todas traen su fase final investigada. */
+function variantesDe(h) { const v = h && D.variantes && D.variantes.heroes && D.variantes.heroes[h.id]; return v && (v.variantes || []).length ? v : null; }
+// Nivel con el que se elige la mejor por defecto: el del perfil o el de la tier list si es Initiate–Acolyte
+function nivelVariantes() { return PREF.bracket === 'principiante' || (D.perfil && D.perfil.nivel && D.perfil.nivel.clave === 'principiante') ? 'principiante' : 'todos'; }
+function varianteElegida(h) {
+  const v = variantesDe(h); if (!v) return null;
+  const claves = v.variantes.map((x) => x.clave);
+  const pref = PREF.variantes && PREF.variantes[h.id];
+  if (pref && claves.includes(pref)) return pref;
+  const ver = v.veredicto || {};
+  const def = D.perfil && ver.recomendada_para_ti ? ver.recomendada_para_ti : nivelVariantes() === 'principiante' ? ver.mejor_tu_nivel : ver.mejor_todos;
+  return claves.includes(def) ? def : (v.variantes.find((x) => x.es_base) || v.variantes[0]).clave;
+}
+const CACHE_VARIANTE = new WeakMap();
+function varianteComoFases(base, v) {
+  if (CACHE_VARIANTE.has(v)) return CACHE_VARIANTE.get(v);
+  const extra = { final: v.final || null, variante: v, orden_habilidades: v.orden_habilidades || (base && base.orden_habilidades) || null };
+  const r = !Array.isArray(v.fases) || !v.fases.length
+    ? Object.assign({}, base || {}, extra)
+    : Object.assign({}, base || {}, extra, { titulo_build_juego: v.titulo_build_juego || (base && base.titulo_build_juego), descripcion_build_juego: v.descripcion_build_juego || '', fases: v.fases, vender: v.vender || [] });
+  CACHE_VARIANTE.set(v, r);
+  return r;
+}
+/** Build por fases de un héroe: la variante pedida («base» = la del Taller) o la elegida / la mejor */
+function fasesDe(h, clave) {
+  const base = (h && D.fases && D.fases[h.id]) || null;
+  const vs = variantesDe(h);
+  const k = clave === undefined ? varianteElegida(h) : clave;
+  let f = base;
+  if (vs) { const v = vs.variantes.find((x) => (k === 'base' ? x.es_base : x.clave === k)) || vs.variantes.find((x) => x.es_base); if (v) f = varianteComoFases(base, v); }
+  return fasesConMejoras(h, f);
+}
+function ordenHabilidadesDe(h, clave) { const f = fasesDe(h, clave); return (f && f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : null) || (guia(h) && guia(h).orden_habilidades) || null; }
+/* Secuencia de habilidades a partir de un orden de guía o de variante. «orden» es la prioridad para
+   MEJORAR (puede poner la definitiva segunda); al desbloquear, las tres normales van primero en ese orden
+   y la definitiva (la 4) al final, como se juega. Luego se maxea la primera y el resto por prioridad. */
+function secuenciaHabilidades(h, oh) {
+  const abs = (D.habilidades && D.habilidades[h.id]) || [];
+  if (!oh || !Array.isArray(oh.orden) || !abs.length) return null;
+  const idxDeNombre = (n) => { const i = abs.findIndex((a) => sinAcentos(a.nombre) === sinAcentos(n) || sinAcentos(a.nombre_en) === sinAcentos(n) || sinAcentos(n).includes(sinAcentos(a.nombre_en)) || sinAcentos(n).includes(sinAcentos(a.nombre))); return i >= 0 ? i + 1 : null; };
+  const prioridad = [...new Set(oh.orden.map(idxDeNombre).filter(Boolean))];
+  if (!prioridad.length) return null;
+  const primera = idxDeNombre(oh.primera_maxima || '') || prioridad[0];
+  const mejora = [primera, ...prioridad.filter((x) => x !== primera)];
+  for (let i = 1; i <= 4; i++) if (!mejora.includes(i)) mejora.push(i);
+  const desbloqueo = [...mejora.filter((x) => x !== 4), 4];
+  const orden = desbloqueo.map((x) => ({ h: x, pa: 1 }));
+  for (const x of mejora) orden.push({ h: x, pa: 2 }, { h: x, pa: 5 });
+  return { desbloqueo, orden };
+}
+function fasesConMejoras(h, f) {
   if (!f || !Array.isArray(f.fases)) return f;
   if (CACHE_FASES.has(f)) return CACHE_FASES.get(f);
   const copia = Object.assign({}, f, { fases: f.fases.map((x) => Object.assign({}, x, { nucleo: (x.nucleo || []).slice(), situacionales: (x.situacionales || []).slice() })) });
@@ -146,7 +197,7 @@ function sinSiInicial(t) { const s = String(t || ''); return /^si\s/i.test(s) ? 
 /** Nota para el editor del juego: si el objeto es situacional, empieza por cuándo comprarlo
     (contra qué rivales o en qué situación), sacado de «cuando», y sigue con la nota corta */
 const CONDICION_NOTA = /^(Si |Solo |Contra |De soporte|Ruta |Build |Variante|Anticuraci|Para |Cuando |Ante |Frente a |Con un |Sin )/i;
-const ACCION_NOTA = /^(c[oó]mpra|con \d|con ~|con \d|hacia|mej[oó]ra|sube|adel[aá]nt|\d|en la|en el|en cuanto|antes|justo|l[aá]nza|imb[uú]|tras|despu[eé]s|a partir|al |ll[eé]valo|vend|del min|desde|dato|s[uú]belo|qu[eé]datelo)/i;
+const ACCION_NOTA = /^(c[oó]mpra|con \d|con ~|con \d|hacia|mej[oó]ra|sube|adel[aá]nt|\d|en la|en el|en lugar|en vez|en cuanto|antes|justo|l[aá]nza|imb[uú]|tras|despu[eé]s|a partir|al |ll[eé]valo|vend|del min|desde|dato|s[uú]belo|qu[eé]datelo)/i;
 const VERBO_NOTA = /\b(s[uú]belo|mej[oó]ralo|v[eé]ndelo|c[oó]mpralo|c[oó]mprala|dato real)\b/i;
 const palabrasNota = (t) => new Set(sinAcentos(t).match(/[a-z0-9]{3,}/g) || []);
 function notaJuego(e, situacional) {
@@ -173,6 +224,8 @@ function notaJuego(e, situacional) {
   const repetido = pp.length && pp.filter((w) => pc.has(w)).length / pp.length >= 0.6;
   if (CONDICION_NOTA.test(nota) || repetido) resto = m ? m[2] : '';
   resto = resto.trim();
+  // Las frases de la nota que solo repiten la condición: fuera
+  resto = resto.split(/(?<=[.!?])\s+/).filter((fr) => { const pr = [...palabrasNota(fr)]; return !(pr.length && pr.filter((w) => pc.has(w)).length / pr.length >= 0.9); }).join(' ').trim();
   if (resto) resto = resto[0].toUpperCase() + resto.slice(1);
   return cond + '.' + (resto ? ' ' + resto.replace(/([^.!?])$/, '$1.') : '');
 }
@@ -252,10 +305,143 @@ function ayudaJuego() {
       el('li', null, 'Si el editor te deja añadir una nota al objeto, pega la que copias con «Copiar nota».'),
       el('li', null, 'Para las habilidades usa «Editar» en «Orden de los puntos de habilidad» y sigue la secuencia de la sección Orden de habilidades.'))));
 }
+
+/* ---------- Final de partida: ranuras llenas ----------
+   Con las 12 ranuras ocupadas y almas de sobra, cada paso cambia lo que menos aporta por el nivel 4 que más
+   rinde con este héroe en partidas reales (compras de los últimos 14 días). Primero las mejoras de lo que ya
+   llevas (pagas solo la diferencia); después «vende X y compra Y», empezando por lo más barato. */
+const RANURAS_MAX = 12;
+const CACHE_FINAL = new WeakMap();
+function minutoDeTexto(t) { const m = String(t || '').match(/(?:hacia|pasado|desde)\s+(?:el\s+)?min(?:uto)?\s+(\d+(?:[.,]\d+)?)/i); return m ? parseFloat(m[1].replace(',', '.')) : null; }
+function finalDe(h, clave) {
+  const f = fasesDe(h, clave); if (!f || !(f.fases || []).length || !D.compras) return null;
+  if (CACHE_FINAL.has(f)) return CACHE_FINAL.get(f);
+  // Fase final investigada (por héroe y variante): minuto, qué vender, qué comprar y su nota
+  if (f.final && (f.final.pasos || []).length) {
+    // Un paso que compra algo que ya está en el núcleo de la build no tiene sentido: se salta
+    const enNucleo = new Set(f.fases.flatMap((x) => (x.nucleo || []).map((e) => { const o = objeto(e.clase || e.objeto); return o && o.clase; })));
+    const pasos = f.final.pasos.map((p) => {
+      const compra = objeto(p.compra); if (!compra || enNucleo.has(compra.clase)) return null;
+      // Una mejora sin «vende»: lo que se mejora es su componente
+      const vende = p.vende ? objeto(p.vende) : p.tipo === 'mejora' && compra.componente ? objeto(compra.componente) : null;
+      const tipo = p.tipo === 'mejora' || p.tipo === 'libre' ? p.tipo : vende ? 'cambio' : 'libre';
+      return { tipo, vende, compra, d: compraDe(h, compra.clase), minuto: p.minuto, cuando: p.cuando, por_que: p.por_que, nota: p.nota_juego,
+        paga: tipo === 'mejora' && vende ? compra.coste - vende.coste : vende ? compra.coste - vende.coste / 2 : compra.coste, recupera: vende && tipo !== 'mejora' ? vende.coste / 2 : 0 };
+    }).filter(Boolean);
+    const fin = (f.final.build_completa || []).map((c) => objeto(c)).filter(Boolean);
+    const r = { inicial: [], final: fin, pasos, investigado: true, titulo: f.final.titulo_categoria_juego, descripcion: f.final.descripcion_juego, objetivo: f.final.objetivo, minutos: f.final.minutos };
+    CACHE_FINAL.set(f, r);
+    return r;
+  }
+  // Inventario al acabar la fase avanzada: el núcleo sin componentes ya mejorados ni lo que se vende antes del min 30
+  const ventas = new Map((f.vender || []).map((v) => { const o = objeto(v.clase || v.objeto); return o ? [o.clase, minutoDeTexto(v.cuando)] : null; }).filter(Boolean));
+  let inv = objetosFinales(f.fases.flatMap((x) => (x.nucleo || []).map((e) => e.clase || e.objeto)))
+    .filter((o) => !(ventas.has(o.clase) && ventas.get(o.clase) != null && ventas.get(o.clase) < 30));
+  const inicial = inv.slice();
+  // Candidatos: niveles 4 que este héroe compra en partidas reales (al menos un 3 % y 1.500 partidas)
+  const comp = ((D.compras.heroes || {})[h.id] || {}).objetos || {};
+  // Solo colores que la build ya usa (2 o más objetos de ese color); la vitalidad (defensa) siempre vale
+  const porColor = {}; for (const o of inv) porColor[o.ranura] = (porColor[o.ranura] || 0) + 1;
+  const colorOk = (o) => o.ranura === 'vitality' || (porColor[o.ranura] || 0) >= 2;
+  const filas = Object.entries(comp).map(([c, d]) => ({ o: objeto(c), d })).filter((x) => x.o && x.o.coste >= 6400 && x.d.pick >= 3 && (x.d.partidas || 0) >= 1500);
+  if (!filas.length) { CACHE_FINAL.set(f, null); return null; }
+  const media = filas.reduce((s, x) => s + x.d.wr * x.d.partidas, 0) / filas.reduce((s, x) => s + x.d.partidas, 0);
+  // Puntuación: % de victorias ajustado (400 partidas de prior) más peso a lo que eligen muchos jugadores
+  // (un objeto que compra el 3 % suele ganar más porque solo lo compra quien ya va ganando)
+  const puntua = (x) => (x.d.wr * x.d.partidas + media * 400) / (x.d.partidas + 400) + 3 * Math.log10(Math.max(1, x.d.pick));
+  const candidatos = filas.filter((x) => !inv.includes(x.o) && x.d.pick >= 5 && colorOk(x.o)).sort((a, b) => puntua(b) - puntua(a));
+  const pasos = [];
+  const usados = new Set();
+  // 1) Mejoras de lo que ya llevas: no gastan ranura ni pierdes almas (si ese nivel 4 no gana claramente menos)
+  for (const x of filas.filter((y) => !inv.includes(y.o) && y.d.pick >= 3).sort((a, b) => puntua(b) - puntua(a))) {
+    const base = x.o.componente && inv.find((o) => o.clase === x.o.componente);
+    if (!base || x.d.wr < media - 3) continue;
+    pasos.push({ tipo: 'mejora', vende: base, compra: x.o, d: x.d, paga: x.o.coste - base.coste });
+    inv = inv.map((o) => (o === base ? x.o : o)); usados.add(x.o.clase);
+  }
+  // 2) Ranuras libres: se compra sin vender
+  const resto = candidatos.filter((x) => !usados.has(x.o.clase));
+  while (inv.length < RANURAS_MAX && resto.length) { const x = resto.shift(); pasos.push({ tipo: 'libre', compra: x.o, d: x.d, paga: x.o.coste }); inv.push(x.o); }
+  // 3) Ranuras llenas: vende lo que menos aporta (más barato primero; a igual coste, lo que ya se suele vender y lo que menos gana)
+  const datoDe = (o) => comp[o.clase] || {};
+  // No se vende lo que la mayoría de jugadores de este héroe compra y conserva (su objeto clave, 50 % o más)
+  const esClave = (o) => o.coste >= 3200 && !ventas.has(o.clase) && (datoDe(o).pick || 0) >= 50;
+  const ordenVenta = () => inv.filter((o) => o.coste < 6400 && !esClave(o)).sort((a, b) => a.coste - b.coste || (ventas.has(b.clase) ? 1 : 0) - (ventas.has(a.clase) ? 1 : 0) || (datoDe(a).pick || 0) - (datoDe(b).pick || 0));
+  // Si la build ya pasa de 12 objetos, primero se hace hueco (sin comprar nada)
+  while (inv.length > RANURAS_MAX) { const v = ordenVenta()[0]; if (!v) break; pasos.unshift({ tipo: 'sobra', vende: v, recupera: v.coste / 2 }); inv = inv.filter((o) => o !== v); }
+  while (resto.length && pasos.length < 8) {
+    const x = resto.shift();
+    // Si lo que se va a comprar mejora algo que llevas, es una mejora (pagas la diferencia), no una venta
+    const base = x.o.componente && inv.find((o) => o.clase === x.o.componente);
+    if (base) { pasos.push({ tipo: 'mejora', vende: base, compra: x.o, d: x.d, paga: x.o.coste - base.coste }); inv = inv.map((o) => (o === base ? x.o : o)); continue; }
+    const vende = ordenVenta().find((o) => !resto.some((y) => y.o.componente === o.clase)); if (!vende) break;
+    pasos.push({ tipo: 'cambio', vende, compra: x.o, d: x.d, paga: x.o.coste - vende.coste / 2, recupera: vende.coste / 2 });
+    inv = inv.map((o) => (o === vende ? x.o : o));
+  }
+  // Orden de las vueltas a la tienda: hacer hueco, mejoras (más baratas), ranuras libres y cambios
+  const ORDEN_PASO = { sobra: 0, mejora: 1, libre: 2, cambio: 3 };
+  pasos.sort((a, b) => ORDEN_PASO[a.tipo] - ORDEN_PASO[b.tipo]);
+  const r = { inicial, final: inv, pasos, media };
+  CACHE_FINAL.set(f, r);
+  return r;
+}
+function notaFinal(p) {
+  if (p.nota) return p.nota;
+  if (p.tipo === 'mejora') return `Final: mejora ${p.vende.nombre} a esto (pagas ${fmt(p.paga)}).`;
+  if (p.tipo === 'libre') return 'Final: con una ranura libre, cómpralo sin vender nada.';
+  return `Final, ranuras llenas y ${fmt(p.compra.coste)} almas: vende ${p.vende.nombre} y compra esto.`;
+}
+function textoPasoFinal(p) {
+  if (p.cuando) return p.cuando;
+  if (p.tipo === 'sobra') return `Tu build ya pasa de 12 objetos: vende ${nombreO(p.vende)} (recuperas ${fmt(p.recupera)}) para hacer hueco.`;
+  const datos = p.d ? ` Lo compra el ${fmt(p.d.pick, 0)} % de los jugadores de este héroe, hacia el min ${fmt(p.d.min, 0)}, y ganan el ${fmt(p.d.wr, 1)} %.` : '';
+  if (p.tipo === 'mejora') return `Mejora ${nombreO(p.vende)} a ${nombreO(p.compra)}: pagas solo ${fmt(p.paga)} y no pierdes nada.` + datos;
+  if (p.tipo === 'libre') return `Si te queda una ranura libre, compra ${nombreO(p.compra)} sin vender nada.` + datos;
+  return `Vende ${nombreO(p.vende)} (recuperas ${fmt(p.recupera)}) y compra ${nombreO(p.compra)}: te cuesta ${fmt(p.paga)} netas.` + datos;
+}
+/** Título de la fase final con sus minutos, sin repetirlos si el título ya los trae («Final (40+ min)») */
+function tituloFinal(r) {
+  const t = r.titulo || 'Final · ranuras llenas';
+  return /\bmin\b|\d+\s*\+|\d+\s*[-–]\s*\d+/.test(t) ? t : t + ' (' + (r.minutos || '35+') + ' min)';
+}
+function bloqueFinal(h) {
+  const r = finalDe(h); if (!r || !r.pasos.length) return null;
+  const sec = el('section', { class: 'tarjeta panel-fase fase-final', id: 'fase-final' },
+    el('div', { class: 'fila entre' }, el('h3', null, tituloFinal(r)), el('span', { class: 'chip laton' }, 'Opcional')),
+    r.objetivo ? el('p', { class: 'pequeno' }, el('b', null, 'Objetivo: '), r.objetivo) : null,
+    el('p', { class: 'sec pequeno' }, r.investigado
+      ? 'Cuando ya tienes las 12 ranuras ocupadas y te sobran almas, sigue estos pasos en orden. El minuto es cuándo lo hacen de media las partidas reales que llegan a esa compra; si vas adelantado de almas, hazlo antes. Al vender recuperas la mitad de lo que costó el objeto, así que no vendas si te queda una ranura libre ni justo antes de una pelea.'
+      : 'Cuando ya tienes las 12 ranuras ocupadas y te sobran almas, sigue estos pasos en orden, uno por cada vuelta a la tienda con 6.400 almas en mano. Primero las mejoras de lo que ya llevas (pagas solo la diferencia); después cambia lo que menos aporta por el nivel 4 que más rinde con este héroe. Al vender recuperas la mitad de lo que costó el objeto, así que no vendas si te queda una ranura libre ni justo antes de una pelea.'));
+  const lista = el('ol', { class: 'pasos-final' });
+  r.pasos.forEach((p) => {
+    lista.append(el('li', { class: 'paso-final' },
+      p.tipo === 'sobra' ? el('div', { class: 'fila' }, el('span', { class: 'chip mal' }, 'Haz hueco'), chipO(p.vende)) : el('div', { class: 'fila' }, p.vende ? [el('span', { class: 'chip ' + (p.tipo === 'mejora' ? 'ok' : 'mal') }, p.tipo === 'mejora' ? 'Mejora' : 'Vende'), chipO(p.vende), el('span', { class: 'flecha-final', 'aria-hidden': 'true' }, '→')] : el('span', { class: 'chip ok' }, 'Ranura libre'),
+        el('span', { class: 'chip ok' }, 'Compra'), chipO(p.compra), p.minuto != null ? el('span', { class: 'chip compra-chip num' }, 'min ' + fmt(p.minuto, 0)) : p.d ? chipCompra(p.d) : null),
+      el('p', { class: 'sec pequeno' }, textoPasoFinal(p)),
+      p.por_que ? el('details', { class: 'compra-mas' }, el('summary', null, 'Por qué'), el('p', { class: 'compra-porque' }, p.por_que)) : null,
+      p.compra ? el('div', { class: 'compra-nota' }, el('span', { class: 'mono' }, notaFinal(p)), botonCopiar(notaFinal(p), 'Copiar nota', 'Copia la nota para pegarla en este objeto dentro del editor de builds del juego')) : null));
+  });
+  sec.append(lista);
+  if (r.final.length) sec.append(el('div', { class: 'build-final-completa' }, el('span', { class: 'etiqueta' }, 'Build completa al final'), el('div', { class: 'fila' }, r.final.map((o) => chipO(o)))));
+  if (!r.investigado) sec.append(el('p', { class: 'muted pequeno' }, 'Cómo se elige: entre los niveles 4 que compran los jugadores de este héroe, los que más ganan (ajustado por número de partidas) y más se eligen. Ojo: quien llega a comprar un nivel 4 tarde suele ir ganando, así que compáralos entre sí, no con el % general del héroe.'));
+  else sec.append(el('p', { class: 'muted pequeno' }, 'Plan investigado para este héroe y esta variante con las compras de partidas reales y guías actuales. Ojo: quien llega a comprar un nivel 4 tarde suele ir ganando, así que los niveles 4 se comparan entre sí.'));
+  return sec;
+}
+
 function textoBuildFases(h) {
   const f = fasesDe(h); if (!f) return '';
   const L = [`${f.titulo_build_juego || 'Build de ' + nombreH(h)} — ${nombreH(h)} (Taller de Deadlock)`];
+  if (f.variante && f.variante.nombre) L.push('Estilo: ' + f.variante.nombre);
   if (f.descripcion_build_juego) L.push(f.descripcion_build_juego);
+  // Orden de habilidades: desbloqueo (la definitiva al final) y prioridad para mejorar
+  const oh = f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : ordenHabilidadesDe(h);
+  const secH = secuenciaHabilidades(h, oh); const abs = (D.habilidades && D.habilidades[h.id]) || [];
+  if (secH) {
+    const nom = (i) => { const a = abs[i - 1]; return a ? (PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre) : '?'; };
+    const mejora = []; for (const x of secH.orden) if (x.pa === 5 && !mejora.includes(x.h)) mejora.push(x.h);
+    L.push('', '== Habilidades', 'Desbloquea: ' + secH.desbloqueo.map(nom).join(' → '), 'Mejora primero: ' + mejora.map(nom).join(' → '));
+    if (oh.detalle) L.push(oh.detalle);
+  }
   for (const fase of f.fases || []) {
     const info = FASES[fase.fase] || { nombre: fase.fase };
     const tn = partirTitulo(fase.titulo_categoria_juego || info.nombre, false);
@@ -284,12 +470,68 @@ function textoBuildFases(h) {
       }
     }
   }
+  const fin = finalDe(h);
+  if (fin && fin.pasos.length) {
+    L.push('', '-- Categoría opcional: ' + (fin.titulo || 'Final · ranuras llenas'), 'Descripción: ' + (fin.descripcion || 'Con las 12 ranuras ocupadas y almas de sobra, en este orden.'));
+    fin.pasos.forEach((p, i) => { if (!p.compra) { L.push(`${i + 1}. ${textoPasoFinal(p)}`); return; } L.push(`${i + 1}. ${nombreO(p.compra)} (${fmt(p.compra.coste)})${p.minuto != null ? ' · min ' + fmt(p.minuto, 0) : ''}`); L.push('   Nota para el juego: ' + notaFinal(p)); L.push('   ' + textoPasoFinal(p)); if (p.por_que) L.push('   Por qué: ' + p.por_que); });
+    L.push('Build completa al final: ' + fin.final.map((o) => nombreO(o)).join(', '));
+  }
   if ((f.vender || []).length) { L.push('', '== Qué vender y cuándo'); for (const v of f.vender) L.push(`- ${nombreObjetoTexto(v.clase || v.objeto)}: ${v.cuando}`); }
   return L.join('\n');
+}
+/** Selector de estilo de build: la mejor en tu nivel y en todos los rangos, con sus datos */
+function selectorVariante(h) {
+  const vs = variantesDe(h); if (!vs || !vs.variantes.length) return null;
+  const ver = vs.veredicto || {}; const elegida = varianteElegida(h);
+  const nombreVar = (k) => (vs.variantes.find((x) => x.clave === k) || {}).nombre || '—';
+  const v = vs.variantes.find((x) => x.clave === elegida) || vs.variantes[0];
+  // Marcas cortas en una insignia aparte, para que los botones quepan en el móvil
+  const marcas = (x) => [D.perfil && x.clave === ver.recomendada_para_ti ? 'para ti' : '', x.clave === ver.mejor_tu_nivel ? (D.perfil ? '★ tu nivel' : '★ Initiate–Acolyte') : '', x.clave === ver.mejor_todos ? '★ todos' : '', x.clave === ver.mejor_pros ? '★ pros' : ''].filter(Boolean);
+  const opciones = vs.variantes.map((x) => [x.clave, [el('span', { class: 'nombre-var' }, x.nombre), marcas(x).length ? el('span', { class: 'marca-var' }, marcas(x).join(' · ')) : null]]);
+  const DATO_POCAS = 100;
+  const dato = (n, t) => { const d = v.datos && v.datos[n]; return d && d.wr != null ? `${t}: ${fmtPct(d.wr)}${d.partidas ? ' en ' + fmt(d.partidas) + ' partidas' + (d.partidas < DATO_POCAS ? ' (pocas: orientativo)' : '') : ''}` : ''; };
+  const datos = [dato('principiante', 'En Initiate–Acolyte'), dato('todos', 'En todos los rangos')].filter(Boolean);
+  const fuentesDato = ['principiante', 'todos'].map((n) => v.datos && v.datos[n] && v.datos[n].fuente).filter(Boolean);
+  const minus = (t) => t.charAt(0).toLowerCase() + t.slice(1);
+  const resumen = v.estadisticas_resumen ? [['Más usada', v.estadisticas_resumen.mas_usada], ['Más ganadora', v.estadisticas_resumen.mas_ganadora], ['Mejores jugadores', v.estadisticas_resumen.pros]].filter((x) => x[1]) : [];
+  return el('div', { class: 'tarjeta selector-variante' },
+    el('div', { class: 'control' }, el('span', { class: 'etiqueta' }, vs.variantes.length > 1 ? 'Estilo de build' : 'Estilo de build (el único que rinde con este héroe)'),
+      vs.variantes.length < 2 ? el('b', null, opciones[0][1]) : segmento(opciones, elegida, (x) => { PREF.variantes = Object.assign({}, PREF.variantes || {}, { [h.id]: x }); guardarPref(); repintarAnclado('.selector-variante'); }, null, 'Estilo de build')),
+    el('p', { class: 'pequeno' }, el('b', null, 'La mejor en Initiate–Acolyte: '), nombreVar(ver.mejor_tu_nivel), ' · ', el('b', null, 'en todos los rangos: '), nombreVar(ver.mejor_todos), ver.mejor_pros ? [' · ', el('b', null, 'la de los mejores jugadores: '), nombreVar(ver.mejor_pros)] : null),
+    D.perfil && ver.recomendada_para_ti ? el('p', { class: 'nota-caja pequeno' }, el('b', null, 'Para ti: ' + nombreVar(ver.recomendada_para_ti) + '. '), ver.por_que_para_ti || '', ver.encaje_heroe ? el('div', null, ver.encaje_heroe) : null) : null,
+    v.cuando_elegirla ? el('p', { class: 'pequeno' }, el('b', null, 'Cuándo elegir ' + minus(v.nombre) + ': '), v.cuando_elegirla) : null,
+    D.perfil && v.para_tu_perfil ? el('p', { class: 'pequeno' }, el('b', null, 'Con tu forma de jugar: '), v.para_tu_perfil) : null,
+    datos.length ? el('p', { class: 'muted pequeno' }, datos.join(' · ') + '.') : null,
+    ver.explicacion || resumen.length || fuentesDato.length ? el('details', { class: 'compra-mas', 'data-clave': 'variante-porque' }, el('summary', null, 'Por qué esta recomendación (datos)'),
+      ver.explicacion ? el('p', { class: 'sec pequeno' }, ver.explicacion) : null,
+      resumen.length ? el('ul', { class: 'lista-perfil sec pequeno datos-variante' }, resumen.map((x) => el('li', null, el('b', null, x[0] + ': '), x[1]))) : null,
+      fuentesDato.length ? el('p', { class: 'muted pequeno' }, el('b', null, 'Cómo se mide: '), [...new Set(fuentesDato)].join('; ') + '. Los porcentajes de victorias son de las partidas que siguen esta build; con menos de ' + DATO_POCAS + ' partidas, tómalos como orientativos.') : null) : null,
+    (v.fuentes || []).length ? el('details', { class: 'compra-mas', 'data-clave': 'variante-fuentes' }, el('summary', null, 'Fuentes de esta variante'), el('ul', { class: 'lista-perfil sec pequeno fuentes-perfil' }, v.fuentes.map((s) => el('li', null, s.url ? el('a', { href: s.url, target: '_blank', rel: 'noopener' }, s.titulo || s.url) : s.titulo, s.que_aporta ? ' · ' + s.que_aporta : '')))) : null);
+}
+/** «Lo que dicen los datos»: más usado, más ganador y lo de los mejores jugadores, en 4 niveles */
+function bloqueDatosBuilds(h) {
+  const e = D.estadBuilds && D.estadBuilds.heroes && D.estadBuilds.heroes[h.id]; if (!e) return null;
+  const NIV = [['tu_nivel', 'Initiate–Acolyte'], ['todos', 'Todos los rangos'], ['alto', 'Ascendant y Eternus'], ['pros', 'Mejores jugadores de ' + nombreH(h)]];
+  const ESTILO = { arma: 'Arma', espiritu: 'Espíritu', vitalidad: 'Vitalidad', hibrido_arma: 'Híbrida (más arma)', hibrido_espiritu: 'Híbrida (más espíritu)' };
+  // Menos de 100 partidas: el % es orientativo y se marca con *
+  const POCAS = 100; const ast = (n) => (n != null && n < POCAS ? '*' : '');
+  const chips = (l, f) => el('div', { class: 'fila' }, (l || []).slice(0, 3).map((x) => { const o = objeto(x.clase); return o ? el('span', { class: 'fila', style: { gap: '4px' }, title: x.partidas != null ? fmt(x.partidas) + ' partidas' : null }, chipO(o), el('span', { class: 'muted pequeno num' }, f(x) + ast(x.partidas))) : null; }));
+  const tarjetas = NIV.filter(([k]) => e[k] && e[k].partidas > 0).map(([k, t]) => { const n = e[k];
+    const est = Object.entries(n.estilos || {}).sort((a, b) => b[1].partidas - a[1].partidas);
+    return el('div', { class: 'tarjeta datos-nivel' }, el('h4', null, t), el('p', { class: 'muted pequeno' }, fmt(n.partidas) + ' partidas' + (n.jugadores ? ' de ' + n.jugadores + ' cuentas de la tabla de clasificación' : '') + (n.wr_heroe != null ? ' · el héroe gana el ' + fmtPct(n.wr_heroe) : '')),
+      est.length ? el('p', { class: 'pequeno' }, el('b', null, 'Estilos de las builds de la comunidad: '), est.map(([k2, a]) => (ESTILO[k2] || k2) + ' ' + fmtPct(a.wr) + ast(a.partidas) + ' (' + fmt(a.partidas) + ')').join(' · ')) : null,
+      el('div', { class: 'etiqueta' }, 'Nivel 4 más usados'), chips(n.t4_usados, (x) => fmtD(x.pick, 1) + ' %'),
+      el('div', { class: 'etiqueta' }, 'Nivel 4 que más ganan'), chips(n.t4_ganadores, (x) => fmtPct(x.wr)),
+      (n.maxea_primero || []).length ? el('p', { class: 'pequeno' }, el('b', null, 'Maxean primero: '), n.maxea_primero.slice(0, 2).map((m) => m.habilidad + ' ' + fmtD(m.pct, 1) + ' % (gana ' + fmtPct(m.wr) + ')').join(' · ')) : null); });
+  if (!tarjetas.length) return null;
+  return el('details', { class: 'plegable datos-builds', 'data-clave': 'datos-builds' }, el('summary', null, 'Lo que dicen los datos: lo más usado, lo que más gana y lo de los mejores jugadores'),
+    el('div', { class: 'contenido' }, el('p', { class: 'muted pequeno' }, 'Ojo con los niveles 4 «que más ganan»: quien llega a comprarlos tarde suele ir ganando. Compáralos entre sí y fíjate también en cuántos los usan. Los estilos salen de las builds publicadas por la comunidad que más se juegan (arma, espíritu o vitalidad según en qué color van la mayoría de sus almas). * = menos de ' + POCAS + ' partidas: orientativo.'), el('div', { class: 'grid-2' }, tarjetas)));
 }
 function bloqueBuildFases(h) {
   const f = fasesDe(h); if (!f || !(f.fases || []).length) return null;
   const cont = el('div', { class: 'build-por-fases' });
+  const sv = selectorVariante(h); if (sv) cont.append(sv);
+  const db = bloqueDatosBuilds(h); if (db) cont.append(db);
   cont.append(el('div', { class: 'fila acciones-build' },
     el('button', { type: 'button', class: 'boton primario', onclick: () => copiar(textoBuildFases(h)) }, 'Copiar build completa'),
     el('a', { class: 'boton', href: '#build-nueva-' + h.clase }, 'Abrir en el creador y personalizar')));
@@ -298,10 +540,12 @@ function bloqueBuildFases(h) {
   cont.append(ayudaJuego());
   // Saltos rápidos entre fases (la build es larga)
   const saltos = f.fases.map((x) => [x.fase, (FASES[x.fase] || { nombre: x.fase }).nombre.replace(/^Fase /, '')]);
+  if (finalDe(h) && finalDe(h).pasos.length) saltos.push(['final', 'Final']);
   if ((f.vender || []).length) saltos.push(['vender', 'Qué vender']);
   cont.append(el('nav', { class: 'saltos-fase', 'aria-label': 'Ir a una fase' }, el('span', { class: 'etiqueta' }, 'Ir a'),
     saltos.map(([id, t]) => el('a', { href: '#', onclick: (ev) => { ev.preventDefault(); const d = document.getElementById(id === 'vender' ? 'vender-build' : 'fase-' + id); if (d) d.scrollIntoView({ block: 'start' }); } }, t[0].toUpperCase() + t.slice(1)))));
   for (const fase of f.fases) cont.append(panelFase(h, fase));
+  const bf = bloqueFinal(h); if (bf) cont.append(bf);
   if ((f.vender || []).length) cont.append(el('section', { class: 'tarjeta vender', id: 'vender-build' }, el('h3', null, 'Qué vender y cuándo'),
     el('div', { class: 'col' }, f.vender.map((v) => { const o = objeto(v.clase || v.objeto); return o ? el('div', { class: 'vender-fila' }, chipO(o), el('span', { class: 'sec pequeno' }, v.cuando)) : null; }))));
   cont.append(el('p', { class: 'muted pequeno' }, 'Minutos y almas: media real de las partidas de los últimos 14 días con este héroe (api.deadlock-api.com). «Almas» son las almas acumuladas que se suelen llevar en ese minuto, no las que tienes en mano.'));

@@ -338,20 +338,13 @@ RUTAS.heroe = function (clase) {
   // Orden de habilidades
   const ordenCont = el('div');
   let acciones = null;
-  if (g && g.orden_habilidades) {
-    const oh = g.orden_habilidades;
-    const idxDeNombre = (n) => { const i = abs.findIndex((a) => sinAcentos(a.nombre) === sinAcentos(n) || sinAcentos(a.nombre_en) === sinAcentos(n) || sinAcentos(n).includes(sinAcentos(a.nombre_en)) || sinAcentos(n).includes(sinAcentos(a.nombre))); return i >= 0 ? i + 1 : null; };
-    const ordenIdx = (oh.orden || []).map(idxDeNombre).filter(Boolean);
-    if (ordenIdx.length) {
-      // Desbloqueo en el orden indicado; luego se maxea la primera, después el resto
-      const desbloqueo = ordenIdx.slice(); for (let i = 1; i <= 4; i++) if (!desbloqueo.includes(i)) desbloqueo.push(i);
-      const primera = idxDeNombre(oh.primera_maxima || '') || ordenIdx[0];
-      const orden = []; const resto = desbloqueo.filter((x) => x !== primera);
-      // 1 punto en cada una desbloqueada, luego maxear la primera, luego las demás en orden
-      for (const x of desbloqueo) orden.push({ h: x, pa: 1 });
-      orden.push({ h: primera, pa: 2 }, { h: primera, pa: 5 });
-      for (const x of resto) orden.push({ h: x, pa: 2 }, { h: x, pa: 5 });
-      acciones = secuenciaDesdeBuild({ desbloqueo, orden });
+  const ohV = ordenHabilidadesDe(h);
+  if (ohV) {
+    const oh = ohV;
+    // Desbloqueo: las tres normales por prioridad y la definitiva al final; luego se maxea por prioridad
+    const sec = secuenciaHabilidades(h, oh);
+    if (sec) {
+      acciones = secuenciaDesdeBuild(sec);
       ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''), el('div', { class: 'etiqueta', style: { margin: '8px 0 4px' } }, 'Secuencia orientativa (N = nivel de poder en el que suele poder comprarse)'), vistaSecuencia(h, acciones));
     } else ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''));
   }

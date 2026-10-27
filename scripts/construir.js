@@ -24,10 +24,14 @@ try { version = JSON.parse(fs.readFileSync(path.join(RAIZ, 'data', 'version.json
 
 // Huella de los datos: cambia con cualquier cambio en data/*.json. La web la añade a la URL de cada JSON,
 // así el navegador puede guardarlos en caché sin servir nunca datos viejos.
+// Con perfil (copia privada) las variantes salen de data/variantes_perfil/; sin él, de data/variantes/ (públicas)
+const HAY_PERFIL = fs.existsSync(path.join(RAIZ, 'data', 'perfil.json'));
+const SUBCARPETAS = HAY_PERFIL ? ['variantes', 'variantes_perfil'] : ['variantes'];
 let huella = '';
 try {
   const h = require('crypto').createHash('sha1');
   for (const f of fs.readdirSync(path.join(RAIZ, 'data')).filter((n) => n.endsWith('.json')).sort()) h.update(f).update(fs.readFileSync(path.join(RAIZ, 'data', f)));
+  for (const sub of SUBCARPETAS) { const d = path.join(RAIZ, 'data', sub); if (fs.existsSync(d)) for (const f of fs.readdirSync(d).filter((n) => n.endsWith('.json')).sort()) h.update(sub + '/' + f).update(fs.readFileSync(path.join(d, f))); }
   huella = h.digest('hex').slice(0, 10);
 } catch (e) { /* sin datos aún */ }
 
@@ -36,7 +40,7 @@ const salida = plantilla
   .replace('/*__JS__*/', () => js)
   .replace(/__GENERADO__/g, () => (version.generado || '').slice(0, 10))
   .replace(/__HUELLA_DATOS__/g, () => huella)
-  .replace(/__HAY_PERFIL__/g, () => (fs.existsSync(path.join(RAIZ, 'data', 'perfil.json')) ? 'si' : 'no'));
+  .replace(/__HAY_PERFIL__/g, () => (HAY_PERFIL ? 'si' : 'no'));
 
 // artefacto.html: fragmento para publicar como Artifact (la plataforma añade doctype, head y body)
 fs.writeFileSync(path.join(RAIZ, 'artefacto.html'), salida);
@@ -62,6 +66,12 @@ console.log(`artefacto.html (${Math.round(salida.length / 1024)} KB) e index.htm
 const DATA = path.join(RAIZ, 'data');
 if (fs.existsSync(DATA)) {
   const datos = {};
+  for (const sub of SUBCARPETAS) {
+    const SUB = path.join(DATA, sub);
+    if (fs.existsSync(SUB)) for (const f of fs.readdirSync(SUB).filter((n) => n.endsWith('.json')).sort()) {
+      try { datos['data/' + sub + '/' + f] = JSON.parse(fs.readFileSync(path.join(SUB, f), 'utf8')); } catch (e) { console.warn('  JSON inválido, no se incluye: ' + sub + '/' + f, e.message); }
+    }
+  }
   for (const f of fs.readdirSync(DATA).filter((n) => n.endsWith('.json')).sort()) {
     try { datos['data/' + f] = JSON.parse(fs.readFileSync(path.join(DATA, f), 'utf8')); } catch (e) { console.warn('  JSON inválido, no se incluye:', f, e.message); }
   }

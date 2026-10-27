@@ -191,3 +191,53 @@ En la carpeta `capturas/`: tier list, héroes, ficha de Abrams, build recomendad
 ## Capturas de esta entrega
 
 Están en `capturas/perfil/` y no se suben al repositorio porque llevan tus datos: `01-perfil-pc-arriba.png`, `02-perfil-pc-donde-se-escapan.png`, `03-perfil-pc-tier-de-tu-nivel.png`, `04-perfil-pc-builds-para-ti.png`, `05-perfil-pc-composiciones.png`, `06-perfil-movil-arriba.png`, `07-perfil-movil-barras.png`, `08-creador-victor-para-ti.png`.
+
+# Cuarta entrega (26-10-2026): la mejor build de cada héroe y la fase final
+
+**Estado:** publicado en GitHub Pages (sin datos personales) y en el Artifact privado (con el análisis de tu perfil).
+
+## Qué pediste y qué hay
+
+| Pedido | Dónde está |
+|---|---|
+| La mejor build de cada héroe (arma, espíritu, vitalidad o híbrida) | En la ficha de cada uno de los 44 héroes, **«Estilo de build»**: 120 variantes en total. Cada héroe tiene marcada la mejor en Initiate–Acolyte, en todos los rangos y la de los mejores jugadores, con el porqué y los datos. |
+| Builds para héroes aunque no te los recomiende | Todos los héroes tienen sus variantes, se recomienden o no. |
+| Lo más usado, lo que más gana y lo de los mejores | En cada variante, **«Por qué esta recomendación (datos)»**; en la ficha, **«Lo que dicen los datos»** en cuatro niveles: Initiate–Acolyte, todos los rangos, Ascendant y Eternus, y los mejores jugadores del héroe según la tabla de clasificación. |
+| Fase final (35-60 min): vender un nivel 1-3 y comprar un nivel 4 | Cada variante tiene su **fase final** con pasos en orden: qué vender, qué comprar, en qué minuto, por qué y la nota para pegar en el editor de builds del juego. Hay 588 pasos en total. |
+| Copiar al juego | «Copiar build completa» incluye el estilo, el orden de habilidades y la fase final. «Abrir en el creador» abre la variante elegida. |
+
+## Cómo se hizo
+
+1. **Investigación (un agente por héroe y otro que lo verificó):** datos de la API pública (compras, builds de la comunidad, habilidades y tabla de clasificación) y guías actuales.
+2. **Estadísticas por nivel:** `scripts/estadisticas_builds.js` las reduce a `data/estadisticas_builds.json`. El total de partidas de cada nivel sale de las estadísticas del héroe con los mismos filtros.
+3. **Unión y validación:** `scripts/variantes.js` comprueba clases de objeto, fases y fase final.
+4. **Construcción a una sola mano:** selector de variante, fase final y bloque de datos.
+5. **Revisión por agentes** (computadora, celular, datos y privacidad) y comprobación automática de las 120 variantes: sin errores, sin notas repetidas, y la definitiva siempre se desbloquea la última.
+
+## Decisiones que tomé sin preguntarte
+
+- **Dos copias de las variantes.** La pública (`data/variantes/`) no lleva nada del jugador: sin «para ti» y con «tu nivel» cambiado por «Initiate–Acolyte». La completa (`data/variantes_perfil/`) está en `.gitignore` y solo va a la copia local y al Artifact.
+- **El orden de habilidades** de cada variante es una prioridad para mejorar. Al desbloquear, las tres normales van primero y la definitiva al final, como se juega.
+- **El total de partidas** se corrigió: antes se tomaba el objeto más comprado como total, y los % de compra salían entre un 10 y un 20 % más altos. Las 39 frases que citaban ese total se reescribieron con el dato real.
+- **Al cambiar de variante** la página no salta y los plegables abiertos siguen abiertos.
+
+## Lo que falta
+
+- **Correcciones a la build base:** los agentes propusieron unas 210, guardadas para revisarlas en una segunda pasada.
+- **Algunos % de compra en los textos** pueden venir de totales antiguos sin citarlos. Los que citaban el total ya están corregidos; los demás son orientativos.
+- **Las variantes no se rehacen solas.** Los datos diarios se actualizan, pero los textos de las variantes son del 25-26 de octubre.
+
+## Fuentes de esta entrega
+
+- **API pública de Deadlock** (api.deadlock-api.com): compras por minuto, builds de la comunidad, habilidades, estadísticas por rango y tabla de clasificación.
+- **Guías y estadísticas:**
+  - deadlock.wiki
+  - lockbuilds.com
+  - seemeta.com
+  - tracklock.gg
+  - metabot.gg
+  - statlocker.gg
+  - games.gg
+  - buildlocker.gg
+  - deadlocktiers.com
+  - vídeos de jugadores en YouTube y Twitch

@@ -3,7 +3,7 @@
    Taller de Deadlock — núcleo: datos, utilidades, router, almacén
    ============================================================ */
 
-const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null, compras: null, fases: {}, mapa: null, perfil: null };
+const D = { heroes: [], habilidades: {}, objetos: [], stats: null, sinergias: null, builds: null, objStats: null, rangos: [], version: null, guias: {}, meta: null, comps: null, objGuia: {}, parche: null, sistemas: null, itemizacion: null, habStats: null, compras: null, fases: {}, mapa: null, perfil: null, variantes: null, estadBuilds: null };
 const IDX = { heroPorId: {}, heroPorClase: {}, heroPorNombre: {}, objPorClase: {}, objPorId: {}, objPorNombre: {} };
 const PREF = (() => {
   let p = { nombres: 'en', ventana: '7d', bracket: 'todos', fuenteTier: 'datos' };
@@ -96,6 +96,12 @@ function traducirNombres(t) {
     for (const h of D.heroes) if (h.nombre_en && h.nombre && h.nombre_en !== h.nombre) m.set(h.nombre_en, h.nombre);
     for (const id in D.habilidades) for (const a of D.habilidades[id] || []) if (a.nombre_en && a.nombre && a.nombre_en !== a.nombre) m.set(a.nombre_en, a.nombre);
     for (const o of D.objetos) if (o.nombre && o.nombre_es && o.nombre !== o.nombre_es) m.set(o.nombre, o.nombre_es);
+    // Nombres cortos que usan las guías y la comunidad («Kevlar», «Titanic»): solo si una palabra identifica un único objeto
+    for (const corto of ['Transcendent', 'Kevlar', 'Reverb', 'Titanic', 'Plated', 'Overflow', 'Exposure', 'Locket', 'Crippling', 'Emblem', 'Cultist', 'Boundless']) {
+      if (m.has(corto)) continue;
+      const cand = D.objetos.filter((o) => o.nombre && o.nombre_es && o.nombre.split(/[\s']+/).includes(corto));
+      if (cand.length === 1) m.set(corto, cand[0].nombre_es);
+    }
     if (!m.size || !Object.keys(D.habilidades).length) return t;
     const claves = [...m.keys()].sort((a, b) => b.length - a.length).map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, (c) => '\\' + c));
     REGEX_ES = new RegExp('(?<![\\p{L}\\p{N}])(?:' + claves.join('|') + ')(?![\\p{L}\\p{N}])', 'gu');
@@ -388,9 +394,28 @@ window.addEventListener('hashchange', render);
 /* Al volver atrás, cada sección vuelve a donde estabas: la posición se guarda en la entrada del historial,
    anclada a la primera sección visible (las secciones largas usan content-visibility y su altura cambia al repintar) */
 let guardarScrollDesde = 0;
+/* Repintar la misma sección sin mover lo que el lector tiene delante (p. ej. al cambiar de variante de build):
+   el elemento «sel» queda a la misma altura, los plegables con data-clave abiertos siguen abiertos
+   y el foco vuelve al botón activo si estaba dentro */
+let anclaRepintado = null;
+function repintarAnclado(sel) {
+  const e = document.querySelector('#vista ' + sel);
+  const act = document.activeElement;
+  anclaRepintado = { sel, top: e ? e.getBoundingClientRect().top : null, foco: !!(e && act && e.contains(act)),
+    abiertos: [...document.querySelectorAll('#vista details[data-clave]')].filter((d) => d.open).map((d) => d.dataset.clave) };
+  render();
+}
 function restaurarScroll(token) {
   const st = history.state;
   guardarScrollDesde = Date.now() + 700;
+  if (anclaRepintado) {
+    const a = anclaRepintado; anclaRepintado = null;
+    document.querySelectorAll('#vista details[data-clave]').forEach((d) => { if (a.abiertos.includes(d.dataset.clave)) d.open = true; });
+    const fijar = () => { const e = document.querySelector('#vista ' + a.sel); if (e && a.top != null) { const dy = e.getBoundingClientRect().top - a.top; if (Math.abs(dy) > 1) window.scrollBy(0, dy); } };
+    fijar(); requestAnimationFrame(() => { fijar(); requestAnimationFrame(fijar); });
+    if (a.foco) { const b = document.querySelector('#vista ' + a.sel + ' .segmento button.activo'); if (b) try { b.focus({ preventScroll: true }); } catch (e) { /* nada */ } }
+    return;
+  }
   if (!(st && st.ruta === token && (st.ancla || st.y))) { window.scrollTo({ top: 0 }); return; }
   const saltar = () => {
     if (st.ancla) {
@@ -499,24 +524,39 @@ const GRUPOS_DATOS = {
   compras: ['data/compras.json', (j) => { D.compras = j; }],
   fases: ['data/fases.json', (j) => { D.fases = (j && j.heroes) || {}; }],
   mapa: ['data/mapa.json', (j) => { D.mapa = j; }],
+  estadBuilds: ['data/estadisticas_builds.json', (j) => { D.estadBuilds = j; }],
   // Foto de tus partidas (scripts/perfil.js). Es personal: no se sube al repositorio público
   perfil: ['data/perfil.json', (j) => { D.perfil = j; }],
 };
 const DATOS_POR_RUTA = {
-  tier: ['guias'], heroes: ['guias'], heroe: ['guias', 'fases', 'compras', 'builds', 'mapa', 'objGuia'],
+  tier: ['guias'], heroes: ['guias'], heroe: ['guias', 'fases', 'compras', 'builds', 'mapa', 'objGuia', 'estadBuilds', 'perfil'],
   objetos: ['objGuia'], objeto: ['objGuia', 'compras', 'fases'],
-  builds: [], build: ['guias', 'fases', 'compras', 'builds', 'objGuia'], perfil: ['perfil'],
+  builds: [], build: ['guias', 'fases', 'compras', 'builds', 'objGuia', 'perfil'], perfil: ['perfil'],
   equipos: ['guias', 'comps'], guia: ['sistemas'], 'guia-objetos': ['itemizacion'], 'guia-mapa': ['mapa'], novedades: ['guias', 'objGuia'],
 };
 /** Datos que necesita una ruta (#guia-mapa tiene los suyos; si no, los de su sección) */
-function datosDeRuta(token) { if (token.startsWith('build-perfil-')) return [...DATOS_POR_RUTA.build, 'perfil']; const base = token.split('-')[0]; return DATOS_POR_RUTA[token] || DATOS_POR_RUTA[RUTAS[base] ? base : 'tier'] || DATOS_POR_RUTA.tier; }
+function datosDeRuta(token) {
+  const lista = token.startsWith('build-perfil-') ? [...DATOS_POR_RUTA.build, 'perfil'] : (() => { const base = token.split('-')[0]; return DATOS_POR_RUTA[token] || DATOS_POR_RUTA[RUTAS[base] ? base : 'tier'] || DATOS_POR_RUTA.tier; })();
+  // Variantes de build del héroe de la ficha o del creador (#heroe-<clase>, #build-nueva-<clase>, #build-perfil-<clase>)
+  const m = token.match(/^(?:heroe|build-nueva|build-perfil)-(.+)$/);
+  const h = m && heroe(m[1]);
+  return h ? [...lista, 'var:' + h.id] : lista;
+}
+// Grupos de datos por héroe: «var:<id>» → data/variantes/<id>.json (pública) o, con perfil,
+// data/variantes_perfil/<id>.json (la misma, con lo que es solo para el jugador)
+function grupoDatos(k) {
+  if (GRUPOS_DATOS[k]) return GRUPOS_DATOS[k];
+  const id = k.startsWith('var:') ? k.slice(4) : null;
+  if (id) return ['data/' + (HAY_PERFIL ? 'variantes_perfil/' : 'variantes/') + id + '.json', (j) => { if (!j) return; D.variantes = D.variantes || { heroes: {} }; D.variantes.heroes[id] = j; }];
+  return null;
+}
 const datosCargados = new Set(); const promesasDatos = {};
 function hayDatos(claves) { return (claves || []).every((k) => datosCargados.has(k)); }
 function asegurarDatos(claves) {
   // perfil.json solo existe en la copia local y en el Artifact privado: en la web pública no se pide (evita un 404)
   if (!HAY_PERFIL) datosCargados.add('perfil');
-  return Promise.all((claves || []).filter((k) => HAY_PERFIL || k !== 'perfil').map((k) => promesasDatos[k] || (promesasDatos[k] = cargarJSON(GRUPOS_DATOS[k][0], true)
-    .then((j) => { GRUPOS_DATOS[k][1](j); }).catch(() => { /* opcional: la sección lo indica */ }).then(() => { datosCargados.add(k); }))));
+  return Promise.all((claves || []).filter((k) => (HAY_PERFIL || k !== 'perfil') && grupoDatos(k)).map((k) => promesasDatos[k] || (promesasDatos[k] = cargarJSON(grupoDatos(k)[0], true)
+    .then((j) => { grupoDatos(k)[1](j); }).catch(() => { /* opcional: la sección lo indica */ }).then(() => { datosCargados.add(k); }))));
 }
 async function cargarDatos() {
   const [heroes, habilidades, objetos, stats, sinergias, objStats, rangos, version, meta, parche, habStats] = await Promise.all([

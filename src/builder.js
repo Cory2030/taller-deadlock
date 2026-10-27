@@ -11,8 +11,8 @@ function buildNueva(h) {
     { nombre: 'Fase media', objetos: [], opcional: false }, { nombre: 'Media · situacionales', objetos: [], opcional: true },
     { nombre: 'Fase avanzada', objetos: [], opcional: false }, { nombre: 'Avanzada · situacionales', objetos: [], opcional: true }] };
 }
-function buildDesdeGuia(h) {
-  const b = buildNueva(h); const g = guia(h); const f = fasesDe(h);
+function buildDesdeGuia(h, clave) {
+  const b = buildNueva(h); const g = guia(h); const f = fasesDe(h, clave);
   if (f && (f.fases || []).length) {
     // Build por fases: núcleo + situacionales (opcional) por fase, con la nota corta para el juego
     const conv = (arr, situacional) => (arr || []).map((e) => { const o = objeto(e.clase || e.objeto); return o ? { clase: o.clase, nota: notaJuego(e, situacional) || e.cuando || e.por_que || '' } : null; }).filter(Boolean);
@@ -26,6 +26,17 @@ function buildDesdeGuia(h) {
     // Un situacional que ya está en el núcleo de otra fase no se repite
     const enNucleo = new Set(b.categorias.filter((c) => !c.opcional).flatMap((c) => c.objetos.map((x) => x.clase)));
     for (const c of b.categorias) if (c.opcional) c.objetos = c.objetos.filter((x) => !enNucleo.has(x.clase));
+    // Final de partida: los cambios con ranuras llenas, como categoría opcional al final
+    const fin = finalDe(h, clave);
+    if (fin && fin.pasos.length) {
+      const yaEsta = new Set(b.categorias.filter((c) => !c.opcional).flatMap((c) => c.objetos.map((x) => x.clase)));
+      const objs = fin.pasos.filter((p) => p.compra && !yaEsta.has(p.compra.clase)).map((p) => ({ clase: p.compra.clase, nota: notaFinal(p) }));
+      if (objs.length) {
+        const nuevos = new Set(objs.map((x) => x.clase));
+        for (const c of b.categorias) if (c.opcional && c.fase === 'avanzada') c.objetos = c.objetos.filter((x) => !nuevos.has(x.clase));
+        b.categorias.push({ nombre: fin.titulo || 'Final · ranuras llenas', descripcion: fin.descripcion || 'Con las 12 ranuras ocupadas y almas de sobra, en este orden', objetos: objs, opcional: true, fase: 'final' });
+      }
+    }
     b.nombre = f.titulo_build_juego || nombreH(h) + ' · por fases';
     b.notas = f.descripcion_build_juego || (g && g.arquetipo_por_que) || '';
   } else if (g && g.build) {
@@ -39,17 +50,11 @@ function buildDesdeGuia(h) {
     b.notas = 'Build generada a partir de los objetos más comprados y con mejor winrate según los datos de la API.';
   }
   // Orden de habilidades desde la guía (misma lógica que la ficha) o desde la build comunitaria más jugada
-  const abs = D.habilidades[h.id] || [];
-  if (g && g.orden_habilidades && g.orden_habilidades.orden) {
-    const idxDeNombre = (n) => { const i = abs.findIndex((a) => sinAcentos(a.nombre) === sinAcentos(n) || sinAcentos(a.nombre_en) === sinAcentos(n) || sinAcentos(n).includes(sinAcentos(a.nombre_en)) || sinAcentos(n).includes(sinAcentos(a.nombre))); return i >= 0 ? i + 1 : null; };
-    const ordenIdx = g.orden_habilidades.orden.map(idxDeNombre).filter(Boolean);
-    if (ordenIdx.length) {
-      const desbloqueo = ordenIdx.slice(); for (let i = 1; i <= 4; i++) if (!desbloqueo.includes(i)) desbloqueo.push(i);
-      const primera = idxDeNombre(g.orden_habilidades.primera_maxima || '') || ordenIdx[0];
-      const orden = []; for (const x of desbloqueo) orden.push({ h: x, pa: 1 }); orden.push({ h: primera, pa: 2 }, { h: primera, pa: 5 }); for (const x of desbloqueo.filter((x) => x !== primera)) orden.push({ h: x, pa: 2 }, { h: x, pa: 5 });
-      b.desbloqueo = desbloqueo; b.orden = orden;
-    }
-  }
+  const ohB = (f && f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : null) || (g && g.orden_habilidades);
+  const sec = secuenciaHabilidades(h, ohB);
+  if (sec) { b.desbloqueo = sec.desbloqueo; b.orden = sec.orden; }
+  // Variante de la que sale (para «Usar el orden de la guía» y la nota del orden en el creador)
+  if (f && f.variante) b.variante = f.variante.clave;
   if (!b.orden.length) { const com = ((D.builds && D.builds.heroes && D.builds.heroes[h.id]) || []).find((x) => x.orden && x.orden.length >= 6); if (com) { b.desbloqueo = com.desbloqueo.slice(); b.orden = com.orden.slice(); } }
   return b;
 }
@@ -149,6 +154,8 @@ RUTAS.build = function (param) {
   const colHab = el('div', { class: 'col' });
   colHab.append(el('h2', null, 'Orden de habilidades'), el('p', { class: 'sec pequeno' }, 'Pulsa una habilidad para desbloquearla o subirle el siguiente nivel (cuestan 1, 2 y 5 puntos). Las 4 habilidades se desbloquean en los niveles de poder 1, 3, 5 y 8; los puntos llegan con el resto de niveles. N = nivel de poder en el que suele ser posible.'));
   const tablero = el('div', { class: 'pa-tablero' }); colHab.append(tablero);
+  // Orden de la guía: el de la variante de la que salió la build (o la elegida en la ficha)
+  const ohGuia = ordenHabilidadesDe(h, b.variante || undefined);
   function estadoHab() {
     const acciones = secuenciaDesdeBuild(b); const des = new Set(); const tiers = { 1: 0, 2: 0, 3: 0, 4: 0 };
     for (const a of acciones) { if (a.tipo === 'desbloqueo') des.add(a.h); else tiers[a.h]++; }
@@ -188,8 +195,8 @@ RUTAS.build = function (param) {
       el('button', { class: 'boton mini', type: 'button', onclick: () => { // Autocompletar: desbloquear las que faltan, 1 punto en cada una, luego maxear en orden de desbloqueo
         const { des: d2, tiers: t2 } = estadoHab(); for (let i = 1; i <= 4; i++) if (!d2.has(i)) b.desbloqueo.push(i); const ordenDes = secuenciaDesdeBuild(b).filter((x) => x.tipo === 'desbloqueo').map((x) => x.h); for (const i of ordenDes) if (t2[i] < 1) { b.orden.push({ h: i, pa: 1 }); t2[i] = 1; } for (const i of ordenDes) while (t2[i] < 3) { b.orden.push({ h: i, pa: [1, 2, 5][t2[i]] }); t2[i]++; } sucio = true; pintarHab(); } }, 'Autocompletar'),
       el('button', { class: 'boton mini', type: 'button', onclick: () => { b.desbloqueo = []; b.orden = []; sucio = true; pintarHab(); } }, 'Vaciar'),
-      guia(h) && guia(h).orden_habilidades ? el('button', { class: 'boton mini', type: 'button', onclick: () => { const g2 = buildDesdeGuia(h); b.desbloqueo = g2.desbloqueo; b.orden = g2.orden; sucio = true; pintarHab(); } }, 'Usar el orden de la guía') : null));
-    if (guia(h) && guia(h).orden_habilidades && guia(h).orden_habilidades.detalle) tablero.append(el('div', { class: 'nota-caja' }, el('b', null, 'Guía: '), guia(h).orden_habilidades.detalle));
+      ohGuia ? el('button', { class: 'boton mini', type: 'button', onclick: () => { const s2 = secuenciaHabilidades(h, ohGuia); if (!s2) return; b.desbloqueo = s2.desbloqueo; b.orden = s2.orden; sucio = true; pintarHab(); } }, 'Usar el orden de la guía') : null));
+    if (ohGuia && ohGuia.detalle) tablero.append(el('div', { class: 'nota-caja' }, el('b', null, 'Guía: '), ohGuia.detalle));
   }
   pintarHab();
   cuerpo.append(colHab);

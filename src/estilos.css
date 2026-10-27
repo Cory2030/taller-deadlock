@@ -836,3 +836,32 @@ details.plegable > ul.contenido { padding-left: calc(14px + 1.2em); }
   .indice-perfil .chip { min-height: 36px; }
 }
 @media (pointer: coarse) { .cat-item textarea, .cat-desc textarea, .categoria textarea, .builder textarea { font-size: 16px; } }
+
+/* Final de partida: pasos con ranuras llenas */
+.fase-final .pasos-final { margin: 10px 0 0; padding-left: 1.4em; display: grid; gap: 12px; }
+.fase-final .paso-final::marker { color: var(--laton); font-weight: 700; }
+.fase-final .paso-final .fila { gap: 6px; flex-wrap: wrap; align-items: center; }
+.fase-final .paso-final p { margin: 6px 0; }
+.fase-final .flecha-final { color: var(--fg-3); font-weight: 700; }
+.build-final-completa { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--linea); }
+.build-final-completa .fila { gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+
+/* Selector de estilo de build (arma, espíritu, vitalidad) */
+.selector-variante { margin-bottom: 14px; }
+.selector-variante .control { align-items: flex-start; }
+.selector-variante p { margin: 6px 0 0; max-width: 90ch; }
+.selector-variante details { margin-top: 8px; }
+/* Botones de variante: el nombre y debajo una insignia corta («★ todos»); bajan de fila si no caben */
+.selector-variante .segmento { flex-wrap: wrap; overflow: visible; border-radius: 16px; }
+.selector-variante .segmento button { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; border-radius: 12px; text-align: left; line-height: 1.2; }
+.selector-variante .marca-var { font-size: 0.72rem; font-weight: 500; opacity: 0.85; }
+@media (max-width: 640px) {
+  .selector-variante .control { flex-direction: column; align-items: stretch; }
+  .selector-variante .segmento { display: flex; flex-direction: column; align-items: stretch; width: 100%; }
+  .selector-variante .segmento button { white-space: normal; width: 100%; }
+}
+
+.datos-builds { margin: 10px 0 14px; }
+.datos-nivel h4 { margin: 0 0 4px; }
+.datos-nivel .fila { gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; }
+.datos-variante { margin-top: 8px; }

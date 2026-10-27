@@ -114,8 +114,20 @@ function notaAjuste(a) {
   if (p > 60) return corte.slice(0, p + 1).replace(/;$/, '.');
   return corte.slice(0, corte.lastIndexOf(' ')).replace(/[,;:]$/, '') + '…';
 }
+// Variante de build recomendada para el jugador, si no es la base (ya está pensada para su perfil)
+function varianteParaTi(h) {
+  const v = typeof variantesDe === 'function' ? variantesDe(h) : null;
+  const k = v && v.veredicto && v.veredicto.recomendada_para_ti;
+  const x = k && v.variantes.find((y) => y.clave === k);
+  return x && !x.es_base ? x : null;
+}
+function hayBuildParaTi(h) { return !!(varianteParaTi(h) || ajustesPerfil(h).length); }
 function buildConAjustes(h, ajustes) {
-  const b = buildDesdeGuia(h);
+  // La variante «para ti» ya trae los ajustes de tu perfil: se usa tal cual. Los ajustes sueltos del
+  // análisis se escribieron sobre la build base, así que solo se aplican cuando la recomendada es la base.
+  const vt = varianteParaTi(h);
+  if (vt) { const bv = buildDesdeGuia(h, vt.clave); bv.nombre = `Taller · ${nombreH(h)} para ti (${vt.nombre})`; const bh0 = analisisBuild(h); if (bh0 && bh0.nota_juego && !bv.notas) bv.notas = bh0.nota_juego; return bv; }
+  const b = buildDesdeGuia(h, ajustes && ajustes.length ? 'base' : undefined);
   if (!(ajustes || []).length) return b;
   const catDe = (fase, opcional) => b.categorias.find((c) => c.fase === fase && !!c.opcional === opcional) || null;
   const nucleo = (fase) => catDe(fase, false) || b.categorias.find((c) => !c.opcional) || b.categorias[0];
@@ -190,7 +202,7 @@ function buildConAjustes(h, ajustes) {
   if (renombrados.length) { for (const c of b.categorias) { c.descripcion = renombrar(c.descripcion); for (const x of c.objetos) if (x.nota && !ajustes.some((a) => objeto(a.clase || a.objeto) && objeto(a.clase || a.objeto).clase === x.clase)) x.nota = renombrar(x.nota); } b.notas = renombrar(b.notas); }
   const bh = analisisBuild(h);
   if (bh && bh.nota_juego) b.notas = bh.nota_juego + (b.notas ? '\n' + b.notas : '');
-  b.nombre = `Taller · ${nombreH(h)} para ti`;
+  b.nombre = `Taller · ${nombreH(h)} para ti (base + tus ajustes)`;
   return b;
 }
 
@@ -431,7 +443,7 @@ function vistaPerfil(p, alCambiarNivel) {
         el('div', { class: 'fila' }, h ? chipH(h) : el('b', null, x.nombre), x.papel ? el('span', { class: 'chip laton' }, x.papel) : null, t ? el('span', { class: 'tier-de', title: `Tier en ${nivelP.nombre}` }, insigniaTier(t), otroNivel ? el('small', { class: 'muted' }, ' en ' + nivelP.nombre) : null) : null),
         x.por_que ? el('p', { class: 'sec pequeno' }, x.por_que) : null,
         el('div', { class: 'muted pequeno' }, [x.dificultad ? 'Dificultad ' + (typeof x.dificultad === 'number' ? x.dificultad + '/5' : x.dificultad) : '', x.su_historial ? 'Tu historial: ' + x.su_historial : ''].filter(Boolean).join(' · ')),
-        h ? el('div', { class: 'fila acciones-heroe' }, el('a', { class: 'boton mini', href: '#heroe-' + h.clase }, 'Cómo jugarlo'), ajustesPerfil(h).length ? el('a', { class: 'boton mini', href: '#build-perfil-' + h.clase }, 'Build para ti') : null) : null); })),
+        h ? el('div', { class: 'fila acciones-heroe' }, el('a', { class: 'boton mini', href: '#heroe-' + h.clase }, 'Cómo jugarlo'), hayBuildParaTi(h) ? el('a', { class: 'boton mini', href: '#build-perfil-' + h.clase }, 'Build para ti') : null) : null); })),
       (tier.evitar_por_ahora || []).length ? plegable('evitar', `Mejor no por ahora (${tier.evitar_por_ahora.length} héroes)`,
         el('ul', { class: 'contenido sec pequeno lista-perfil' }, tier.evitar_por_ahora.map((x) => { const h = heroe(Number(x.hero_id)) || heroe(x.nombre); return el('li', null, h ? chipH(h, null, true) : el('b', null, x.nombre), x.por_que ? el('div', null, x.por_que) : null); })), false, { marginTop: '12px' }) : null,
       (tier.consejos_de_eleccion || []).length ? plegable('elegir', 'Cómo elegir héroe en cada partida', el('ul', { class: 'contenido sec pequeno lista-perfil' }, tier.consejos_de_eleccion.map((c) => el('li', null, c))), false, { marginTop: '10px' }) : null));
@@ -475,7 +487,7 @@ function vistaPerfil(p, alCambiarNivel) {
     bh.forEach(([id, b], n) => {
       const h = heroe(Number(id)) || heroe(b.nombre); if (!h) return;
       const card = el('div', { class: 'tarjeta build-perfil' + (evitar.has(h.id) ? ' desaconsejado' : '') },
-        el('div', { class: 'fila entre' }, el('div', { class: 'fila' }, chipH(h), evitar.has(h.id) ? el('span', { class: 'chip aviso' }, 'mejor no por ahora') : null), el('div', { class: 'fila' }, el('a', { class: 'boton mini', href: '#heroe-' + h.clase }, 'Build completa del héroe'), (b.ajustes || []).length ? el('a', { class: 'boton mini primario', href: '#build-perfil-' + h.clase }, 'Abrir en el creador con tus ajustes') : null)),
+        el('div', { class: 'fila entre' }, el('div', { class: 'fila' }, chipH(h), evitar.has(h.id) ? el('span', { class: 'chip aviso' }, 'mejor no por ahora') : null), el('div', { class: 'fila' }, el('a', { class: 'boton mini', href: '#heroe-' + h.clase }, 'Build completa del héroe'), varianteParaTi(h) ? el('a', { class: 'boton mini primario', href: '#build-perfil-' + h.clase }, 'Abrir la recomendada para ti (' + varianteParaTi(h).nombre + ')') : (b.ajustes || []).length ? el('a', { class: 'boton mini primario', href: '#build-perfil-' + h.clase }, 'Abrir en el creador con tus ajustes') : null)),
         b.resumen || b.por_que_este_heroe ? el('p', { class: 'sec pequeno' }, b.resumen || b.por_que_este_heroe) : null);
       if ((b.ajustes || []).length) {
         const lista = el('div', { class: 'compras' }, b.ajustes.map((a) => {
@@ -485,7 +497,7 @@ function vistaPerfil(p, alCambiarNivel) {
             o ? chipO(o) : el('b', null, a.objeto || a.clase), viejo ? el('span', { class: 'muted pequeno' }, ' en lugar de ', chipO(viejo)) : null,
             a.cuando ? el('div', { class: 'pequeno' }, el('b', null, 'Cuándo: '), a.cuando) : null, a.por_que ? el('div', { class: 'sec pequeno' }, el('b', null, 'Por qué: '), a.por_que) : null, a.dato ? el('div', { class: 'muted pequeno' }, a.dato) : null);
         }));
-        card.append(el('details', { class: 'plegable ajustes-plegable', 'data-clave': 'build-' + h.id, open: n === 0 && ancho ? true : null }, el('summary', null, `${nombreH(h)}: los ${b.ajustes.length} cambios frente a la build del Taller`), el('div', { class: 'contenido' }, lista)));
+        card.append(el('details', { class: 'plegable ajustes-plegable', 'data-clave': 'build-' + h.id, open: n === 0 && ancho ? true : null }, el('summary', null, `${nombreH(h)}: los ${b.ajustes.length} cambios frente a la build base del Taller` + (varianteParaTi(h) ? ` (la recomendada, «${varianteParaTi(h).nombre}», ya está pensada para tu perfil)` : "")), el('div', { class: 'contenido' }, lista)));
       }
       if ((b.errores_detectados || []).length) card.append(el('details', { class: 'compra-mas' }, el('summary', null, 'Lo que se vio en tus partidas'), el('ul', { class: 'sec pequeno lista-perfil' }, b.errores_detectados.map((e) => el('li', null, e.dato ? el('span', { class: 'muted' }, e.dato + ' → ') : null, e.consejo || '')))));
       if (b.nota_juego) card.append(lineaJuego('Nota para la build en el juego', b.nota_juego));
