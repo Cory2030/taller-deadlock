@@ -150,6 +150,8 @@ for (const [id, v] of Object.entries(salida.heroes)) {
   fs.writeFileSync(path.join(DIRP, id + '.json'), JSON.stringify({ generado: salida.generado, ...v }));
   fs.writeFileSync(path.join(DIR, id + '.json'), JSON.stringify({ generado: salida.generado, ...publico(v, id) }));
 }
+// Copia privada en un solo archivo, para el Artifact (no admite tantos archivos)
+fs.writeFileSync(path.join(RAIZ, 'data', 'variantes_perfil.json'), JSON.stringify({ generado: salida.generado, heroes: salida.heroes }));
 console.log(`Versión pública: ${cambios} reescrituras, ${frasesQuitadas} frases personales quitadas, ${vacios.length} textos que se quedaban vacíos${vacios.length ? ': ' + vacios.slice(0, 12).join(', ') : ''}`);
 const residuo = []; for (const f of fs.readdirSync(DIR)) { const s = fs.readFileSync(path.join(DIR, f), 'utf8'); if (/stiveeng|1096317017|9,5 en derrotas|37 ?% de parr|37 ?% de tus parr|aciertas el 37|tu 37 ?%|tu perfil|tu caso|tus muertes|tus partidas|tu nivel|para_tu_perfil|recomendada_para_ti|por_que_para_ti|encaje_heroe/i.test(s)) residuo.push(f); }
 if (residuo.length) console.log('OJO: quedan marcas personales en ' + residuo.join(', '));

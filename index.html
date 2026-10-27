@@ -1406,10 +1406,12 @@ function montarBusqueda() {
 let promesaDatosLocales = null;
 // construir.js sustituye 2026-10-26 por la fecha de los datos con los que se generó esta página.
 const GENERADO_PAGINA = '2026-10-26';
-// construir.js sustituye 9b410b055e por una huella de data/*.json (ver cargarJSON)
-const HUELLA_DATOS = '9b410b055e';
+// construir.js sustituye be6456d1e4 por una huella de data/*.json (ver cargarJSON)
+const HUELLA_DATOS = 'be6456d1e4';
 // construir.js pone 'si' cuando existe data/perfil.json (foto personal, fuera del repositorio público)
 const HAY_PERFIL = 'no' === 'si';
+// En el Artifact (máximo de archivos por versión) las variantes privadas van en un solo archivo
+const VARIANTES_JUNTAS = 'no' === 'si';
 /** Con doble clic: avisa si data/datos.js es más viejo que la página (p. ej. tras un git pull sin regenerar) */
 function avisarDatosLocalesViejos() {
   if (location.protocol !== 'file:' || !window.__DATOS__ || !/^\d{4}-\d{2}-\d{2}$/.test(GENERADO_PAGINA)) return;
@@ -1467,12 +1469,13 @@ function datosDeRuta(token) {
   // Variantes de build del héroe de la ficha o del creador (#heroe-<clase>, #build-nueva-<clase>, #build-perfil-<clase>)
   const m = token.match(/^(?:heroe|build-nueva|build-perfil)-(.+)$/);
   const h = m && heroe(m[1]);
-  return h ? [...lista, 'var:' + h.id] : lista;
+  return h ? [...lista, VARIANTES_JUNTAS && HAY_PERFIL ? 'varTodas' : 'var:' + h.id] : lista;
 }
 // Grupos de datos por héroe: «var:<id>» → data/variantes/<id>.json (pública) o, con perfil,
 // data/variantes_perfil/<id>.json (la misma, con lo que es solo para el jugador)
 function grupoDatos(k) {
   if (GRUPOS_DATOS[k]) return GRUPOS_DATOS[k];
+  if (k === 'varTodas') return ['data/variantes_perfil.json', (j) => { if (!j || !j.heroes) return; D.variantes = D.variantes || { heroes: {} }; Object.assign(D.variantes.heroes, j.heroes); }];
   const id = k.startsWith('var:') ? k.slice(4) : null;
   if (id) return ['data/' + (HAY_PERFIL ? 'variantes_perfil/' : 'variantes/') + id + '.json', (j) => { if (!j) return; D.variantes = D.variantes || { heroes: {} }; D.variantes.heroes[id] = j; }];
   return null;
