@@ -331,7 +331,7 @@ Están en `capturas/perfil/` y no se suben al repositorio porque llevan tus dato
 | Pedido | Resultado |
 |---|---|
 | Que el orden de desbloqueo coincida con el texto | Las 120 variantes de los 44 héroes traen ahora sus 16 puntos de habilidad en orden, sacados del propio texto. La ficha, el texto que se copia al juego y el creador de builds usan esa lista. |
-| Revisar | 7 revisores (4 de datos, 1 en computadora, 1 en celular y 1 de código) encontraron 18 puntos: todos arreglados. Después, 2 verificadores comprobaron los arreglos. |
+| Revisar | 7 revisores (4 de datos, 1 en computadora, 1 en celular y 1 de código) encontraron 18 puntos: todos arreglados. Después, 2 verificadores comprobaron los arreglos: 15 bien y 3 con retoques. Encontraron otras 2 frases y una mejora de velocidad, y también quedan hechas. |
 | Publicar como la vez anterior | GitHub Pages sin datos personales y Artifact privado con tu análisis. |
 
 **Qué cambia en la web:**
@@ -352,7 +352,7 @@ Están en `capturas/perfil/` y no se suben al repositorio porque llevan tus dato
 2. **34 frases corregidas** en esa misma pasada, donde el texto se contradecía o no nombraba el último punto.
 3. **Aplicación a una sola mano** con el mismo sistema de la quinta entrega (`scripts/corregir_base.js`). Las listas van al análisis privado (`investigacion/variantes/_correcciones_variante.json`) y las 14 frases públicas de la build del Taller, a `scripts/correcciones_base.json`. `scripts/variantes.js` valida cada lista (16 puntos, 4 por habilidad, nombres reales) y avisa si «orden» no la sigue.
 4. **Revisión por 7 agentes.** La de computadora y la de celular recorrieron los 44 héroes y las 120 variantes pulsando cada botón del selector: 0 errores, 0 desbordes y la secuencia siempre igual a la lista. Los de datos encontraron 15 frases o listas que aún no cuadraban, y el de código, que el creador no cargaba la variante al abrir una build guardada o de la comunidad tras recargar (enseñaba la guía vieja). Todo arreglado.
-5. **Verificación de los arreglos** por 2 agentes más.
+5. **Verificación de los arreglos** por 2 agentes más. Pidieron retocar 3 frases (Bebop, Violet y Paradox) y encontraron 2 nuevas (Paige y Grey Talon): hechas. También vieron que la ficha pedía las variantes del héroe después de todos los datos base; ahora se piden en cuanto llega la lista de héroes, así que el bloque de builds aparece antes.
 
 ## Decisiones que tomé sin preguntarte
 
