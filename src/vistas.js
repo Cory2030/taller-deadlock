@@ -218,8 +218,29 @@ function nivelesDeSecuencia(h, acciones) {
   }
   return resultado;
 }
+/** Lista de puntos [idx...] (la 1.ª aparición de cada habilidad es su desbloqueo; las siguientes, T1-T3) → acciones */
+function accionesDePuntos(puntos) {
+  const acciones = []; const vistos = new Set(); const tiers = {};
+  for (const x of puntos || []) {
+    if (![1, 2, 3, 4].includes(x)) continue;
+    if (!vistos.has(x)) { vistos.add(x); acciones.push({ tipo: 'desbloqueo', h: x }); continue; }
+    if ((tiers[x] || 0) >= 3) continue;
+    tiers[x] = (tiers[x] || 0) + 1; acciones.push({ tipo: 'mejora', h: x });
+  }
+  return acciones;
+}
+/** Guarda unas acciones en la build: la lista exacta (puntos) y, por compatibilidad, desbloqueo y orden */
+function fijarSecuencia(b, acciones) {
+  const tiers = {};
+  b.puntos = acciones.map((a) => a.h);
+  b.desbloqueo = acciones.filter((a) => a.tipo === 'desbloqueo').map((a) => a.h);
+  b.orden = acciones.filter((a) => a.tipo === 'mejora').map((a) => { tiers[a.h] = (tiers[a.h] || 0) + 1; return { h: a.h, pa: [1, 2, 5][tiers[a.h] - 1] }; });
+  return b;
+}
 function secuenciaDesdeBuild(b) {
-  // b.desbloqueo: [idx...]; b.orden: [{h, pa}] → acciones en orden intercalando desbloqueos cuando hacen falta
+  // Con b.puntos, el orden exacto; si no (builds antiguas y de la comunidad), b.desbloqueo: [idx...] y
+  // b.orden: [{h, pa}] → acciones en orden intercalando desbloqueos cuando hacen falta
+  if (Array.isArray(b.puntos) && b.puntos.length) return accionesDePuntos(b.puntos);
   const acciones = []; const desbloqueados = new Set();
   const pendientes = (b.desbloqueo || []).slice();
   const tiers = {};
@@ -341,11 +362,11 @@ RUTAS.heroe = function (clase) {
   const ohV = ordenHabilidadesDe(h);
   if (ohV) {
     const oh = ohV;
-    // Desbloqueo: las tres normales por prioridad y la definitiva al final; luego se maxea por prioridad
+    // Los 16 puntos en el orden del texto (o, sin lista, deducidos de la prioridad para mejorar)
     const sec = secuenciaHabilidades(h, oh);
     if (sec) {
       acciones = secuenciaDesdeBuild(sec);
-      ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''), el('div', { class: 'etiqueta', style: { margin: '8px 0 4px' } }, 'Secuencia orientativa (N = nivel de poder en el que suele poder comprarse)'), vistaSecuencia(h, acciones));
+      ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''), el('div', { class: 'etiqueta', style: { margin: '8px 0 4px' } }, sec.puntos && sec.puntos.length >= 16 ? 'Los 16 puntos en orden, como dice el texto (N = nivel de poder en el que llega ese punto)' : 'Secuencia orientativa (N = nivel de poder en el que llega ese punto)'), vistaSecuencia(h, acciones));
     } else ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''));
   }
   const buildsCom = (D.builds && D.builds.heroes && D.builds.heroes[h.id]) || [];

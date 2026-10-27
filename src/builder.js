@@ -52,12 +52,12 @@ function buildDesdeGuia(h, clave) {
     b.notas = 'Build generada a partir de los objetos más comprados y con mejor winrate según los datos de la API.';
   }
   // Orden de habilidades desde la guía (misma lógica que la ficha) o desde la build comunitaria más jugada
-  const ohB = (f && f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : null) || (g && g.orden_habilidades);
+  const ohB = ordenHabilidadesDe(h, clave);
   const sec = secuenciaHabilidades(h, ohB);
-  if (sec) { b.desbloqueo = sec.desbloqueo; b.orden = sec.orden; }
+  if (sec) fijarSecuencia(b, secuenciaDesdeBuild(sec));
   // Variante de la que sale (para «Usar el orden de la guía» y la nota del orden en el creador)
   if (f && f.variante) b.variante = f.variante.clave;
-  if (!b.orden.length) { const com = ((D.builds && D.builds.heroes && D.builds.heroes[h.id]) || []).find((x) => x.orden && x.orden.length >= 6); if (com) { b.desbloqueo = com.desbloqueo.slice(); b.orden = com.orden.slice(); } }
+  if (!b.orden.length) { const com = ((D.builds && D.builds.heroes && D.builds.heroes[h.id]) || []).find((x) => x.orden && x.orden.length >= 6); if (com) fijarSecuencia(b, secuenciaDesdeBuild({ desbloqueo: com.desbloqueo || [], orden: com.orden || [] })); }
   return b;
 }
 function buildDesdeComunidad(h, com) {
@@ -65,7 +65,7 @@ function buildDesdeComunidad(h, com) {
   b.nombre = com.nombre || 'Build de la comunidad'; b.notas = (com.descripcion || '').slice(0, 400);
   b.categorias = com.categorias.filter((c) => c.objetos.length).map((c) => ({ nombre: nombreCategoria(c.nombre), descripcion: c.descripcion || '', opcional: c.opcional != null ? !!c.opcional : undefined, objetos: c.objetos.map((x) => ({ clase: x.clase, nota: x.nota || '' })) }));
   if (!b.categorias.length) b.categorias = buildNueva(h).categorias;
-  b.desbloqueo = (com.desbloqueo || []).slice(); b.orden = (com.orden || []).slice();
+  fijarSecuencia(b, secuenciaDesdeBuild({ desbloqueo: com.desbloqueo || [], orden: com.orden || [] }));
   return b;
 }
 function textoBuild(b) {
@@ -171,7 +171,7 @@ RUTAS.build = function (param) {
       const idx = i + 1; const t = tiers[idx]; const desb = des.has(idx);
       const texto = !desb ? 'Desbloquear' : t >= 3 ? 'Máximo' : `Nivel ${t + 1} · ${[1, 2, 5][t]} PA`;
       botones.append(el('button', { type: 'button', class: 'pa-boton' + (!desb ? ' pendiente' : ''), disabled: desb && t >= 3, title: (PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre), onclick: () => {
-        if (!desb) { b.desbloqueo.push(idx); } else { b.orden.push({ h: idx, pa: [1, 2, 5][t] }); }
+        fijarSecuencia(b, [...acciones, { tipo: desb ? 'mejora' : 'desbloqueo', h: idx }]);
         sucio = true; pintarHab();
       } }, el('img', { src: a.imagen, alt: '' }), el('span', { class: 'nombre' }, PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre), el('span', { class: 'nivel' }, texto)));
     });
@@ -184,7 +184,7 @@ RUTAS.build = function (param) {
       paso.title += ' — pulsa para quitar este paso y los posteriores';
       paso.addEventListener('click', () => {
         // Reconstruir desde las acciones anteriores a i
-        const previas = acciones.slice(0, i); b.desbloqueo = previas.filter((x) => x.tipo === 'desbloqueo').map((x) => x.h); const tiersN = {}; b.orden = previas.filter((x) => x.tipo === 'mejora').map((x) => { tiersN[x.h] = (tiersN[x.h] || 0) + 1; return { h: x.h, pa: [1, 2, 5][tiersN[x.h] - 1] }; }); sucio = true; pintarHab();
+        fijarSecuencia(b, acciones.slice(0, i)); sucio = true; pintarHab();
       });
       sec.append(paso);
     });
@@ -195,9 +195,13 @@ RUTAS.build = function (param) {
     tablero.append(el('div', { class: 'resumen-pa' }, el('span', null, 'Puntos usados: ', el('b', { class: 'num' }, paUsados + ' / 32')), el('span', null, 'Desbloqueadas: ', el('b', { class: 'num' }, des.size + ' / 4')), ultimo && ultimo.nivel ? el('span', null, 'Último paso en el nivel ', el('b', { class: 'num' }, ultimo.nivel), ' (', fmtSouls(ultimo.souls), ')') : null));
     tablero.append(el('div', { class: 'fila' },
       el('button', { class: 'boton mini', type: 'button', onclick: () => { // Autocompletar: desbloquear las que faltan, 1 punto en cada una, luego maxear en orden de desbloqueo
-        const { des: d2, tiers: t2 } = estadoHab(); for (let i = 1; i <= 4; i++) if (!d2.has(i)) b.desbloqueo.push(i); const ordenDes = secuenciaDesdeBuild(b).filter((x) => x.tipo === 'desbloqueo').map((x) => x.h); for (const i of ordenDes) if (t2[i] < 1) { b.orden.push({ h: i, pa: 1 }); t2[i] = 1; } for (const i of ordenDes) while (t2[i] < 3) { b.orden.push({ h: i, pa: [1, 2, 5][t2[i]] }); t2[i]++; } sucio = true; pintarHab(); } }, 'Autocompletar'),
-      el('button', { class: 'boton mini', type: 'button', onclick: () => { b.desbloqueo = []; b.orden = []; sucio = true; pintarHab(); } }, 'Vaciar'),
-      ohGuia ? el('button', { class: 'boton mini', type: 'button', onclick: () => { const s2 = secuenciaHabilidades(h, ohGuia); if (!s2) return; b.desbloqueo = s2.desbloqueo; b.orden = s2.orden; sucio = true; pintarHab(); } }, 'Usar el orden de la guía') : null));
+        const { acciones: a2, des: d2, tiers: t2 } = estadoHab(); const acc = a2.slice();
+        const ordenDes = [...acc.filter((x) => x.tipo === 'desbloqueo').map((x) => x.h), ...[1, 2, 3, 4].filter((i) => !d2.has(i))];
+        for (const i of ordenDes) { if (!d2.has(i)) { d2.add(i); acc.push({ tipo: 'desbloqueo', h: i }); } if (t2[i] < 1) { acc.push({ tipo: 'mejora', h: i }); t2[i] = 1; } }
+        for (const i of ordenDes) while (t2[i] < 3) { acc.push({ tipo: 'mejora', h: i }); t2[i]++; }
+        fijarSecuencia(b, acc); sucio = true; pintarHab(); } }, 'Autocompletar'),
+      el('button', { class: 'boton mini', type: 'button', onclick: () => { fijarSecuencia(b, []); sucio = true; pintarHab(); } }, 'Vaciar'),
+      ohGuia ? el('button', { class: 'boton mini', type: 'button', onclick: () => { const s2 = secuenciaHabilidades(h, ohGuia); if (!s2) return; fijarSecuencia(b, secuenciaDesdeBuild(s2)); sucio = true; pintarHab(); } }, 'Usar el orden de la guía') : null));
     if (ohGuia && ohGuia.detalle) tablero.append(el('div', { class: 'nota-caja' }, el('b', null, 'Guía: '), ohGuia.detalle));
   }
   pintarHab();

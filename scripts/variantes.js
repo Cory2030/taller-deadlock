@@ -53,6 +53,26 @@ function limpiarFinal(h, fin, clave) {
   return pasos.length ? { ...fin, titulo_categoria_juego: corta(fin.titulo_categoria_juego || 'Final · ranuras llenas', 60), descripcion_juego: corta(fin.descripcion_juego, 140), pasos, build_completa: comp } : null;
 }
 
+// Orden de habilidades: «puntos» son los 16 puntos en orden (1.ª aparición = desbloqueo; luego T1, T2 y T3).
+// Si la lista no cuadra con las habilidades del héroe, se quita (la web vuelve a deducirlo de «orden») y se avisa.
+const HABS = leer(path.join(RAIZ, 'data', 'habilidades.json'));
+const sinTildes = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function limpiarOrden(h, oh, clave) {
+  if (!oh) return null;
+  if (!Array.isArray(oh.puntos)) return oh;
+  const abs = HABS[h.id] || [];
+  const idx = oh.puntos.map((n) => abs.findIndex((a) => sinTildes(a.nombre_en) === sinTildes(n) || sinTildes(a.nombre) === sinTildes(n)));
+  const malos = [];
+  if (idx.length !== 16) malos.push(idx.length + ' puntos');
+  if (idx.includes(-1)) malos.push('habilidad desconocida «' + oh.puntos[idx.indexOf(-1)] + '»');
+  for (let i = 0; i < abs.length; i++) { const c = idx.filter((x) => x === i).length; if (c !== 4) malos.push(abs[i].nombre_en + ' ' + c + ' veces'); }
+  if (malos.length) { aviso(h.nombre_en, clave + '/orden_habilidades.puntos no vale (' + malos.join(', ') + '), se quita'); const { puntos, ...resto } = oh; return resto; }
+  const cuenta = {}; const max = [];
+  for (const i of idx) { cuenta[i] = (cuenta[i] || 0) + 1; if (cuenta[i] === 4) max.push(abs[i].nombre_en); }
+  if (JSON.stringify(oh.orden) !== JSON.stringify(max) || oh.primera_maxima !== max[0]) aviso(h.nombre_en, clave + ': «orden»/«primera_maxima» no siguen a «puntos» (' + max.join(' > ') + ')');
+  return oh;
+}
+
 const salida = { generado: new Date().toISOString(), heroes: {} };
 for (const h of heroes) {
   const f = path.join(carpeta, h.id + '.json');
@@ -70,7 +90,7 @@ for (const h of heroes) {
       clave: v.clave, nombre: v.nombre, es_base: !!v.es_base, cuando_elegirla: v.cuando_elegirla || '', datos: v.datos || null,
       estadisticas_resumen: v.estadisticas_resumen || null, para_tu_perfil: v.para_tu_perfil || '',
       titulo_build_juego: v.titulo_build_juego ? corta(v.titulo_build_juego, 70) : null, descripcion_build_juego: v.descripcion_build_juego || null,
-      orden_habilidades: v.orden_habilidades || null, fases, vender: v.es_base && !fases ? null : (v.vender || []).filter((x) => x && porClase[x.clase]),
+      orden_habilidades: limpiarOrden(h, v.orden_habilidades, v.clave), fases, vender: v.es_base && !fases ? null : (v.vender || []).filter((x) => x && porClase[x.clase]),
       final: limpiarFinal(h.nombre_en, v.final, v.clave), fuentes: (v.fuentes || []).filter((s) => s && (s.url || s.titulo)),
     };
   }).filter(Boolean);

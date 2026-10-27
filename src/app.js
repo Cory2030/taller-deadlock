@@ -318,6 +318,9 @@ function decodificarBuild(c) {
     b.categorias = b.categorias.map((cat) => ({ nombre: String((cat && cat.nombre) || 'Objetos'), descripcion: String((cat && cat.descripcion) || ''), opcional: cat && cat.opcional != null ? !!cat.opcional : undefined, objetos: Array.isArray(cat && cat.objetos) ? cat.objetos.filter((x) => x && objeto(x.clase)).map((x) => ({ clase: x.clase, nota: String(x.nota || '') })) : [] }));
     b.desbloqueo = Array.isArray(b.desbloqueo) ? b.desbloqueo.filter((x) => [1, 2, 3, 4].includes(x)) : [];
     b.orden = Array.isArray(b.orden) ? b.orden.filter((x) => x && [1, 2, 3, 4].includes(x.h)).map((x) => ({ h: x.h, pa: [1, 2, 5].includes(x.pa) ? x.pa : 1 })) : [];
+    // Lista exacta de puntos (builds nuevas); si viene vacía o rota, se usa desbloqueo + orden
+    const accP = Array.isArray(b.puntos) ? accionesDePuntos(b.puntos) : [];
+    if (accP.length) fijarSecuencia(b, accP); else delete b.puntos;
     b.nombre = String(b.nombre || 'Build importada'); b.notas = String(b.notas || '');
     return b;
   } catch (e) { /* código inválido */ }
@@ -542,9 +545,11 @@ const DATOS_POR_RUTA = {
 /** Datos que necesita una ruta (#guia-mapa tiene los suyos; si no, los de su sección) */
 function datosDeRuta(token) {
   const lista = token.startsWith('build-perfil-') ? [...DATOS_POR_RUTA.build, 'perfil'] : (() => { const base = token.split('-')[0]; return DATOS_POR_RUTA[token] || DATOS_POR_RUTA[RUTAS[base] ? base : 'tier'] || DATOS_POR_RUTA.tier; })();
-  // Variantes de build del héroe de la ficha o del creador (#heroe-<clase>, #build-nueva-<clase>, #build-perfil-<clase>)
-  const m = token.match(/^(?:heroe|build-nueva|build-perfil)-(.+)$/);
-  const h = m && heroe(m[1]);
+  // Variantes de build del héroe de la ficha o del creador (#heroe-<clase>, #build-nueva-<clase>, #build-perfil-<clase>,
+  // y también #build-com-<heroId>-<build> y #build-<id> guardada: el creador enseña la guía de la variante)
+  const m = token.match(/^(?:heroe|build-nueva|build-perfil)-(.+)$/) || token.match(/^build-com-(\d+)-/);
+  const guardada = !m && token.startsWith('build-') ? ALMACEN.obtener(token.slice(6)) : null;
+  const h = m ? heroe(m[1]) : guardada ? heroe(guardada.heroe) : null;
   return h ? [...lista, VARIANTES_JUNTAS && HAY_PERFIL ? 'varTodas' : 'var:' + h.id] : lista;
 }
 // Grupos de datos por héroe: «var:<id>» → data/variantes/<id>.json (pública) o, con perfil,
@@ -566,7 +571,8 @@ function asegurarDatos(claves) {
 }
 async function cargarDatos() {
   const [heroes, habilidades, objetos, stats, sinergias, objStats, rangos, version, meta, parche, habStats] = await Promise.all([
-    cargarJSON('data/heroes.json'), cargarJSON('data/habilidades.json'), cargarJSON('data/objetos.json'), cargarJSON('data/stats.json'),
+    // En cuanto se conocen los héroes, se piden las variantes del de la ruta (sin esperar al resto de datos base)
+    cargarJSON('data/heroes.json').then((hs) => { for (const h of hs || []) { IDX.heroPorId[h.id] = h; IDX.heroPorClase[h.clase] = h; } asegurarDatos(datosDeRuta(tokenRuta())); return hs; }), cargarJSON('data/habilidades.json'), cargarJSON('data/objetos.json'), cargarJSON('data/stats.json'),
     cargarJSON('data/sinergias.json', true), cargarJSON('data/objetos_stats.json', true), cargarJSON('data/rangos.json', true), cargarJSON('data/version.json', true),
     cargarJSON('data/meta.json', true), cargarJSON('data/parche.json', true), cargarJSON('data/habilidades_stats.json', true),
     cargarJSON('data/habilidades_extra.json', true),
@@ -657,12 +663,12 @@ async function refrescarEnVivo() {
 }
 
 async function iniciar() {
+  ALMACEN.cargarLocal(); // antes de los datos: así una build guardada (#build-<id>) pide ya las variantes de su héroe
   try { await cargarDatos(); } catch (e) {
     $('#vista').innerHTML = ''; $('#vista').append(el('div', { class: 'vacio' }, el('p', null, 'No se pudieron cargar los datos del parche.'), el('p', { class: 'muted pequeno' }, String(e.message)),
       el('p', { class: 'pequeno' }, 'También puedes verla en ', el('a', { href: 'https://cory2030.github.io/taller-deadlock/', target: '_blank', rel: 'noopener' }, 'cory2030.github.io/taller-deadlock'), '.')));
     return;
   }
-  ALMACEN.cargarLocal();
   montarBusqueda();
   render();
   avisarDatosLocalesViejos();

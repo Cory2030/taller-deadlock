@@ -307,10 +307,7 @@ Están en `capturas/perfil/` y no se suben al repositorio porque llevan tus dato
 
 ## Lo que falta
 
-- **Orden de desbloqueo de habilidades:**
-  - La secuencia que pinta la ficha, y la que se copia al juego, desbloquea en el orden de prioridad de mejora.
-  - En unos 17 héroes eso no coincide con el texto de debajo (por ejemplo, Drifter dice «desbloquea Rend» y la secuencia empieza por Stalker's Mark).
-  - Ya pasaba antes de hoy. Arreglarlo pide un campo «desbloqueo» por héroe, sacado de los datos de la API.
+- ~~**Orden de desbloqueo de habilidades**~~: hecho en la sexta entrega (más abajo).
 - **Creador en el celular:** el nombre largo de la build y algunos nombres de habilidades salen cortados.
 - **Títulos de categoría para el juego:** la mitad de los héroes los lleva con minutos («Fase inicial 0-10 · …») y la otra mitad sin ellos.
 - **Fase final de 7 héroes** (Vindicta, Ivy, Warden, Victor, Apollo, Rem y Abrams): algún paso vende un objeto que es opcional. Si no lo compraste, ese paso no aplica. Ya pasaba antes de hoy.
@@ -324,3 +321,54 @@ Están en `capturas/perfil/` y no se suben al repositorio porque llevan tus dato
   - builds de la comunidad;
   - fichas de objetos (componentes y valores).
 - **deadlock.wiki** (coste de la bomba de Lady Geist).
+
+# Sexta entrega (27-10-2026): orden de desbloqueo de habilidades
+
+**Estado:** publicado en GitHub Pages (sin datos personales) y en el Artifact privado.
+
+## Qué pediste y qué hay
+
+| Pedido | Resultado |
+|---|---|
+| Que el orden de desbloqueo coincida con el texto | Las 120 variantes de los 44 héroes traen ahora sus 16 puntos de habilidad en orden, sacados del propio texto. La ficha, el texto que se copia al juego y el creador de builds usan esa lista. |
+| Revisar | 7 revisores (4 de datos, 1 en computadora, 1 en celular y 1 de código) encontraron 18 puntos: todos arreglados. Después, 2 verificadores comprobaron los arreglos. |
+| Publicar como la vez anterior | GitHub Pages sin datos personales y Artifact privado con tu análisis. |
+
+**Qué cambia en la web:**
+
+- **Antes:** la secuencia se deducía de la prioridad de mejora. Desbloqueaba en ese orden, siempre con la definitiva al final, y daba el nivel 1 nada más desbloquear. Por eso contradecía el texto de encima.
+- **Ahora:** cada variante guarda la lista exacta de 16 puntos (la primera vez que sale una habilidad es su desbloqueo; las tres siguientes, sus niveles 1, 2 y 3). La secuencia sigue el texto punto por punto.
+- **Cuánto cambia:** la secuencia es distinta en las 120 variantes. El orden de desbloqueo cambia en 71 variantes de 35 héroes (25 de ellas son la build del Taller), y la primera habilidad cambia en 51. Ejemplos:
+  - **Drifter:** empieza por Rend (antes, Stalker's Mark).
+  - **Sinclair:** empieza por Spectral Assistant (antes, Rabbit Hex).
+  - **Abrams:** Infernal Resilience primero y Shoulder Charge después.
+  - **Bebop:** Sticky Bomb primero. **Mo & Krill:** Scorn primero. **Billy:** Blasted primero. **Graves:** Jar of Dead primero. **Vindicta:** Crow Familiar primero.
+- **Texto para el juego («Copiar build completa»):** además de «Desbloquea» y «Mejora primero», trae la línea «Puntos uno a uno» con los 16 pasos y su nivel de poder.
+- **Creador de builds:** guarda el orden exacto que pulsas (antes podía cambiar de sitio un desbloqueo al guardar). Las builds guardadas con el formato viejo y los códigos viejos se siguen abriendo igual.
+
+## Cómo se hizo
+
+1. **Investigación por 8 agentes**, unos 5 héroes cada uno. Para cada variante leyeron el texto y escribieron los 16 puntos. Donde el texto no decía algo (por ejemplo, si el nivel 1 va antes o después del segundo desbloqueo), usaron la ruta completa más jugada en Initiate–Acolyte de la API (últimos 30 días) que encajaba con el texto. Cada lista se comprobó con un simulador que la pinta como la web.
+2. **34 frases corregidas** en esa misma pasada, donde el texto se contradecía o no nombraba el último punto.
+3. **Aplicación a una sola mano** con el mismo sistema de la quinta entrega (`scripts/corregir_base.js`). Las listas van al análisis privado (`investigacion/variantes/_correcciones_variante.json`) y las 14 frases públicas de la build del Taller, a `scripts/correcciones_base.json`. `scripts/variantes.js` valida cada lista (16 puntos, 4 por habilidad, nombres reales) y avisa si «orden» no la sigue.
+4. **Revisión por 7 agentes.** La de computadora y la de celular recorrieron los 44 héroes y las 120 variantes pulsando cada botón del selector: 0 errores, 0 desbordes y la secuencia siempre igual a la lista. Los de datos encontraron 15 frases o listas que aún no cuadraban, y el de código, que el creador no cargaba la variante al abrir una build guardada o de la comunidad tras recargar (enseñaba la guía vieja). Todo arreglado.
+5. **Verificación de los arreglos** por 2 agentes más.
+
+## Decisiones que tomé sin preguntarte
+
+- **El texto manda.** Donde el texto y la ruta más jugada de la API no coincidían, seguí el texto (es lo que pediste). Solo cambié un texto cuando se contradecía a sí mismo o con la descripción para el juego.
+- **Nurse Harrow «Híbrida»:** el texto decía «al final Leech 3 y Vapors 2 y 3». La revisión vio que la ruta que cita sube Vapors antes que Leech, así que la lista y el texto siguen esa ruta.
+- **Bebop:** los textos decían «gancho» para Grapple Arm, y en español «Gancho explosivo» es Exploding Uppercut. Ahora nombran Grapple Arm.
+
+## Lo que falta
+
+- **Creador en el celular:** el nombre largo de la build y algunos nombres de habilidades salen cortados (no empeora con este cambio).
+- **Títulos de categoría para el juego:** la mitad de los héroes los lleva con minutos y la otra mitad sin ellos.
+- **Fase final de 7 héroes** (Vindicta, Ivy, Warden, Victor, Apollo, Rem y Abrams): algún paso vende un objeto opcional.
+- **Cifras de los textos:** son del 25 al 27 de octubre. Algunas ya no coinciden con los datos de los últimos 30 días (por ejemplo, Lady Geist «Espíritu» dice 18.494 partidas y hoy son 33.615). Los datos diarios se actualizan solos; los textos no.
+- **La web calcula el nivel en que es posible cada punto, no el minuto habitual:** a veces sale 1-3 minutos antes que el minuto que dice el texto.
+
+## Fuentes de esta entrega
+
+- **API pública de Deadlock** (api.deadlock-api.com): `ability-order-stats` por héroe, en badge 0-36 (Initiate–Acolyte) y en todos los rangos, últimos 30 días; niveles de poder de cada héroe.
+- Los textos de cada variante (cuarta y quinta entrega) y sus fuentes.

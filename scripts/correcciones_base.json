@@ -891,6 +891,14 @@
    "de": "Ojo: Leech también consume Spirit Lifesteal si aún lo llevas; cómpralo después de Spiritual Overflow.",
    "a": "Ojo: Leech también consume Spirit Lifesteal si lo llevas; cómpralo antes de Spirit Lifesteal (min 38-39), no entre los dos.",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "Orden: Stake primero (Flight T1 pronto)",
+   "a": "Orden: Stake al máximo primero (Flight T1 pronto)"
   }
  ],
  "4": [
@@ -1186,6 +1194,14 @@
    "ruta": "fases.avanzada.nucleo.upgrade_spirit_burn.cuando",
    "valor": "Cierre de la build con 6.400 en mano: con este orden llega hacia el min 38-40 y es tu 10.º objeto (la ranura extra llega al caer un Walker enemigo; si no, vende Enduring Speed). Contra mucha curación (Rem, Kelvin, Paige, Nurse Harrow) cómpralo antes que Escalating Exposure y vende Healbane. En partidas reales se compra hacia el min 32,8 con ~35.200 almas (se compra en el 32 % de las partidas de Lady Geist).",
    "correccion": "revisión: cifras de compra"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "luego Life Drain, Malice y Soul Exchange",
+   "a": "luego Life Drain, Soul Exchange y Malice"
   }
  ],
  "6": [
@@ -1293,6 +1309,14 @@
    "de": "gana solo 51,1 % en Initiate–Acolyte, el peor de los nivel 4.",
    "a": "gana solo el 51,1 % en Initiate–Acolyte, el nivel 4 que menos gana a esa hora.",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "luego Seismic Impact y Siphon Life",
+   "a": "luego Seismic Impact, Infernal Resilience y Siphon Life"
   }
  ],
  "7": [
@@ -2044,6 +2068,14 @@
    "de": "se sube a Stamina Mastery (min 24).",
    "a": "se sube a Stamina Mastery (min 25-26).",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "luego Spectral Wall, Medicinal Specter y Heavy Barrage",
+   "a": "luego Specter T1-T2, Spectral Wall al máximo, Specter T3 y Heavy Barrage"
   }
  ],
  "10": [
@@ -2683,6 +2715,22 @@
    "ruta": "fases.inicial.situacionales.upgrade_pristine_emblem.cuando",
    "valor": "Si ganas la línea y pegas primero (rival por encima del 50 % de vida): con 1.600 hacia el min 9 en lugar de Mystic Shot, consumiendo High-Velocity Rounds (se compra en el 39,5 % de las partidas de Paradox); Sharpshooter te costará entonces 800 más. Véndela al llenar ranuras (hacia el min 39).",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "revisión: orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "Kinetic Carbine al 1 y al máximo, definitiva T1-T2 y luego Time Wall.",
+   "a": "Kinetic Carbine al 1 y al máximo (definitiva T1 antes de su T3), definitiva T2 y luego Time Wall."
+  },
+  {
+   "correccion": "verificación: orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "(definitiva T1 antes de su T3)",
+   "a": "(definitiva T1 nada más tenerla)"
   }
  ],
  "11": [
@@ -3691,6 +3739,14 @@
    "ruta": "fases.avanzada.nucleo.upgrade_spirit_burn.cuando",
    "valor": "Hacia el min 32 con 6.400; adelántalo al min 28 contra Victor, Lady Geist, Paige o Rem. Se compra en el 34,9 % de las partidas de Kelvin.",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "luego Ice Path, Arctic Beam y Frozen Shelter",
+   "a": "luego Arctic Beam, Ice Path y Frozen Shelter"
   }
  ],
  "13": [
@@ -5103,6 +5159,14 @@
    "ruta": "vender.upgrade_trophy_collector.cuando",
    "valor": "Hacia el min 56, con las 12 ranuras llenas, para comprar Leech (lo vende el 8 %, hacia el min 40).",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "verificación: orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "gancho hacia tu equipo, bomba al vuelo",
+   "a": "gancho (Grapple Arm) hacia tu equipo, bomba al vuelo"
   }
  ],
  "16": [
@@ -6053,6 +6117,22 @@
    "de": "gana el 58,3 % en Initiate–Acolyte y",
    "a": "gana el 58,3 % en Initiate–Acolyte (muestra pequeña: solo lo compra el 2 %) y",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "1 punto en dash y Bloodletting, cuchillos a T3, luego Killing Blow.",
+   "a": "dash y Bloodletting, dash T1, Killing Blow y cuchillos a T3; luego Killing Blow T2 y Bloodletting a T3."
+  },
+  {
+   "correccion": "revisión: orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "Serrated Knives T1, dash y Bloodletting, dash T1, Killing Blow y cuchillos a T3;",
+   "a": "Serrated Knives T1, dash y Bloodletting, cuchillos T2, dash T1, Killing Blow y cuchillos a T3;"
   }
  ],
  "20": [
@@ -6213,6 +6293,14 @@
    "ruta": "fases.avanzada.situacionales.upgrade_ability_power_shard.cuando",
    "valor": "Si tu equipo necesita más control: imbuido en Stone Form (dos aturdimientos) hacia el min 29 (lo compra el 9 %, 59 % de victorias). Con Capacitor es el nivel 4 de espíritu que más gana: 61,0 % comprado entre el min 30 y el 45 en Initiate–Acolyte. No se vende (1 %).",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "Stone Form T1, 1 punto en Thorns y Kudzu, Stone Form T2, Air Drop",
+   "a": "Thorns, Stone Form T1, Kudzu, Stone Form T2, Thorns T1, Air Drop"
   }
  ],
  "25": [
@@ -7617,6 +7705,14 @@
    "de": " Silencer + Inhibitor es la pareja de nivel 4 que más gana.",
    "a": "",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "Sube Djinn's Mark primero",
+   "a": "Abre con Fire Scarabs y maxea Djinn's Mark primero"
   }
  ],
  "58": [
@@ -8498,6 +8594,14 @@
    "de": "gana el 45,8 % en Initiate–Acolyte y quien va directo a Extra Charge y Extra Spirit, el 48,8 %",
    "a": "gana el 45,5 % en Initiate–Acolyte y quien va directo a Extra Charge y Extra Spirit, el 48,7 %",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "desbloquea Bolt y Hex, Audience Participation al máximo",
+   "a": "desbloquea Bolt y Hex, otro punto al Assistant, Audience Participation al máximo"
   }
  ],
  "63": [
@@ -10006,6 +10110,14 @@
    "de": "termina el definitiva",
    "a": "termina la definitiva",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "Call Bell T1-T2, Luggage Cart T1, Doorway T1, Call Bell T3, luego carrito y Hotel Guest.",
+   "a": "Call Bell T1-T3 primero, luego carrito, Hotel Guest y Doorway al final."
   }
  ],
  "72": [
@@ -10440,6 +10552,14 @@
    "de": "+15 % de resistencia espiritual y +30 %",
    "a": "+30 % de resistencia espiritual y +15 %",
    "correccion": "revisión: valores de Spirit/Bullet Resilience"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "Essence Theft T2-T3",
+   "a": "Essence Theft T1-T3"
   }
  ],
  "77": [
@@ -11367,6 +11487,14 @@
    "de": "hacia el min 33 en lugar de Diviner's Kevlar",
    "a": "hacia el min 38 en lugar de Diviner's Kevlar, o antes que Frenzy (min 33) si ya te gana las peleas",
    "correccion": "revisión final"
+  },
+  {
+   "correccion": "orden de desbloqueo",
+   "archivo": "fases",
+   "op": "cambiar",
+   "ruta": "descripcion_build_juego",
+   "de": "Habilidades: Lycan Curse primero",
+   "a": "Habilidades: maxea Lycan Curse primero"
   }
  ],
  "81": [

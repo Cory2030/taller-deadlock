@@ -1239,6 +1239,9 @@ function decodificarBuild(c) {
     b.categorias = b.categorias.map((cat) => ({ nombre: String((cat && cat.nombre) || 'Objetos'), descripcion: String((cat && cat.descripcion) || ''), opcional: cat && cat.opcional != null ? !!cat.opcional : undefined, objetos: Array.isArray(cat && cat.objetos) ? cat.objetos.filter((x) => x && objeto(x.clase)).map((x) => ({ clase: x.clase, nota: String(x.nota || '') })) : [] }));
     b.desbloqueo = Array.isArray(b.desbloqueo) ? b.desbloqueo.filter((x) => [1, 2, 3, 4].includes(x)) : [];
     b.orden = Array.isArray(b.orden) ? b.orden.filter((x) => x && [1, 2, 3, 4].includes(x.h)).map((x) => ({ h: x.h, pa: [1, 2, 5].includes(x.pa) ? x.pa : 1 })) : [];
+    // Lista exacta de puntos (builds nuevas); si viene vacía o rota, se usa desbloqueo + orden
+    const accP = Array.isArray(b.puntos) ? accionesDePuntos(b.puntos) : [];
+    if (accP.length) fijarSecuencia(b, accP); else delete b.puntos;
     b.nombre = String(b.nombre || 'Build importada'); b.notas = String(b.notas || '');
     return b;
   } catch (e) { /* código inválido */ }
@@ -1403,8 +1406,8 @@ function montarBusqueda() {
 let promesaDatosLocales = null;
 // construir.js sustituye 2026-10-26 por la fecha de los datos con los que se generó esta página.
 const GENERADO_PAGINA = '2026-10-26';
-// construir.js sustituye 5f10c7e905 por una huella de data/*.json (ver cargarJSON)
-const HUELLA_DATOS = '5f10c7e905';
+// construir.js sustituye 948bdbac0c por una huella de data/*.json (ver cargarJSON)
+const HUELLA_DATOS = '948bdbac0c';
 // construir.js pone 'si' cuando existe data/perfil.json (foto personal, fuera del repositorio público)
 const HAY_PERFIL = 'no' === 'si';
 // En el Artifact (máximo de archivos por versión) las variantes privadas van en un solo archivo
@@ -1463,9 +1466,11 @@ const DATOS_POR_RUTA = {
 /** Datos que necesita una ruta (#guia-mapa tiene los suyos; si no, los de su sección) */
 function datosDeRuta(token) {
   const lista = token.startsWith('build-perfil-') ? [...DATOS_POR_RUTA.build, 'perfil'] : (() => { const base = token.split('-')[0]; return DATOS_POR_RUTA[token] || DATOS_POR_RUTA[RUTAS[base] ? base : 'tier'] || DATOS_POR_RUTA.tier; })();
-  // Variantes de build del héroe de la ficha o del creador (#heroe-<clase>, #build-nueva-<clase>, #build-perfil-<clase>)
-  const m = token.match(/^(?:heroe|build-nueva|build-perfil)-(.+)$/);
-  const h = m && heroe(m[1]);
+  // Variantes de build del héroe de la ficha o del creador (#heroe-<clase>, #build-nueva-<clase>, #build-perfil-<clase>,
+  // y también #build-com-<heroId>-<build> y #build-<id> guardada: el creador enseña la guía de la variante)
+  const m = token.match(/^(?:heroe|build-nueva|build-perfil)-(.+)$/) || token.match(/^build-com-(\d+)-/);
+  const guardada = !m && token.startsWith('build-') ? ALMACEN.obtener(token.slice(6)) : null;
+  const h = m ? heroe(m[1]) : guardada ? heroe(guardada.heroe) : null;
   return h ? [...lista, VARIANTES_JUNTAS && HAY_PERFIL ? 'varTodas' : 'var:' + h.id] : lista;
 }
 // Grupos de datos por héroe: «var:<id>» → data/variantes/<id>.json (pública) o, con perfil,
@@ -1487,7 +1492,8 @@ function asegurarDatos(claves) {
 }
 async function cargarDatos() {
   const [heroes, habilidades, objetos, stats, sinergias, objStats, rangos, version, meta, parche, habStats] = await Promise.all([
-    cargarJSON('data/heroes.json'), cargarJSON('data/habilidades.json'), cargarJSON('data/objetos.json'), cargarJSON('data/stats.json'),
+    // En cuanto se conocen los héroes, se piden las variantes del de la ruta (sin esperar al resto de datos base)
+    cargarJSON('data/heroes.json').then((hs) => { for (const h of hs || []) { IDX.heroPorId[h.id] = h; IDX.heroPorClase[h.clase] = h; } asegurarDatos(datosDeRuta(tokenRuta())); return hs; }), cargarJSON('data/habilidades.json'), cargarJSON('data/objetos.json'), cargarJSON('data/stats.json'),
     cargarJSON('data/sinergias.json', true), cargarJSON('data/objetos_stats.json', true), cargarJSON('data/rangos.json', true), cargarJSON('data/version.json', true),
     cargarJSON('data/meta.json', true), cargarJSON('data/parche.json', true), cargarJSON('data/habilidades_stats.json', true),
     cargarJSON('data/habilidades_extra.json', true),
@@ -1578,12 +1584,12 @@ async function refrescarEnVivo() {
 }
 
 async function iniciar() {
+  ALMACEN.cargarLocal(); // antes de los datos: así una build guardada (#build-<id>) pide ya las variantes de su héroe
   try { await cargarDatos(); } catch (e) {
     $('#vista').innerHTML = ''; $('#vista').append(el('div', { class: 'vacio' }, el('p', null, 'No se pudieron cargar los datos del parche.'), el('p', { class: 'muted pequeno' }, String(e.message)),
       el('p', { class: 'pequeno' }, 'También puedes verla en ', el('a', { href: 'https://cory2030.github.io/taller-deadlock/', target: '_blank', rel: 'noopener' }, 'cory2030.github.io/taller-deadlock'), '.')));
     return;
   }
-  ALMACEN.cargarLocal();
   montarBusqueda();
   render();
   avisarDatosLocalesViejos();
@@ -1829,8 +1835,29 @@ function nivelesDeSecuencia(h, acciones) {
   }
   return resultado;
 }
+/** Lista de puntos [idx...] (la 1.ª aparición de cada habilidad es su desbloqueo; las siguientes, T1-T3) → acciones */
+function accionesDePuntos(puntos) {
+  const acciones = []; const vistos = new Set(); const tiers = {};
+  for (const x of puntos || []) {
+    if (![1, 2, 3, 4].includes(x)) continue;
+    if (!vistos.has(x)) { vistos.add(x); acciones.push({ tipo: 'desbloqueo', h: x }); continue; }
+    if ((tiers[x] || 0) >= 3) continue;
+    tiers[x] = (tiers[x] || 0) + 1; acciones.push({ tipo: 'mejora', h: x });
+  }
+  return acciones;
+}
+/** Guarda unas acciones en la build: la lista exacta (puntos) y, por compatibilidad, desbloqueo y orden */
+function fijarSecuencia(b, acciones) {
+  const tiers = {};
+  b.puntos = acciones.map((a) => a.h);
+  b.desbloqueo = acciones.filter((a) => a.tipo === 'desbloqueo').map((a) => a.h);
+  b.orden = acciones.filter((a) => a.tipo === 'mejora').map((a) => { tiers[a.h] = (tiers[a.h] || 0) + 1; return { h: a.h, pa: [1, 2, 5][tiers[a.h] - 1] }; });
+  return b;
+}
 function secuenciaDesdeBuild(b) {
-  // b.desbloqueo: [idx...]; b.orden: [{h, pa}] → acciones en orden intercalando desbloqueos cuando hacen falta
+  // Con b.puntos, el orden exacto; si no (builds antiguas y de la comunidad), b.desbloqueo: [idx...] y
+  // b.orden: [{h, pa}] → acciones en orden intercalando desbloqueos cuando hacen falta
+  if (Array.isArray(b.puntos) && b.puntos.length) return accionesDePuntos(b.puntos);
   const acciones = []; const desbloqueados = new Set();
   const pendientes = (b.desbloqueo || []).slice();
   const tiers = {};
@@ -1952,11 +1979,11 @@ RUTAS.heroe = function (clase) {
   const ohV = ordenHabilidadesDe(h);
   if (ohV) {
     const oh = ohV;
-    // Desbloqueo: las tres normales por prioridad y la definitiva al final; luego se maxea por prioridad
+    // Los 16 puntos en el orden del texto (o, sin lista, deducidos de la prioridad para mejorar)
     const sec = secuenciaHabilidades(h, oh);
     if (sec) {
       acciones = secuenciaDesdeBuild(sec);
-      ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''), el('div', { class: 'etiqueta', style: { margin: '8px 0 4px' } }, 'Secuencia orientativa (N = nivel de poder en el que suele poder comprarse)'), vistaSecuencia(h, acciones));
+      ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''), el('div', { class: 'etiqueta', style: { margin: '8px 0 4px' } }, sec.puntos && sec.puntos.length >= 16 ? 'Los 16 puntos en orden, como dice el texto (N = nivel de poder en el que llega ese punto)' : 'Secuencia orientativa (N = nivel de poder en el que llega ese punto)'), vistaSecuencia(h, acciones));
     } else ordenCont.append(el('p', { class: 'sec' }, oh.detalle || ''));
   }
   const buildsCom = (D.builds && D.builds.heroes && D.builds.heroes[h.id]) || [];
@@ -2360,14 +2387,25 @@ function fasesDe(h, clave) {
   if (vs) { const v = vs.variantes.find((x) => (k === 'base' ? x.es_base : x.clave === k)) || vs.variantes.find((x) => x.es_base); if (v) f = varianteComoFases(base, v); }
   return fasesConMejoras(h, f);
 }
-function ordenHabilidadesDe(h, clave) { const f = fasesDe(h, clave); return (f && f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : null) || (guia(h) && guia(h).orden_habilidades) || null; }
-/* Secuencia de habilidades a partir de un orden de guía o de variante. «orden» es la prioridad para
-   MEJORAR (puede poner la definitiva segunda); al desbloquear, las tres normales van primero en ese orden
-   y la definitiva (la 4) al final, como se juega. Luego se maxea la primera y el resto por prioridad. */
+function ordenHabilidadesDe(h, clave) { const f = fasesDe(h, clave); return (f && f.orden_habilidades && (f.orden_habilidades.puntos || f.orden_habilidades.orden) ? f.orden_habilidades : null) || (guia(h) && guia(h).orden_habilidades) || null; }
+/* Secuencia de habilidades a partir de un orden de guía o de variante.
+   Si trae «puntos» (los 16 puntos en el orden del texto: la 1.ª vez que sale una habilidad es su desbloqueo
+   y las siguientes, T1, T2 y T3), se usa tal cual. Si no, se deduce de «orden», la prioridad para MEJORAR:
+   las tres normales se desbloquean en ese orden y la definitiva (la 4) al final; luego se maxea por prioridad. */
 function secuenciaHabilidades(h, oh) {
   const abs = (D.habilidades && D.habilidades[h.id]) || [];
-  if (!oh || !Array.isArray(oh.orden) || !abs.length) return null;
-  const idxDeNombre = (n) => { const i = abs.findIndex((a) => sinAcentos(a.nombre) === sinAcentos(n) || sinAcentos(a.nombre_en) === sinAcentos(n) || sinAcentos(n).includes(sinAcentos(a.nombre_en)) || sinAcentos(n).includes(sinAcentos(a.nombre))); return i >= 0 ? i + 1 : null; };
+  if (!oh || !abs.length) return null;
+  const idxDeNombre = (n) => {
+    const s = sinAcentos(n || ''); if (!s) return null;
+    let i = abs.findIndex((a) => sinAcentos(a.nombre) === s || sinAcentos(a.nombre_en) === s);
+    if (i < 0) i = abs.findIndex((a) => s.includes(sinAcentos(a.nombre_en)) || s.includes(sinAcentos(a.nombre)));
+    return i >= 0 ? i + 1 : null;
+  };
+  if (Array.isArray(oh.puntos) && oh.puntos.length) {
+    const puntos = oh.puntos.map(idxDeNombre);
+    if (puntos.every(Boolean)) return fijarSecuencia({}, accionesDePuntos(puntos));
+  }
+  if (!Array.isArray(oh.orden)) return null;
   const prioridad = [...new Set(oh.orden.map(idxDeNombre).filter(Boolean))];
   if (!prioridad.length) return null;
   const primera = idxDeNombre(oh.primera_maxima || '') || prioridad[0];
@@ -2738,13 +2776,15 @@ function textoBuildFases(h) {
   const L = [`${f.titulo_build_juego || 'Build de ' + nombreH(h)} — ${nombreH(h)} (Taller de Deadlock)`];
   if (f.variante && f.variante.nombre) L.push('Estilo: ' + f.variante.nombre);
   if (f.descripcion_build_juego) L.push(f.descripcion_build_juego);
-  // Orden de habilidades: desbloqueo (la definitiva al final) y prioridad para mejorar
-  const oh = f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : ordenHabilidadesDe(h);
+  // Orden de habilidades: desbloqueo, prioridad para mejorar y los puntos uno a uno (como en la ficha)
+  const oh = f.orden_habilidades && (f.orden_habilidades.puntos || f.orden_habilidades.orden) ? f.orden_habilidades : ordenHabilidadesDe(h);
   const secH = secuenciaHabilidades(h, oh); const abs = (D.habilidades && D.habilidades[h.id]) || [];
   if (secH) {
     const nom = (i) => { const a = abs[i - 1]; return a ? (PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre) : '?'; };
     const mejora = []; for (const x of secH.orden) if (x.pa === 5 && !mejora.includes(x.h)) mejora.push(x.h);
     L.push('', '== Habilidades', 'Desbloquea: ' + secH.desbloqueo.map(nom).join(' → '), 'Mejora primero: ' + mejora.map(nom).join(' → '));
+    const pasos = nivelesDeSecuencia(h, secuenciaDesdeBuild(secH));
+    if (pasos.length) L.push('Puntos uno a uno: ' + pasos.map((a) => (a.tipo === 'desbloqueo' ? '[' + nom(a.h) + ']' : nom(a.h) + ' ' + a.tier) + (a.nivel ? ' (N' + a.nivel + ')' : '')).join(' → '));
     if (oh.detalle) L.push(oh.detalle);
   }
   for (const fase of f.fases || []) {
@@ -3332,12 +3372,12 @@ function buildDesdeGuia(h, clave) {
     b.notas = 'Build generada a partir de los objetos más comprados y con mejor winrate según los datos de la API.';
   }
   // Orden de habilidades desde la guía (misma lógica que la ficha) o desde la build comunitaria más jugada
-  const ohB = (f && f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : null) || (g && g.orden_habilidades);
+  const ohB = ordenHabilidadesDe(h, clave);
   const sec = secuenciaHabilidades(h, ohB);
-  if (sec) { b.desbloqueo = sec.desbloqueo; b.orden = sec.orden; }
+  if (sec) fijarSecuencia(b, secuenciaDesdeBuild(sec));
   // Variante de la que sale (para «Usar el orden de la guía» y la nota del orden en el creador)
   if (f && f.variante) b.variante = f.variante.clave;
-  if (!b.orden.length) { const com = ((D.builds && D.builds.heroes && D.builds.heroes[h.id]) || []).find((x) => x.orden && x.orden.length >= 6); if (com) { b.desbloqueo = com.desbloqueo.slice(); b.orden = com.orden.slice(); } }
+  if (!b.orden.length) { const com = ((D.builds && D.builds.heroes && D.builds.heroes[h.id]) || []).find((x) => x.orden && x.orden.length >= 6); if (com) fijarSecuencia(b, secuenciaDesdeBuild({ desbloqueo: com.desbloqueo || [], orden: com.orden || [] })); }
   return b;
 }
 function buildDesdeComunidad(h, com) {
@@ -3345,7 +3385,7 @@ function buildDesdeComunidad(h, com) {
   b.nombre = com.nombre || 'Build de la comunidad'; b.notas = (com.descripcion || '').slice(0, 400);
   b.categorias = com.categorias.filter((c) => c.objetos.length).map((c) => ({ nombre: nombreCategoria(c.nombre), descripcion: c.descripcion || '', opcional: c.opcional != null ? !!c.opcional : undefined, objetos: c.objetos.map((x) => ({ clase: x.clase, nota: x.nota || '' })) }));
   if (!b.categorias.length) b.categorias = buildNueva(h).categorias;
-  b.desbloqueo = (com.desbloqueo || []).slice(); b.orden = (com.orden || []).slice();
+  fijarSecuencia(b, secuenciaDesdeBuild({ desbloqueo: com.desbloqueo || [], orden: com.orden || [] }));
   return b;
 }
 function textoBuild(b) {
@@ -3451,7 +3491,7 @@ RUTAS.build = function (param) {
       const idx = i + 1; const t = tiers[idx]; const desb = des.has(idx);
       const texto = !desb ? 'Desbloquear' : t >= 3 ? 'Máximo' : `Nivel ${t + 1} · ${[1, 2, 5][t]} PA`;
       botones.append(el('button', { type: 'button', class: 'pa-boton' + (!desb ? ' pendiente' : ''), disabled: desb && t >= 3, title: (PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre), onclick: () => {
-        if (!desb) { b.desbloqueo.push(idx); } else { b.orden.push({ h: idx, pa: [1, 2, 5][t] }); }
+        fijarSecuencia(b, [...acciones, { tipo: desb ? 'mejora' : 'desbloqueo', h: idx }]);
         sucio = true; pintarHab();
       } }, el('img', { src: a.imagen, alt: '' }), el('span', { class: 'nombre' }, PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre), el('span', { class: 'nivel' }, texto)));
     });
@@ -3464,7 +3504,7 @@ RUTAS.build = function (param) {
       paso.title += ' — pulsa para quitar este paso y los posteriores';
       paso.addEventListener('click', () => {
         // Reconstruir desde las acciones anteriores a i
-        const previas = acciones.slice(0, i); b.desbloqueo = previas.filter((x) => x.tipo === 'desbloqueo').map((x) => x.h); const tiersN = {}; b.orden = previas.filter((x) => x.tipo === 'mejora').map((x) => { tiersN[x.h] = (tiersN[x.h] || 0) + 1; return { h: x.h, pa: [1, 2, 5][tiersN[x.h] - 1] }; }); sucio = true; pintarHab();
+        fijarSecuencia(b, acciones.slice(0, i)); sucio = true; pintarHab();
       });
       sec.append(paso);
     });
@@ -3475,9 +3515,13 @@ RUTAS.build = function (param) {
     tablero.append(el('div', { class: 'resumen-pa' }, el('span', null, 'Puntos usados: ', el('b', { class: 'num' }, paUsados + ' / 32')), el('span', null, 'Desbloqueadas: ', el('b', { class: 'num' }, des.size + ' / 4')), ultimo && ultimo.nivel ? el('span', null, 'Último paso en el nivel ', el('b', { class: 'num' }, ultimo.nivel), ' (', fmtSouls(ultimo.souls), ')') : null));
     tablero.append(el('div', { class: 'fila' },
       el('button', { class: 'boton mini', type: 'button', onclick: () => { // Autocompletar: desbloquear las que faltan, 1 punto en cada una, luego maxear en orden de desbloqueo
-        const { des: d2, tiers: t2 } = estadoHab(); for (let i = 1; i <= 4; i++) if (!d2.has(i)) b.desbloqueo.push(i); const ordenDes = secuenciaDesdeBuild(b).filter((x) => x.tipo === 'desbloqueo').map((x) => x.h); for (const i of ordenDes) if (t2[i] < 1) { b.orden.push({ h: i, pa: 1 }); t2[i] = 1; } for (const i of ordenDes) while (t2[i] < 3) { b.orden.push({ h: i, pa: [1, 2, 5][t2[i]] }); t2[i]++; } sucio = true; pintarHab(); } }, 'Autocompletar'),
-      el('button', { class: 'boton mini', type: 'button', onclick: () => { b.desbloqueo = []; b.orden = []; sucio = true; pintarHab(); } }, 'Vaciar'),
-      ohGuia ? el('button', { class: 'boton mini', type: 'button', onclick: () => { const s2 = secuenciaHabilidades(h, ohGuia); if (!s2) return; b.desbloqueo = s2.desbloqueo; b.orden = s2.orden; sucio = true; pintarHab(); } }, 'Usar el orden de la guía') : null));
+        const { acciones: a2, des: d2, tiers: t2 } = estadoHab(); const acc = a2.slice();
+        const ordenDes = [...acc.filter((x) => x.tipo === 'desbloqueo').map((x) => x.h), ...[1, 2, 3, 4].filter((i) => !d2.has(i))];
+        for (const i of ordenDes) { if (!d2.has(i)) { d2.add(i); acc.push({ tipo: 'desbloqueo', h: i }); } if (t2[i] < 1) { acc.push({ tipo: 'mejora', h: i }); t2[i] = 1; } }
+        for (const i of ordenDes) while (t2[i] < 3) { acc.push({ tipo: 'mejora', h: i }); t2[i]++; }
+        fijarSecuencia(b, acc); sucio = true; pintarHab(); } }, 'Autocompletar'),
+      el('button', { class: 'boton mini', type: 'button', onclick: () => { fijarSecuencia(b, []); sucio = true; pintarHab(); } }, 'Vaciar'),
+      ohGuia ? el('button', { class: 'boton mini', type: 'button', onclick: () => { const s2 = secuenciaHabilidades(h, ohGuia); if (!s2) return; fijarSecuencia(b, secuenciaDesdeBuild(s2)); sucio = true; pintarHab(); } }, 'Usar el orden de la guía') : null));
     if (ohGuia && ohGuia.detalle) tablero.append(el('div', { class: 'nota-caja' }, el('b', null, 'Guía: '), ohGuia.detalle));
   }
   pintarHab();

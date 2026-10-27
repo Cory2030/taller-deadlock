@@ -59,14 +59,25 @@ function fasesDe(h, clave) {
   if (vs) { const v = vs.variantes.find((x) => (k === 'base' ? x.es_base : x.clave === k)) || vs.variantes.find((x) => x.es_base); if (v) f = varianteComoFases(base, v); }
   return fasesConMejoras(h, f);
 }
-function ordenHabilidadesDe(h, clave) { const f = fasesDe(h, clave); return (f && f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : null) || (guia(h) && guia(h).orden_habilidades) || null; }
-/* Secuencia de habilidades a partir de un orden de guía o de variante. «orden» es la prioridad para
-   MEJORAR (puede poner la definitiva segunda); al desbloquear, las tres normales van primero en ese orden
-   y la definitiva (la 4) al final, como se juega. Luego se maxea la primera y el resto por prioridad. */
+function ordenHabilidadesDe(h, clave) { const f = fasesDe(h, clave); return (f && f.orden_habilidades && (f.orden_habilidades.puntos || f.orden_habilidades.orden) ? f.orden_habilidades : null) || (guia(h) && guia(h).orden_habilidades) || null; }
+/* Secuencia de habilidades a partir de un orden de guía o de variante.
+   Si trae «puntos» (los 16 puntos en el orden del texto: la 1.ª vez que sale una habilidad es su desbloqueo
+   y las siguientes, T1, T2 y T3), se usa tal cual. Si no, se deduce de «orden», la prioridad para MEJORAR:
+   las tres normales se desbloquean en ese orden y la definitiva (la 4) al final; luego se maxea por prioridad. */
 function secuenciaHabilidades(h, oh) {
   const abs = (D.habilidades && D.habilidades[h.id]) || [];
-  if (!oh || !Array.isArray(oh.orden) || !abs.length) return null;
-  const idxDeNombre = (n) => { const i = abs.findIndex((a) => sinAcentos(a.nombre) === sinAcentos(n) || sinAcentos(a.nombre_en) === sinAcentos(n) || sinAcentos(n).includes(sinAcentos(a.nombre_en)) || sinAcentos(n).includes(sinAcentos(a.nombre))); return i >= 0 ? i + 1 : null; };
+  if (!oh || !abs.length) return null;
+  const idxDeNombre = (n) => {
+    const s = sinAcentos(n || ''); if (!s) return null;
+    let i = abs.findIndex((a) => sinAcentos(a.nombre) === s || sinAcentos(a.nombre_en) === s);
+    if (i < 0) i = abs.findIndex((a) => s.includes(sinAcentos(a.nombre_en)) || s.includes(sinAcentos(a.nombre)));
+    return i >= 0 ? i + 1 : null;
+  };
+  if (Array.isArray(oh.puntos) && oh.puntos.length) {
+    const puntos = oh.puntos.map(idxDeNombre);
+    if (puntos.every(Boolean)) return fijarSecuencia({}, accionesDePuntos(puntos));
+  }
+  if (!Array.isArray(oh.orden)) return null;
   const prioridad = [...new Set(oh.orden.map(idxDeNombre).filter(Boolean))];
   if (!prioridad.length) return null;
   const primera = idxDeNombre(oh.primera_maxima || '') || prioridad[0];
@@ -437,13 +448,15 @@ function textoBuildFases(h) {
   const L = [`${f.titulo_build_juego || 'Build de ' + nombreH(h)} — ${nombreH(h)} (Taller de Deadlock)`];
   if (f.variante && f.variante.nombre) L.push('Estilo: ' + f.variante.nombre);
   if (f.descripcion_build_juego) L.push(f.descripcion_build_juego);
-  // Orden de habilidades: desbloqueo (la definitiva al final) y prioridad para mejorar
-  const oh = f.orden_habilidades && f.orden_habilidades.orden ? f.orden_habilidades : ordenHabilidadesDe(h);
+  // Orden de habilidades: desbloqueo, prioridad para mejorar y los puntos uno a uno (como en la ficha)
+  const oh = f.orden_habilidades && (f.orden_habilidades.puntos || f.orden_habilidades.orden) ? f.orden_habilidades : ordenHabilidadesDe(h);
   const secH = secuenciaHabilidades(h, oh); const abs = (D.habilidades && D.habilidades[h.id]) || [];
   if (secH) {
     const nom = (i) => { const a = abs[i - 1]; return a ? (PREF.nombres === 'es' ? a.nombre : a.nombre_en || a.nombre) : '?'; };
     const mejora = []; for (const x of secH.orden) if (x.pa === 5 && !mejora.includes(x.h)) mejora.push(x.h);
     L.push('', '== Habilidades', 'Desbloquea: ' + secH.desbloqueo.map(nom).join(' → '), 'Mejora primero: ' + mejora.map(nom).join(' → '));
+    const pasos = nivelesDeSecuencia(h, secuenciaDesdeBuild(secH));
+    if (pasos.length) L.push('Puntos uno a uno: ' + pasos.map((a) => (a.tipo === 'desbloqueo' ? '[' + nom(a.h) + ']' : nom(a.h) + ' ' + a.tier) + (a.nivel ? ' (N' + a.nivel + ')' : '')).join(' → '));
     if (oh.detalle) L.push(oh.detalle);
   }
   for (const fase of f.fases || []) {
