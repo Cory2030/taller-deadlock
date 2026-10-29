@@ -888,7 +888,7 @@ details.plegable > ul.contenido { padding-left: calc(14px + 1.2em); }
   <div class="cabecera-interior">
     <a class="marca" href="#tier" data-ruta="tier" aria-label="Taller de Deadlock, inicio">
       <span class="marca-sello" aria-hidden="true">TD</span>
-      <span class="marca-texto"><span class="marca-nombre">Taller de Deadlock</span><span class="marca-sub">Guía en español · <span id="marca-parche">datos del 2026-10-28</span></span></span>
+      <span class="marca-texto"><span class="marca-nombre">Taller de Deadlock</span><span class="marca-sub">Guía en español · <span id="marca-parche">datos del 2026-10-29</span></span></span>
     </a>
     <nav class="nav" id="nav" aria-label="Secciones">
       <a href="#tier" data-ruta="tier">Tier list</a>
@@ -917,7 +917,7 @@ details.plegable > ul.contenido { padding-left: calc(14px + 1.2em); }
 <footer class="pie">
   <div class="pie-interior">
     <p><strong>Taller de Deadlock</strong> es una guía no oficial hecha por aficionados. Deadlock es una marca de Valve Corporation.</p>
-    <p>Datos del juego y estadísticas: <a href="https://api.deadlock-api.com" target="_blank" rel="noopener">deadlock-api.com</a> (<span id="pie-parche">datos del 2026-10-28</span>). Guías elaboradas a partir de deadlock.wiki, Steam, Reddit, YouTube y sitios de estadísticas; las fuentes aparecen en cada ficha.</p>
+    <p>Datos del juego y estadísticas: <a href="https://api.deadlock-api.com" target="_blank" rel="noopener">deadlock-api.com</a> (<span id="pie-parche">datos del 2026-10-29</span>). Guías elaboradas a partir de deadlock.wiki, Steam, Reddit, YouTube y sitios de estadísticas; las fuentes aparecen en cada ficha.</p>
   </div>
 </footer>
 
@@ -1410,10 +1410,10 @@ function montarBusqueda() {
 /* Al abrir index.html con doble clic (file://) el navegador bloquea fetch() de archivos locales:
    en ese caso los datos vienen de data/datos.js, que scripts/construir.js genera junto a la web. */
 let promesaDatosLocales = null;
-// construir.js sustituye 2026-10-28 por la fecha de los datos con los que se generó esta página.
-const GENERADO_PAGINA = '2026-10-28';
-// construir.js sustituye 4a269567bb por una huella de data/*.json (ver cargarJSON)
-const HUELLA_DATOS = '4a269567bb';
+// construir.js sustituye 2026-10-29 por la fecha de los datos con los que se generó esta página.
+const GENERADO_PAGINA = '2026-10-29';
+// construir.js sustituye 5670712a29 por una huella de data/*.json (ver cargarJSON)
+const HUELLA_DATOS = '5670712a29';
 // construir.js pone 'si' cuando existe data/perfil.json (foto personal, fuera del repositorio público)
 const HAY_PERFIL = 'no' === 'si';
 // En el Artifact (máximo de archivos por versión) las variantes privadas van en un solo archivo
